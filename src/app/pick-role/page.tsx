@@ -105,16 +105,16 @@ const PickRolePage = () => {
 
   return (
     <div
-      className="min-h-screen flex flex-col justify-center"
+      className="min-h-screen flex items-center justify-center px-4 py-8"
       style={{
         background: "linear-gradient(181deg, #2887C2 0.78%, #FFF 97.79%)",
       }}
     >
-      {/* Header */}
-      <div className="text-center py-4 md:py-6">
-        <div className="max-w-6xl mx-auto px-4">
+      <div className="w-full max-w-6xl mx-auto">
+        {/* Header */}
+        <div className="text-center mb-8">
           <h1
-            className="mb-2 md:mb-3 text-2xl md:text-3xl lg:text-4xl"
+            className="mb-3 text-2xl md:text-3xl lg:text-4xl"
             style={{
               color: "#FFF",
               fontFamily: "Poppins",
@@ -126,7 +126,7 @@ const PickRolePage = () => {
             Belajar Matematika, Sesuai Ritmemu
           </h1>
           <p
-            className="max-w-4xl mx-auto mb-4 md:mb-6 text-base md:text-lg lg:text-xl px-2"
+            className="max-w-4xl mx-auto text-base md:text-lg lg:text-xl px-2"
             style={{
               color: "#FFF",
               textAlign: "center",
@@ -140,11 +140,9 @@ const PickRolePage = () => {
             belajar yang dirancang spesial untuk Anda.
           </p>
         </div>
-      </div>
 
-      {/* Main Content */}
-      <main className="flex-1 flex items-center justify-center px-4">
-        <div className="w-full max-w-6xl mx-auto">
+        {/* Main Content */}
+        <main>
           {/* Desktop Layout */}
           <div className="hidden md:grid md:grid-cols-3 gap-6 lg:gap-8 justify-items-center">
             {roles.map((role) => (
@@ -259,8 +257,8 @@ const PickRolePage = () => {
               </p>
             </div>
           </div>
-        </div>
-      </main>
+        </main>
+      </div>
     </div>
   );
 };

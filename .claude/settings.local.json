@@ -8,7 +8,8 @@
       "Bash(npm uninstall:*)",
       "Bash(git diff:*)",
       "Bash(git add:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "mcp__figma-desktop__get_design_context"
     ],
     "deny": [],
     "ask": []

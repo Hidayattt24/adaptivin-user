@@ -295,3 +295,12 @@ body {
   opacity: 0;
   pointer-events: none;
 }
+
+/* Apple Emoji (applemojis) Styles */
+/* Emojis are rendered as inline base64 images */
+img[src^="data:image/png;base64"] {
+  display: inline-block !important;
+  margin: 0 0.1em !important;
+  vertical-align: -0.2em !important;
+  max-width: none !important;
+}

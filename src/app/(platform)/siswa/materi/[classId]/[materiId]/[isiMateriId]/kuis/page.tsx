@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import MobileWarning from "@/components/siswa/layout/MobileWarning";
 import QuizProgress from "@/components/siswa/kuis/QuizProgress";
 import QuizBadge from "@/components/siswa/kuis/QuizBadge";
@@ -30,6 +30,7 @@ export default function KuisPage() {
 
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const classId = params?.classId as string;
   const materiId = params?.materiId as string;
@@ -37,6 +38,9 @@ export default function KuisPage() {
 
   const currentQuestion = quizData[currentQuestionIndex];
   const totalQuestions = quizData.length;
+
+  // Check if answer is valid (not empty and is a number)
+  const isAnswerValid = userAnswer.trim() !== "" && /^\d+$/.test(userAnswer.trim());
 
   useEffect(() => {
     const checkScreenSize = () => {
@@ -49,28 +53,36 @@ export default function KuisPage() {
     return () => window.removeEventListener("resize", checkScreenSize);
   }, []);
 
-  // Load saved answer when question changes
+  // Handle navigation from hasil page
   useEffect(() => {
-    setUserAnswer(answers[currentQuestionIndex] || "");
-  }, [currentQuestionIndex, answers]);
+    const nextIndex = searchParams.get("nextIndex");
+    if (nextIndex) {
+      const newIndex = parseInt(nextIndex);
+      setCurrentQuestionIndex(newIndex);
+    }
+  }, [searchParams]);
+
+  // Load answer when question changes
+  useEffect(() => {
+    // Always clear answer when question changes
+    setUserAnswer("");
+  }, [currentQuestionIndex]);
 
   const handleSubmitAnswer = () => {
     // Save answer
-    setAnswers({
+    const updatedAnswers = {
       ...answers,
       [currentQuestionIndex]: userAnswer,
-    });
+    };
+    setAnswers(updatedAnswers);
 
-    // Move to next question or finish
-    if (currentQuestionIndex < totalQuestions - 1) {
-      setCurrentQuestionIndex(currentQuestionIndex + 1);
-    } else {
-      // Finish quiz - Show success message
-      setTimeout(() => {
-        alert("🎉 Kuis selesai! Hebat sekali! Jawaban kamu sudah disimpan.");
-        router.push(`/siswa/materi/${classId}/${materiId}/${isiMateriId}`);
-      }, 500);
-    }
+    // Save to sessionStorage for hasil-keseluruhan page
+    sessionStorage.setItem("quizAnswers", JSON.stringify(updatedAnswers));
+
+    // Navigate to hasil page to show result
+    router.push(
+      `/siswa/materi/${classId}/${materiId}/${isiMateriId}/kuis/hasil?questionIndex=${currentQuestionIndex}&userAnswer=${userAnswer}`
+    );
   };
 
   if (!isMobile) {
@@ -145,8 +157,9 @@ export default function KuisPage() {
         {/* Slide to Answer Button - Full Width */}
         <div className="mt-6">
           <SlideToAnswer
+            key={`slide-${currentQuestionIndex}`}
             onSlideComplete={handleSubmitAnswer}
-            disabled={userAnswer.trim() === ""}
+            disabled={!isAnswerValid}
           />
         </div>
       </div>

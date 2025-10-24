@@ -12,7 +12,10 @@
       "mcp__figma-desktop__get_design_context",
       "Bash(find:*)",
       "WebSearch",
-      "Bash(cd:*)"
+      "Bash(cd:*)",
+      "mcp__figma-desktop__get_screenshot",
+      "Bash(ls:*)",
+      "Bash(mkdir:*)"
     ],
     "deny": [],
     "ask": []

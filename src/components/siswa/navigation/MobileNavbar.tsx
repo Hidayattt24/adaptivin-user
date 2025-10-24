@@ -38,13 +38,19 @@ export default function MobileNavbar({
                   ? "text-[26px] drop-shadow-lg"
                   : "text-[24px] opacity-70 group-hover:opacity-100 group-hover:scale-110"
               }`}
-              style={{ fontVariationSettings: isActive("/siswa/beranda") ? "'FILL' 1, 'wght' 700" : "'FILL' 0, 'wght' 400" }}
+              style={{
+                fontVariationSettings: isActive("/siswa/beranda")
+                  ? "'FILL' 1, 'wght' 700"
+                  : "'FILL' 0, 'wght' 400",
+              }}
             >
               home
             </span>
             <span
               className={`text-white text-[9px] font-medium transition-opacity duration-300 relative z-10 ${
-                isActive("/siswa/beranda") ? "opacity-100 font-bold" : "opacity-70"
+                isActive("/siswa/beranda")
+                  ? "opacity-100 font-bold"
+                  : "opacity-70"
               }`}
             >
               Home
@@ -55,9 +61,9 @@ export default function MobileNavbar({
           <div className="absolute left-1/2 -translate-x-1/2 -top-8">
             <Link
               href="/siswa/pilih-karakter"
-              className="flex items-center justify-center group"
+              className="flex flex-col items-center justify-center group"
             >
-              <div className="w-[85px] h-[85px] rounded-full bg-white flex items-center justify-center shadow-[0_8px_32px_0_rgba(51,161,224,0.3)] group-hover:scale-105 transition-all duration-300 border-4 border-[#33A1E0]/40 group-hover:border-[#33A1E0]/60">
+              <div className="w-[85px] h-[85px] rounded-full bg-white flex items-center justify-center shadow-[0_8px_32px_0_rgba(0,0,0,0.15)] group-hover:scale-105 transition-all duration-300">
                 <Image
                   src={characterImage}
                   alt="Character"
@@ -84,13 +90,19 @@ export default function MobileNavbar({
                   ? "text-[26px] drop-shadow-lg"
                   : "text-[24px] opacity-70 group-hover:opacity-100 group-hover:scale-110"
               }`}
-              style={{ fontVariationSettings: isActive("/siswa/profil") ? "'FILL' 1, 'wght' 700" : "'FILL' 0, 'wght' 400" }}
+              style={{
+                fontVariationSettings: isActive("/siswa/profil")
+                  ? "'FILL' 1, 'wght' 700"
+                  : "'FILL' 0, 'wght' 400",
+              }}
             >
               account_circle
             </span>
             <span
               className={`text-white text-[9px] font-medium transition-opacity duration-300 relative z-10 ${
-                isActive("/siswa/profil") ? "opacity-100 font-bold" : "opacity-70"
+                isActive("/siswa/profil")
+                  ? "opacity-100 font-bold"
+                  : "opacity-70"
               }`}
             >
               Profile

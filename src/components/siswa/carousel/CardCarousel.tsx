@@ -32,6 +32,9 @@ export default function CardCarousel({ cards }: CardCarouselProps) {
       setActiveIndex(newIndex);
     };
 
+    // Initial sync on mount - detect current scroll position
+    handleScroll();
+
     container.addEventListener("scroll", handleScroll);
     return () => container.removeEventListener("scroll", handleScroll);
   }, [cards.length]);

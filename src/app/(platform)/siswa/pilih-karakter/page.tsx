@@ -6,13 +6,33 @@ import MobileWarning from "@/components/siswa/layout/MobileWarning";
 import MobileNavbar from "@/components/siswa/navigation/MobileNavbar";
 
 const characters = [
-  { id: "kocheng-oren", name: "Kocheng Oren", path: "/siswa/foto-profil/kocheng-oren.svg" },
-  { id: "bro-kerbuz", name: "Bro Kerbuz", path: "/siswa/foto-profil/bro-kerbuz.svg" },
-  { id: "mas-gwebek", name: "Mas Gwebek", path: "/siswa/foto-profil/mas-gwebek.svg" },
+  {
+    id: "kocheng-oren",
+    name: "Kocheng Oren",
+    path: "/siswa/foto-profil/kocheng-oren.svg",
+  },
+  {
+    id: "bro-kerbuz",
+    name: "Bro Kerbuz",
+    path: "/siswa/foto-profil/bro-kerbuz.svg",
+  },
+  {
+    id: "mas-gwebek",
+    name: "Mas Gwebek",
+    path: "/siswa/foto-profil/mas-gwebek.svg",
+  },
   { id: "mas-pace", name: "Mas Pace", path: "/siswa/foto-profil/mas-pace.svg" },
-  { id: "mas-piggy", name: "Mas Piggy", path: "/siswa/foto-profil/mas-piggy.svg" },
+  {
+    id: "mas-piggy",
+    name: "Mas Piggy",
+    path: "/siswa/foto-profil/mas-piggy.svg",
+  },
   { id: "pak-bubu", name: "Pak Bubu", path: "/siswa/foto-profil/pak-bubu.svg" },
-  { id: "sin-bunbun", name: "Sin Bunbun", path: "/siswa/foto-profil/sin-bunbun.svg" },
+  {
+    id: "sin-bunbun",
+    name: "Sin Bunbun",
+    path: "/siswa/foto-profil/sin-bunbun.svg",
+  },
 ];
 
 export default function PilihKarakterPage() {
@@ -41,21 +61,34 @@ export default function PilihKarakterPage() {
         <div className="absolute top-0 left-0 right-0 h-[300px] bg-gradient-to-b from-[#E8F6FF]/40 to-transparent"></div>
         <div className="absolute top-[120px] right-[30px] w-16 h-16 border-4 border-[#FFB347]/20 rounded-2xl rotate-12 animate-float"></div>
         <div className="absolute top-[180px] left-[20px] w-12 h-12 bg-[#33A1E0]/10 rounded-full animate-float-delayed"></div>
-        <div className="absolute inset-0 opacity-[0.02]" style={{
-          backgroundImage: `linear-gradient(#33A1E0 1px, transparent 1px), linear-gradient(90deg, #33A1E0 1px, transparent 1px)`,
-          backgroundSize: '50px 50px'
-        }}></div>
+        <div
+          className="absolute inset-0 opacity-[0.02]"
+          style={{
+            backgroundImage: `linear-gradient(#33A1E0 1px, transparent 1px), linear-gradient(90deg, #33A1E0 1px, transparent 1px)`,
+            backgroundSize: "50px 50px",
+          }}
+        ></div>
         <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-[#33A1E0]/5 to-transparent rounded-bl-[100px]"></div>
       </div>
 
       <style jsx>{`
         @keyframes float {
-          0%, 100% { transform: translateY(0px) rotate(12deg); }
-          50% { transform: translateY(-20px) rotate(12deg); }
+          0%,
+          100% {
+            transform: translateY(0px) rotate(12deg);
+          }
+          50% {
+            transform: translateY(-20px) rotate(12deg);
+          }
         }
         @keyframes float-delayed {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-15px); }
+          0%,
+          100% {
+            transform: translateY(0px);
+          }
+          50% {
+            transform: translateY(-15px);
+          }
         }
         .animate-float {
           animation: float 6s ease-in-out infinite;
@@ -111,7 +144,9 @@ export default function PilihKarakterPage() {
         </div>
 
         {/* Mobile Navigation Bar */}
-        <MobileNavbar characterImage={`/siswa/foto-profil/${selectedCharacter}.svg`} />
+        <MobileNavbar
+          characterImage={`/siswa/foto-profil/${selectedCharacter}.svg`}
+        />
       </div>
     </div>
   );

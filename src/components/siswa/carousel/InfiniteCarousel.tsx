@@ -41,11 +41,36 @@ export default function InfiniteCarousel({
       setActiveIndex(newIndex);
     };
 
-    // Initial sync on mount - detect current scroll position
-    handleScroll();
+    // Aggressively reset scroll and state
+    const forceReset = () => {
+      container.scrollLeft = 0;
+      setActiveIndex(0);
+      handleScroll();
+    };
+
+    // Immediate reset
+    forceReset();
+
+    // Multiple delayed resets to override browser scroll restoration
+    const syncTimer1 = setTimeout(forceReset, 0);
+    const syncTimer2 = setTimeout(forceReset, 50);
+    const syncTimer3 = setTimeout(forceReset, 150);
+    const syncTimer4 = setTimeout(forceReset, 300);
+    const syncTimer5 = setTimeout(forceReset, 500);
+
+    // Use requestAnimationFrame for immediate sync
+    const rafId = requestAnimationFrame(forceReset);
 
     container.addEventListener("scroll", handleScroll);
-    return () => container.removeEventListener("scroll", handleScroll);
+    return () => {
+      container.removeEventListener("scroll", handleScroll);
+      clearTimeout(syncTimer1);
+      clearTimeout(syncTimer2);
+      clearTimeout(syncTimer3);
+      clearTimeout(syncTimer4);
+      clearTimeout(syncTimer5);
+      cancelAnimationFrame(rafId);
+    };
   }, [items.length]);
 
   // Notify parent when center card changes

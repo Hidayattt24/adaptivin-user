@@ -87,10 +87,21 @@ export default function PilihKarakterPage() {
       setIsMobile(window.innerWidth < 768);
     };
 
+    // Disable scroll restoration for this page
+    if ('scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual';
+    }
+
     checkScreenSize();
     window.addEventListener("resize", checkScreenSize);
 
-    return () => window.removeEventListener("resize", checkScreenSize);
+    return () => {
+      window.removeEventListener("resize", checkScreenSize);
+      // Restore default scroll behavior when leaving page
+      if ('scrollRestoration' in window.history) {
+        window.history.scrollRestoration = 'auto';
+      }
+    };
   }, []);
 
   // Confetti effect with stars

@@ -304,3 +304,6 @@ img[src^="data:image/png;base64"] {
   vertical-align: -0.2em !important;
   max-width: none !important;
 }
+
+/* Pixelarticons Font Icons */
+@import "pixelarticons/fonts/pixelart-icons-font.css";

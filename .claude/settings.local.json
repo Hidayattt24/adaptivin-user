@@ -9,7 +9,10 @@
       "Bash(git diff:*)",
       "Bash(git add:*)",
       "Bash(git push:*)",
-      "mcp__figma-desktop__get_design_context"
+      "mcp__figma-desktop__get_design_context",
+      "Bash(find:*)",
+      "WebSearch",
+      "Bash(cd:*)"
     ],
     "deny": [],
     "ask": []

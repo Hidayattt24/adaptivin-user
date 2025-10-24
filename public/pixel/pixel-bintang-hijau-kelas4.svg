@@ -1,0 +1,32 @@
+<svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Pixel art star for Kelas 4 (Green theme) -->
+  <g transform="translate(20, 20)">
+    <!-- Star shape using pixel blocks -->
+    <rect x="35" y="0" width="10" height="10" fill="#2ea062"/>
+    <rect x="25" y="10" width="10" height="10" fill="#2ea062"/>
+    <rect x="35" y="10" width="10" height="10" fill="#67C090"/>
+    <rect x="45" y="10" width="10" height="10" fill="#2ea062"/>
+    <rect x="15" y="20" width="10" height="10" fill="#2ea062"/>
+    <rect x="25" y="20" width="10" height="10" fill="#67C090"/>
+    <rect x="35" y="20" width="10" height="10" fill="#ffffff"/>
+    <rect x="45" y="20" width="10" height="10" fill="#67C090"/>
+    <rect x="55" y="20" width="10" height="10" fill="#2ea062"/>
+    <rect x="5" y="30" width="10" height="10" fill="#2ea062"/>
+    <rect x="15" y="30" width="10" height="10" fill="#67C090"/>
+    <rect x="25" y="30" width="10" height="10" fill="#ffffff"/>
+    <rect x="35" y="30" width="10" height="10" fill="#67C090"/>
+    <rect x="45" y="30" width="10" height="10" fill="#ffffff"/>
+    <rect x="55" y="30" width="10" height="10" fill="#67C090"/>
+    <rect x="65" y="30" width="10" height="10" fill="#2ea062"/>
+    <rect x="0" y="40" width="10" height="10" fill="#2ea062"/>
+    <rect x="10" y="40" width="70" height="10" fill="#67C090"/>
+    <rect x="70" y="40" width="10" height="10" fill="#2ea062"/>
+    <rect x="15" y="50" width="10" height="10" fill="#2ea062"/>
+    <rect x="25" y="50" width="30" height="10" fill="#67C090"/>
+    <rect x="55" y="50" width="10" height="10" fill="#2ea062"/>
+    <rect x="25" y="60" width="10" height="10" fill="#2ea062"/>
+    <rect x="35" y="60" width="10" height="10" fill="#67C090"/>
+    <rect x="45" y="60" width="10" height="10" fill="#2ea062"/>
+    <rect x="35" y="70" width="10" height="10" fill="#2ea062"/>
+  </g>
+</svg>

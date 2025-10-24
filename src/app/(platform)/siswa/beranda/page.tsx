@@ -32,19 +32,19 @@ export default function BerandaSiswaPage() {
       id: "kelas-4",
       title: "Matematika Kelas 4",
       imagePath: "/siswa/card-siswa/kelas-4.svg",
-      link: "/siswa/materi/kelas-4",
+      link: "/siswa/materi/4",
     },
     {
       id: "kelas-5",
       title: "Matematika Kelas 5",
       imagePath: "/siswa/card-siswa/kelas-5.svg",
-      link: "/siswa/materi/kelas-5",
+      link: "/siswa/materi/5",
     },
     {
       id: "kelas-6",
       title: "Matematika Kelas 6",
       imagePath: "/siswa/card-siswa/Kelas 6.svg",
-      link: "/siswa/materi/kelas-6",
+      link: "/siswa/materi/6",
     },
   ];
 

@@ -20,20 +20,57 @@ export default function CardCarousel({ cards }: CardCarouselProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const autoScrollTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Handle manual scroll only (auto-scroll disabled)
+  // Auto scroll functionality
+  useEffect(() => {
+    const startAutoScroll = () => {
+      autoScrollTimerRef.current = setInterval(() => {
+        setActiveIndex((prev) => {
+          const nextIndex = (prev + 1) % cards.length;
+          scrollToCard(nextIndex);
+          return nextIndex;
+        });
+      }, 3500); // Auto scroll every 3.5 seconds
+    };
+
+    startAutoScroll();
+
+    return () => {
+      if (autoScrollTimerRef.current) {
+        clearInterval(autoScrollTimerRef.current);
+      }
+    };
+  }, [cards.length]);
+
+  // Handle manual scroll
   useEffect(() => {
     const container = scrollContainerRef.current;
     if (!container) return;
 
     const handleScroll = () => {
+      // Stop auto scroll when user manually scrolls
+      if (autoScrollTimerRef.current) {
+        clearInterval(autoScrollTimerRef.current);
+      }
+
       const scrollLeft = container.scrollLeft;
       const cardWidth = 263 + 24; // card width + gap
       const newIndex = Math.round(scrollLeft / cardWidth);
       setActiveIndex(newIndex);
-    };
 
-    // Initial sync on mount - detect current scroll position
-    handleScroll();
+      // Resume auto scroll after 5 seconds of inactivity
+      setTimeout(() => {
+        if (autoScrollTimerRef.current) {
+          clearInterval(autoScrollTimerRef.current);
+        }
+        autoScrollTimerRef.current = setInterval(() => {
+          setActiveIndex((prev) => {
+            const nextIndex = (prev + 1) % cards.length;
+            scrollToCard(nextIndex);
+            return nextIndex;
+          });
+        }, 3500);
+      }, 5000);
+    };
 
     container.addEventListener("scroll", handleScroll);
     return () => container.removeEventListener("scroll", handleScroll);
@@ -47,10 +84,9 @@ export default function CardCarousel({ cards }: CardCarouselProps) {
     const gap = 24; // gap between cards
     const containerWidth = container.offsetWidth;
 
-    // Calculate scroll position to center the card perfectly
-    // Formula: position of card - half container width + half card width
-    const cardPosition = (cardWidth + gap) * index;
-    const scrollPosition = cardPosition - (containerWidth / 2) + (cardWidth / 2);
+    // Calculate scroll position to center the card
+    const scrollPosition =
+      (cardWidth + gap) * index - containerWidth / 1 + cardWidth / 2;
 
     container.scrollTo({
       left: Math.max(0, scrollPosition),

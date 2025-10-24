@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 
 interface SlideToAnswerProps {
   onSlideComplete: () => void;
@@ -29,19 +29,27 @@ export default function SlideToAnswer({
   const SLIDER_WIDTH = 60; // Width of the slider button
   const COMPLETE_THRESHOLD = 0.9; // 90% to complete
 
+  // Reset state when disabled changes or component unmounts
   useEffect(() => {
-    if (disabled) {
-      setSliderPosition(0);
+    // Always reset states when disabled changes to prevent stuck states
+    setSliderPosition(0);
+    setIsComplete(false);
+    setIsDragging(false);
+
+    // Cleanup on unmount to prevent stuck states
+    return () => {
+      setIsDragging(false);
       setIsComplete(false);
-    }
+      setSliderPosition(0);
+    };
   }, [disabled]);
 
-  const handleStart = (clientX: number) => {
+  const handleStart = useCallback((clientX: number) => {
     if (disabled || isComplete) return;
     setIsDragging(true);
-  };
+  }, [disabled, isComplete]);
 
-  const handleMove = (clientX: number) => {
+  const handleMove = useCallback((clientX: number) => {
     if (!isDragging || !containerRef.current || disabled || isComplete) return;
 
     const containerRect = containerRef.current.getBoundingClientRect();
@@ -69,9 +77,9 @@ export default function SlideToAnswer({
         }, 300);
       }, 200);
     }
-  };
+  }, [isDragging, disabled, isComplete, onSlideComplete]);
 
-  const handleEnd = () => {
+  const handleEnd = useCallback(() => {
     if (isComplete) return;
     setIsDragging(false);
 
@@ -79,33 +87,33 @@ export default function SlideToAnswer({
     if (!isComplete) {
       setSliderPosition(0);
     }
-  };
+  }, [isComplete]);
 
   // Mouse events
-  const handleMouseDown = (e: React.MouseEvent) => {
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
     handleStart(e.clientX);
-  };
+  }, [handleStart]);
 
-  const handleMouseMove = (e: MouseEvent) => {
+  const handleMouseMove = useCallback((e: MouseEvent) => {
     handleMove(e.clientX);
-  };
+  }, [handleMove]);
 
-  const handleMouseUp = () => {
+  const handleMouseUp = useCallback(() => {
     handleEnd();
-  };
+  }, [handleEnd]);
 
   // Touch events
-  const handleTouchStart = (e: React.TouchEvent) => {
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
     handleStart(e.touches[0].clientX);
-  };
+  }, [handleStart]);
 
-  const handleTouchMove = (e: TouchEvent) => {
+  const handleTouchMove = useCallback((e: TouchEvent) => {
     handleMove(e.touches[0].clientX);
-  };
+  }, [handleMove]);
 
-  const handleTouchEnd = () => {
+  const handleTouchEnd = useCallback(() => {
     handleEnd();
-  };
+  }, [handleEnd]);
 
   useEffect(() => {
     if (isDragging) {
@@ -121,7 +129,7 @@ export default function SlideToAnswer({
         window.removeEventListener("touchend", handleTouchEnd);
       };
     }
-  }, [isDragging]);
+  }, [isDragging, handleMouseMove, handleMouseUp, handleTouchMove, handleTouchEnd]);
 
   const progressPercentage = containerRef.current
     ? (sliderPosition / (containerRef.current.getBoundingClientRect().width - SLIDER_WIDTH)) * 100

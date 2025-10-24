@@ -12,6 +12,7 @@
     "applemojis": "^0.0.3",
     "canvas-confetti": "^1.9.3",
     "next": "15.5.0",
+    "pixelarticons": "^1.8.1",
     "react": "19.1.0",
     "react-dom": "19.1.0"
   },

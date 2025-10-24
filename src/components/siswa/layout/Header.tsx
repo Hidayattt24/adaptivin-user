@@ -14,12 +14,8 @@ export default function Header({
       <div className="flex items-start justify-between">
         {/* Greeting */}
         <div className="flex-1">
-          <h1 className="text-[26px] font-bold text-[#2B7A9E] leading-tight drop-shadow-sm font-poppins">
-            Hallo {username}
-          </h1>
-          <p className="text-[19px] font-medium text-[#2B7A9E] mt-1 font-poppins">
-            siap belajar seru hari ini?
-          </p>
+          <h1 className="text-[26px] poppins-bold text-[#2B7A9E] leading-tight drop-shadow-sm">Hallo {username}!</h1>
+          <p className="text-[19px] font-medium text-[#2B7A9E] mt-1">siap belajar seru hari ini?</p>
         </div>
 
         {/* Profile Picture - Clean design without background circles */}

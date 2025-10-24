@@ -221,7 +221,7 @@ export default function IsiMateriPage() {
         <div className="mt-8">
           <button
             onClick={() => {
-              router.push(`/siswa/materi/${classId}/${materiId}/kuis`);
+              router.push(`/siswa/materi/${classId}/${materiId}/${isiMateriId}/kuis`);
             }}
             className="w-full max-w-[230px] h-[34px] rounded-[20px] flex items-center justify-center mx-auto hover:opacity-90 transition-opacity shadow-lg"
             style={{

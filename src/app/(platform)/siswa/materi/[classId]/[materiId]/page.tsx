@@ -217,12 +217,24 @@ export default function MateriDetailPage() {
 
         {/* Action Buttons */}
         <div className="mt-8 space-y-3">
-          {/* Start Quiz Button */}
+          {/* Baca Isi Materi Button */}
           <Link
-            href={`/siswa/materi/${classId}/${materiId}/kuis`}
+            href={`/siswa/materi/${classId}/${materiId}/1`}
             className="block w-full py-4 rounded-2xl font-semibold text-white text-center shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all"
             style={{
               background: theme.colors.primary,
+            }}
+          >
+            📚 Baca Isi Materi
+          </Link>
+
+          {/* Start Quiz Button */}
+          <Link
+            href={`/siswa/materi/${classId}/${materiId}/kuis`}
+            className="block w-full py-4 rounded-2xl font-semibold text-center border-2 hover:scale-[1.02] active:scale-[0.98] transition-all"
+            style={{
+              borderColor: theme.colors.primary,
+              color: theme.colors.primary,
             }}
           >
             Mulai Kuis 🎯

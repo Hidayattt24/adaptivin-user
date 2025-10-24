@@ -1,8 +1,8 @@
 "use client";
 
-import Image from 'next/image';
-import Link from 'next/link';
-import { useClassTheme } from '@/contexts/ClassThemeContext';
+import Image from "next/image";
+import Link from "next/link";
+import { useClassTheme } from "@/contexts/ClassThemeContext";
 
 export interface MateriCardProps {
   id: string;
@@ -40,7 +40,7 @@ export default function MateriCard({
   // Extract classId from materiId (format: "pecahan-biasa-4")
   const classId = theme.id; // Get from theme context
 
-  const CardWrapper = isLocked ? 'div' : Link;
+  const CardWrapper = isLocked ? "div" : Link;
   const wrapperProps = isLocked
     ? {}
     : { href: `/siswa/materi/${classId}/${id}` };
@@ -49,7 +49,11 @@ export default function MateriCard({
     <CardWrapper
       {...wrapperProps}
       className={`block bg-white rounded-2xl p-5 shadow-sm border border-slate-100
-        ${!isLocked ? 'hover:shadow-md hover:border-slate-200 active:scale-[0.98] transition-all duration-200' : 'opacity-60 cursor-not-allowed'}`}
+        ${
+          !isLocked
+            ? "hover:shadow-md hover:border-slate-200 active:scale-[0.98] transition-all duration-200"
+            : "opacity-60 cursor-not-allowed"
+        }`}
     >
       <div className="flex items-start gap-4">
         {/* Icon Circle */}

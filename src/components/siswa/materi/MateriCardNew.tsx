@@ -116,7 +116,7 @@ export default function MateriCardNew({
   }
 
   return (
-    <Link href={`/siswa/materi/${classId}/${id}`} className={cardClassName} style={cardStyle}>
+    <Link href={`/siswa/materi/${classId}/${id}/1`} className={cardClassName} style={cardStyle}>
       {cardContent}
     </Link>
   );

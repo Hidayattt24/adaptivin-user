@@ -15,7 +15,8 @@
       "Bash(cd:*)",
       "mcp__figma-desktop__get_screenshot",
       "Bash(ls:*)",
-      "Bash(mkdir:*)"
+      "Bash(mkdir:*)",
+      "Bash(tree:*)"
     ],
     "deny": [],
     "ask": []

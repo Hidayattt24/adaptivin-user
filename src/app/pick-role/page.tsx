@@ -28,14 +28,6 @@ const PickRolePage = () => {
       image: "/pick-role/siswa.svg",
       href: "/login/siswa",
     },
-    {
-      id: "orang-tua",
-      title: "Orang Tua",
-      description:
-        "Dampingi dan pantau perkembangan belajar anak Anda dengan mudah",
-      image: "/pick-role/orang-tua.svg",
-      href: "/login/orang-tua",
-    },
   ];
 
   // Swipe handlers
@@ -144,7 +136,7 @@ const PickRolePage = () => {
         {/* Main Content */}
         <main>
           {/* Desktop Layout */}
-          <div className="hidden md:grid md:grid-cols-3 gap-6 lg:gap-8 justify-items-center">
+          <div className="hidden md:flex md:flex-wrap gap-6 lg:gap-8 justify-center items-center">
             {roles.map((role) => (
               <Link key={role.id} href={role.href}>
                 <div className="role-card group cursor-pointer">

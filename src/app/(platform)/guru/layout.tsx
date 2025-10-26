@@ -16,6 +16,14 @@ export default function GuruLayout({
     return pathname === path || pathname.startsWith(path);
   };
 
+  // Check if we're on the dashboard page
+  const isDashboardPage = pathname === "/guru/dashboard";
+
+  // If it's dashboard page, render without navbar and sidebar
+  if (isDashboardPage) {
+    return <>{children}</>;
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Top Navbar */}

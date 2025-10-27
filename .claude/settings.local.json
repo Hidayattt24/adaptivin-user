@@ -17,7 +17,13 @@
       "Bash(ls:*)",
       "Bash(mkdir:*)",
       "Bash(tree:*)",
-      "Bash(mv:*)"
+      "Bash(mv:*)",
+      "Bash(pnpm dlx:*)",
+      "Bash(npm --version:*)",
+      "Bash(npx shadcn@latest add:*)",
+      "WebFetch(domain:magicui.design)",
+      "Bash(npx magicui-cli@latest init)",
+      "Bash(npm run build:*)"
     ],
     "deny": [],
     "ask": []

@@ -109,11 +109,9 @@ export default function ClassCard({
         {/* Class Name with enhanced typography */}
         <div className="relative z-10">
           <h3
-            className="poppins-semibold text-white mb-4 leading-tight"
+            className="montserrat-bold text-white mb-4 leading-tight"
             style={{
               fontSize: "clamp(28px, 3vw, 40px)",
-              textShadow:
-                "0 4px 12px rgba(0, 0, 0, 0.3), 0 2px 4px rgba(0, 0, 0, 0.2)",
               letterSpacing: "-0.02em",
             }}
           >
@@ -128,7 +126,7 @@ export default function ClassCard({
 
           {/* Decorative badge */}
           <div className="inline-block px-4 py-1.5 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 mb-4">
-            <span className="poppins-medium text-white text-sm">Aktif</span>
+            <span className="montserrat-bold text-white text-sm">Aktif</span>
           </div>
         </div>
 
@@ -166,10 +164,9 @@ export default function ClassCard({
               </div>
             ))}
             <p
-              className="poppins-semibold text-white ml-6"
+              className="montserrat-bold text-white ml-6"
               style={{
                 fontSize: "18px",
-                textShadow: "0 3px 8px rgba(0, 0, 0, 0.3)",
               }}
             >
               +{jumlahSiswa} Siswa

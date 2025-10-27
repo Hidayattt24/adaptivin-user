@@ -21,54 +21,54 @@ const QuizCard: React.FC<QuizCardProps> = ({
   onDelete,
 }) => {
   return (
-    <div className="relative bg-[#336d82] rounded-[20px] min-h-[242px] flex flex-col justify-between p-6 shadow-lg hover:shadow-xl transition-shadow">
+    <div className="relative bg-[#336d82] rounded-[18px] min-h-[160px] flex flex-col justify-between p-4 shadow-lg hover:shadow-xl transition-shadow">
       {/* Question Text */}
-      <div className="bg-white rounded-[20px] p-6 min-h-[104px] flex items-center">
-        <p className="text-[#336d82] text-base poppins-semibold leading-relaxed">
+      <div className="bg-white rounded-[15px] p-4 min-h-[70px] flex items-center">
+        <p className="text-[#336d82] text-sm poppins-semibold leading-relaxed">
           {question}
         </p>
       </div>
 
       {/* Bottom Section */}
-      <div className="flex items-center justify-between gap-4 mt-4">
+      <div className="flex items-center justify-between gap-3 mt-3">
         {/* Difficulty and Time Info */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           {/* Difficulty Badge */}
-          <div className="bg-white rounded-[20px] px-6 py-3 flex items-center gap-3">
-            <span className="text-[#336d82] text-xl poppins-semibold">
+          <div className="bg-white rounded-[15px] px-4 py-2 flex items-center gap-2">
+            <span className="text-[#336d82] text-sm poppins-semibold">
               KESULITAN
             </span>
-            <span className="text-[#336d82] text-3xl poppins-bold">
+            <span className="text-[#336d82] text-xl poppins-bold">
               {difficulty}
             </span>
           </div>
 
           {/* Normal Time Badge */}
-          <div className="bg-white rounded-[20px] px-6 py-3 flex items-center gap-3">
-            <span className="text-[#336d82] text-xl poppins-semibold">
+          <div className="bg-white rounded-[15px] px-4 py-2 flex items-center gap-2">
+            <span className="text-[#336d82] text-sm poppins-semibold">
               WAKTU NORMAL
             </span>
-            <span className="text-[#336d82] text-3xl poppins-bold">
+            <span className="text-[#336d82] text-xl poppins-bold">
               {normalTime} menit
             </span>
           </div>
         </div>
 
         {/* Action Buttons */}
-        <div className="flex gap-3 flex-shrink-0">
+        <div className="flex gap-2 flex-shrink-0">
           <button
             onClick={onEdit}
-            className="w-[49px] h-[49px] bg-white rounded-full flex items-center justify-center hover:bg-gray-50 transition-all hover:shadow-lg shadow-md"
+            className="w-[40px] h-[40px] bg-white rounded-full flex items-center justify-center hover:bg-gray-50 transition-all hover:shadow-lg shadow-md"
             aria-label="Edit quiz"
           >
-            <EditIcon className="text-[#336d82]" sx={{ fontSize: 24 }} />
+            <EditIcon className="text-[#336d82]" sx={{ fontSize: 20 }} />
           </button>
           <button
             onClick={onDelete}
-            className="w-[49px] h-[49px] bg-white rounded-full flex items-center justify-center hover:bg-gray-50 transition-all hover:shadow-lg shadow-md"
+            className="w-[40px] h-[40px] bg-white rounded-full flex items-center justify-center hover:bg-gray-50 transition-all hover:shadow-lg shadow-md"
             aria-label="Delete quiz"
           >
-            <DeleteIcon className="text-[#336d82]" sx={{ fontSize: 24 }} />
+            <DeleteIcon className="text-[#336d82]" sx={{ fontSize: 20 }} />
           </button>
         </div>
       </div>

@@ -30,19 +30,19 @@ const MateriCard: React.FC<MateriCardProps> = ({
   onKelolaKuis,
 }) => {
   return (
-    <div className="relative bg-gradient-to-r from-[#336D82] to-[#ECF3F6] rounded-[20px] min-h-[221px] flex flex-col justify-between p-8 shadow-lg hover:shadow-xl transition-shadow">
+    <div className="relative bg-gradient-to-r from-[#336D82] to-[#ECF3F6] rounded-[18px] min-h-[160px] flex flex-col justify-between p-5 shadow-lg hover:shadow-xl transition-shadow">
       {/* Judul Materi */}
-      <div className="mb-4">
-        <h2 className="text-white text-5xl poppins-semibold mb-2 leading-tight">
+      <div className="mb-3">
+        <h2 className="text-white text-3xl poppins-semibold mb-1.5 leading-tight">
           {judul}
         </h2>
-        <p className="text-white/90 text-lg poppins-regular">{deskripsi}</p>
-        <div className="flex items-center gap-4 mt-3">
-          <span className="bg-white/20 text-white px-4 py-1 rounded-full text-sm poppins-medium">
+        <p className="text-white/90 text-sm poppins-regular">{deskripsi}</p>
+        <div className="flex items-center gap-3 mt-2">
+          <span className="bg-white/20 text-white px-3 py-0.5 rounded-full text-xs poppins-medium">
             {topik}
           </span>
           <span
-            className={`px-4 py-1 rounded-full text-sm poppins-medium ${
+            className={`px-3 py-0.5 rounded-full text-xs poppins-medium ${
               status === "published"
                 ? "bg-green-500/20 text-white"
                 : "bg-yellow-500/20 text-white"
@@ -50,23 +50,23 @@ const MateriCard: React.FC<MateriCardProps> = ({
           >
             {status === "published" ? "Dipublikasi" : "Draft"}
           </span>
-          <span className="text-white/80 text-sm poppins-regular">
+          <span className="text-white/80 text-xs poppins-regular">
             {jumlahSiswaSelesai}/{totalSiswa} siswa selesai
           </span>
         </div>
       </div>
 
       {/* Action Buttons */}
-      <div className="flex gap-4 self-end">
+      <div className="flex gap-3 self-end">
         <Link href={`/guru/kelas/${kelasId}/materi/${id}`}>
           <button
             onClick={onKelolaMaterial}
-            className="bg-[#336d82] text-white px-6 py-3 rounded-[20px] flex items-center gap-3 hover:bg-[#2a5a6a] transition-all hover:shadow-lg h-[60px]"
+            className="bg-[#336d82] text-white px-4 py-2 rounded-[15px] flex items-center gap-2 hover:bg-[#2a5a6a] transition-all hover:shadow-lg h-[44px]"
           >
-            <div className="w-9 h-9 bg-white/20 rounded-full flex items-center justify-center">
-              <AddIcon className="text-white" sx={{ fontSize: 20 }} />
+            <div className="w-7 h-7 bg-white/20 rounded-full flex items-center justify-center">
+              <AddIcon className="text-white" sx={{ fontSize: 16 }} />
             </div>
-            <span className="text-base poppins-semibold">
+            <span className="text-sm poppins-semibold">
               Kelola materi pembelajaran
             </span>
           </button>
@@ -74,12 +74,12 @@ const MateriCard: React.FC<MateriCardProps> = ({
         <Link href={`/guru/kelas/${kelasId}/materi/${id}/kuis`}>
           <button
             onClick={onKelolaKuis}
-            className="bg-[#336d82] text-white px-6 py-3 rounded-[20px] flex items-center gap-3 hover:bg-[#2a5a6a] transition-all hover:shadow-lg h-[60px]"
+            className="bg-[#336d82] text-white px-4 py-2 rounded-[15px] flex items-center gap-2 hover:bg-[#2a5a6a] transition-all hover:shadow-lg h-[44px]"
           >
-            <div className="w-9 h-9 bg-white/20 rounded-full flex items-center justify-center">
-              <AddIcon className="text-white" sx={{ fontSize: 20 }} />
+            <div className="w-7 h-7 bg-white/20 rounded-full flex items-center justify-center">
+              <AddIcon className="text-white" sx={{ fontSize: 16 }} />
             </div>
-            <span className="text-base poppins-semibold">Kelola Kuis</span>
+            <span className="text-sm poppins-semibold">Kelola Kuis</span>
           </button>
         </Link>
       </div>

@@ -23,7 +23,8 @@
       "Bash(npx shadcn@latest add:*)",
       "WebFetch(domain:magicui.design)",
       "Bash(npx magicui-cli@latest init)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(pkill:*)"
     ],
     "deny": [],
     "ask": []

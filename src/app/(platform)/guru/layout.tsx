@@ -16,11 +16,12 @@ export default function GuruLayout({
     return pathname === path || pathname.startsWith(path);
   };
 
-  // Check if we're on the dashboard page
+  // Check if we're on the dashboard page or kelas detail pages
   const isDashboardPage = pathname === "/guru/dashboard";
+  const isKelasDetailPage = pathname.includes("/guru/kelas/") && pathname !== "/guru/kelas";
 
-  // If it's dashboard page, render without navbar and sidebar
-  if (isDashboardPage) {
+  // If it's dashboard page or kelas detail page, render without navbar and sidebar
+  if (isDashboardPage || isKelasDetailPage) {
     return <>{children}</>;
   }
 

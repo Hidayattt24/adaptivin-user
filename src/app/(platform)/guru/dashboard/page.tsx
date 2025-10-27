@@ -5,6 +5,7 @@ import ClassCard from "@/components/guru/ClassCard";
 import TeacherProfile from "@/components/guru/TeacherProfile";
 import { getCardColor } from "@/constants/guru/cardColors";
 import { Kelas } from "@/types/guru";
+import { Highlighter } from "@/components/ui/highlighter";
 
 const DashboardGuruPage = () => {
   const [kelasList] = useState<Kelas[]>([
@@ -99,35 +100,34 @@ const DashboardGuruPage = () => {
           {/* Greeting Text */}
           <div className="flex-1">
             <h1
-              className="poppins-medium text-white mb-4 drop-shadow-lg animate-fade-in"
+              className="montserrat-medium text-white mb-4 animate-fade-in"
               style={{
                 fontSize: "clamp(32px, 5vw, 50px)",
                 lineHeight: "1.3",
-                textShadow: "0 4px 12px rgba(0, 0, 0, 0.2)",
               }}
             >
               Hi Isabella,
             </h1>
             <p
-              className="poppins-regular text-white/95 mb-8 drop-shadow-md"
+              className="montserrat-regular text-white/95 mb-8"
               style={{
                 fontSize: "clamp(18px, 2.5vw, 24px)",
                 lineHeight: "1.5",
-                textShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
               }}
             >
               Semoga Sehat Selalu
             </p>
             <h2
-              className="poppins-semibold text-white tracking-wide drop-shadow-lg"
+              className="montserrat-bold text-white tracking-wide"
               style={{
                 fontSize: "clamp(28px, 4vw, 48px)",
                 lineHeight: "1.2",
                 letterSpacing: "0.05em",
-                textShadow: "0 3px 10px rgba(0, 0, 0, 0.2)",
               }}
             >
-              RUANG KERJA
+              <Highlighter action="underline" color="#00d9ff" isView>
+                RUANG KERJA
+              </Highlighter>
             </h2>
           </div>
 

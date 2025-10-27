@@ -1,12 +1,13 @@
 "use client";
 
+import React from "react";
 import applemojis from "applemojis";
 import Image from "next/image";
 
 interface EmojiTextProps {
   children: string;
   className?: string;
-  tag?: keyof JSX.IntrinsicElements;
+  tag?: React.ElementType;
   size?: number;
 }
 
@@ -35,7 +36,7 @@ export default function EmojiText({
   tag = "span",
   size = 20,
 }: EmojiTextProps) {
-  const Tag = tag as any;
+  const Tag = tag;
 
   // Split text by emoji and create array of text/emoji parts
   const parts: React.ReactNode[] = [];

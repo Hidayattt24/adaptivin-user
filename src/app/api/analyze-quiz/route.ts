@@ -18,6 +18,12 @@ import { NextRequest, NextResponse } from "next/server";
  * 3. Get API key from: https://makersuite.google.com/app/apikey
  */
 
+interface QuizQuestion {
+  question: string;
+  correctAnswer: number;
+  options?: string[];
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -25,11 +31,11 @@ export async function POST(request: NextRequest) {
 
     // Calculate basic statistics
     const totalQuestions = quizData.length;
-    const correctAnswers = quizData.filter((q: any, index: number) => {
+    const correctAnswers = quizData.filter((q: QuizQuestion, index: number) => {
       const userAnswer = parseInt(userAnswers[index] || "0");
       return userAnswer === q.correctAnswer;
     }).length;
-    const incorrectQuestions = quizData.filter((q: any, index: number) => {
+    const incorrectQuestions = quizData.filter((q: QuizQuestion, index: number) => {
       const userAnswer = parseInt(userAnswers[index] || "0");
       return userAnswer !== q.correctAnswer;
     });
@@ -102,7 +108,7 @@ function generatePlaceholderAnalysis(
   correct: number,
   total: number,
   materiTitle: string,
-  incorrectQuestions: any[]
+  incorrectQuestions: QuizQuestion[]
 ): string {
   const percentage = Math.round((correct / total) * 100);
 

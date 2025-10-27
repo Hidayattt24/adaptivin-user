@@ -115,7 +115,7 @@ const MateriListPage = () => {
       {searchQuery && (
         <div className="mb-4">
           <p className="text-[#336d82] poppins-medium">
-            Menampilkan {filteredMateriList.length} hasil untuk "{searchQuery}"
+            Menampilkan {filteredMateriList.length} hasil untuk &ldquo;{searchQuery}&rdquo;
           </p>
         </div>
       )}

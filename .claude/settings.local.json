@@ -24,7 +24,8 @@
       "WebFetch(domain:magicui.design)",
       "Bash(npx magicui-cli@latest init)",
       "Bash(npm run build:*)",
-      "Bash(pkill:*)"
+      "Bash(pkill:*)",
+      "mcp__ide__getDiagnostics"
     ],
     "deny": [],
     "ask": []

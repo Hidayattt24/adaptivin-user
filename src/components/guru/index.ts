@@ -24,3 +24,7 @@ export { UploadTimeline } from "./UploadTimeline";
 export { FileUploadCard } from "./FileUploadCard";
 export { TextInputSection } from "./TextInputSection";
 export { ImagePreviewCard } from "./ImagePreviewCard";
+export { MainMateriTitle } from "./MainMateriTitle";
+export type { MainMateriData } from "./MainMateriTitle";
+export { MateriSection } from "./MateriSection";
+export type { MateriSectionData } from "./MateriSection";

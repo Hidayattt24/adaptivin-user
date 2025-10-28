@@ -6,28 +6,15 @@ import {
   ArrowBackIos,
   Autorenew,
   InsertDriveFile,
+  Add,
 } from "@mui/icons-material";
 import {
   UploadTimeline,
-  FileUploadCard,
-  TextInputSection,
-  ImagePreviewCard,
+  MainMateriTitle,
+  MateriSection,
+  type MainMateriData,
+  type MateriSectionData,
 } from "@/components/guru";
-
-interface MateriFormData {
-  judul: string;
-  fileMateri: File | null;
-  videoMateri: File | null;
-  penjelasan: string;
-  images: File[];
-}
-
-interface ConfirmationStates {
-  judul: boolean;
-  fileMateri: boolean;
-  videoMateri: boolean;
-  penjelasan: boolean;
-}
 
 const TambahMateriPage = () => {
   const params = useParams();
@@ -35,66 +22,107 @@ const TambahMateriPage = () => {
   const kelasId = params.kelasId as string;
 
   const [currentStep, setCurrentStep] = useState<1 | 2>(1);
-  const [formData, setFormData] = useState<MateriFormData>({
-    judul: "",
-    fileMateri: null,
-    videoMateri: null,
-    penjelasan: "",
-    images: [],
-  });
-  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
-  const [isDraggingFile, setIsDraggingFile] = useState(false);
-  const [isDraggingVideo, setIsDraggingVideo] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const [confirmed, setConfirmed] = useState<ConfirmationStates>({
-    judul: false,
-    fileMateri: false,
-    videoMateri: false,
-    penjelasan: false,
+  // A. MAIN MATERIAL TITLE (Always exists, cannot be deleted)
+  const [mainMateri, setMainMateri] = useState<MainMateriData>({
+    title: "",
+    file: null,
+    video: null,
+    explanation: "",
+    images: [],
+    imagePreviews: [],
+    confirmed: {
+      title: false,
+      file: false,
+      video: false,
+      explanation: false,
+    },
   });
 
-  // File upload handlers
-  const handleFileSelect = (
+  // Drag states for main material
+  const [isDraggingMainFile, setIsDraggingMainFile] = useState(false);
+  const [isDraggingMainVideo, setIsDraggingMainVideo] = useState(false);
+
+  // B. SUB-MATERIAL SECTIONS (Dynamic, can add/delete)
+  const createNewSubSection = (): MateriSectionData => ({
+    id: `section-${Date.now()}-${Math.random()}`,
+    title: "",
+    file: null,
+    video: null,
+    explanation: "",
+    images: [],
+    imagePreviews: [],
+    confirmed: {
+      title: false,
+      file: false,
+      video: false,
+      explanation: false,
+    },
+  });
+
+  const [subSections, setSubSections] = useState<MateriSectionData[]>([]);
+
+  // Drag states for sub-sections
+  const [activeDragSection, setActiveDragSection] = useState<string | null>(null);
+  const [dragType, setDragType] = useState<"file" | "video" | null>(null);
+
+  // ==================== MAIN MATERIAL HANDLERS ====================
+
+  const handleMainFileSelect = (
     e: React.ChangeEvent<HTMLInputElement>,
     type: "file" | "video"
   ) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (type === "file") {
-        setFormData({ ...formData, fileMateri: file });
-        setConfirmed({ ...confirmed, fileMateri: false });
-      } else if (type === "video") {
-        setFormData({ ...formData, videoMateri: file });
-        setConfirmed({ ...confirmed, videoMateri: false });
-      }
+      setMainMateri({
+        ...mainMateri,
+        [type === "file" ? "file" : "video"]: file,
+        confirmed: {
+          ...mainMateri.confirmed,
+          [type === "file" ? "file" : "video"]: false,
+        },
+      });
     }
   };
 
-  const handleRemoveFile = (type: "file" | "video") => {
-    if (type === "file") {
-      setFormData({ ...formData, fileMateri: null });
-      setConfirmed({ ...confirmed, fileMateri: false });
-    } else if (type === "video") {
-      setFormData({ ...formData, videoMateri: null });
-      setConfirmed({ ...confirmed, videoMateri: false });
+  const handleMainImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length > 0) {
+      const newImages = [...mainMateri.images, ...files];
+      const newPreviews = files.map((file) => URL.createObjectURL(file));
+
+      setMainMateri({
+        ...mainMateri,
+        images: newImages,
+        imagePreviews: [...mainMateri.imagePreviews, ...newPreviews],
+        confirmed: { ...mainMateri.confirmed, explanation: false },
+      });
     }
   };
 
-  // Drag and drop handlers
-  const handleDragOver = (e: React.DragEvent, type: "file" | "video") => {
-    e.preventDefault();
-    type === "file" ? setIsDraggingFile(true) : setIsDraggingVideo(true);
+  const handleMainRemoveImage = (index: number) => {
+    URL.revokeObjectURL(mainMateri.imagePreviews[index]);
+    setMainMateri({
+      ...mainMateri,
+      images: mainMateri.images.filter((_, i) => i !== index),
+      imagePreviews: mainMateri.imagePreviews.filter((_, i) => i !== index),
+    });
   };
 
-  const handleDragLeave = (e: React.DragEvent, type: "file" | "video") => {
+  const handleMainDragOver = (e: React.DragEvent, type: "file" | "video") => {
     e.preventDefault();
-    type === "file" ? setIsDraggingFile(false) : setIsDraggingVideo(false);
+    type === "file" ? setIsDraggingMainFile(true) : setIsDraggingMainVideo(true);
   };
 
-  const handleDrop = (e: React.DragEvent, type: "file" | "video") => {
+  const handleMainDragLeave = (e: React.DragEvent, type: "file" | "video") => {
     e.preventDefault();
-    type === "file" ? setIsDraggingFile(false) : setIsDraggingVideo(false);
+    type === "file" ? setIsDraggingMainFile(false) : setIsDraggingMainVideo(false);
+  };
+
+  const handleMainDrop = (e: React.DragEvent, type: "file" | "video") => {
+    e.preventDefault();
+    type === "file" ? setIsDraggingMainFile(false) : setIsDraggingMainVideo(false);
 
     const file = e.dataTransfer.files?.[0];
     if (file) {
@@ -102,57 +130,177 @@ const TambahMateriPage = () => {
         type === "file" &&
         (file.type.includes("pdf") || file.type.includes("document"))
       ) {
-        setFormData({ ...formData, fileMateri: file });
-        setConfirmed({ ...confirmed, fileMateri: false });
+        setMainMateri({
+          ...mainMateri,
+          file: file,
+          confirmed: { ...mainMateri.confirmed, file: false },
+        });
       } else if (type === "video" && file.type.includes("video")) {
-        setFormData({ ...formData, videoMateri: file });
-        setConfirmed({ ...confirmed, videoMateri: false });
+        setMainMateri({
+          ...mainMateri,
+          video: file,
+          confirmed: { ...mainMateri.confirmed, video: false },
+        });
       }
     }
   };
 
-  // Image handlers
-  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // ==================== SUB-SECTION HANDLERS ====================
+
+  const handleAddSubSection = () => {
+    setSubSections([...subSections, createNewSubSection()]);
+  };
+
+  const handleRemoveSubSection = (sectionId: string) => {
+    const sectionToRemove = subSections.find((s) => s.id === sectionId);
+    if (sectionToRemove) {
+      sectionToRemove.imagePreviews.forEach((preview) =>
+        URL.revokeObjectURL(preview)
+      );
+    }
+    setSubSections(subSections.filter((s) => s.id !== sectionId));
+  };
+
+  const handleUpdateSubSection = (
+    sectionId: string,
+    updatedSection: MateriSectionData
+  ) => {
+    setSubSections(
+      subSections.map((s) => (s.id === sectionId ? updatedSection : s))
+    );
+  };
+
+  const handleSubFileSelect = (
+    sectionId: string,
+    e: React.ChangeEvent<HTMLInputElement>,
+    type: "file" | "video"
+  ) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const section = subSections.find((s) => s.id === sectionId);
+      if (section) {
+        const updatedSection = {
+          ...section,
+          [type === "file" ? "file" : "video"]: file,
+          confirmed: {
+            ...section.confirmed,
+            [type === "file" ? "file" : "video"]: false,
+          },
+        };
+        handleUpdateSubSection(sectionId, updatedSection);
+      }
+    }
+  };
+
+  const handleSubImageSelect = (
+    sectionId: string,
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const files = Array.from(e.target.files || []);
     if (files.length > 0) {
-      const newImages = [...formData.images, ...files];
-      setFormData({ ...formData, images: newImages });
+      const section = subSections.find((s) => s.id === sectionId);
+      if (section) {
+        const newImages = [...section.images, ...files];
+        const newPreviews = files.map((file) => URL.createObjectURL(file));
 
-      const newPreviews = files.map((file) => URL.createObjectURL(file));
-      setImagePreviews([...imagePreviews, ...newPreviews]);
-      setConfirmed({ ...confirmed, penjelasan: false });
+        const updatedSection = {
+          ...section,
+          images: newImages,
+          imagePreviews: [...section.imagePreviews, ...newPreviews],
+          confirmed: { ...section.confirmed, explanation: false },
+        };
+        handleUpdateSubSection(sectionId, updatedSection);
+      }
     }
   };
 
-  const handleRemoveImage = (index: number) => {
-    URL.revokeObjectURL(imagePreviews[index]);
-    const newImages = formData.images.filter((_, i) => i !== index);
-    const newPreviews = imagePreviews.filter((_, i) => i !== index);
-    setFormData({ ...formData, images: newImages });
-    setImagePreviews(newPreviews);
-  };
+  const handleSubRemoveImage = (sectionId: string, imageIndex: number) => {
+    const section = subSections.find((s) => s.id === sectionId);
+    if (section) {
+      URL.revokeObjectURL(section.imagePreviews[imageIndex]);
 
-  // Confirmation handlers
-  const handleConfirm = (field: keyof ConfirmationStates) => {
-    setConfirmed({ ...confirmed, [field]: true });
-  };
-
-  const handleDelete = (field: keyof MateriFormData) => {
-    if (field === "judul") {
-      setFormData({ ...formData, judul: "" });
-      setConfirmed({ ...confirmed, judul: false });
-    } else if (field === "penjelasan") {
-      setFormData({ ...formData, penjelasan: "", images: [] });
-      imagePreviews.forEach((preview) => URL.revokeObjectURL(preview));
-      setImagePreviews([]);
-      setConfirmed({ ...confirmed, penjelasan: false });
+      const updatedSection = {
+        ...section,
+        images: section.images.filter((_, i) => i !== imageIndex),
+        imagePreviews: section.imagePreviews.filter((_, i) => i !== imageIndex),
+      };
+      handleUpdateSubSection(sectionId, updatedSection);
     }
   };
+
+  const handleSubDragOver = (
+    sectionId: string,
+    e: React.DragEvent,
+    type: "file" | "video"
+  ) => {
+    e.preventDefault();
+    setActiveDragSection(sectionId);
+    setDragType(type);
+  };
+
+  const handleSubDragLeave = (e: React.DragEvent, type: "file" | "video") => {
+    e.preventDefault();
+    setActiveDragSection(null);
+    setDragType(null);
+  };
+
+  const handleSubDrop = (
+    sectionId: string,
+    e: React.DragEvent,
+    type: "file" | "video"
+  ) => {
+    e.preventDefault();
+    setActiveDragSection(null);
+    setDragType(null);
+
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      const section = subSections.find((s) => s.id === sectionId);
+      if (section) {
+        if (
+          type === "file" &&
+          (file.type.includes("pdf") || file.type.includes("document"))
+        ) {
+          const updatedSection = {
+            ...section,
+            file: file,
+            confirmed: { ...section.confirmed, file: false },
+          };
+          handleUpdateSubSection(sectionId, updatedSection);
+        } else if (type === "video" && file.type.includes("video")) {
+          const updatedSection = {
+            ...section,
+            video: file,
+            confirmed: { ...section.confirmed, video: false },
+          };
+          handleUpdateSubSection(sectionId, updatedSection);
+        }
+      }
+    }
+  };
+
+  // ==================== SUBMIT HANDLER ====================
 
   const handleSubmit = async () => {
+    // Validate main title is filled
+    if (!mainMateri.title.trim()) {
+      alert("⚠️ Judul materi utama wajib diisi!");
+      return;
+    }
+
     setIsSubmitting(true);
     await new Promise((resolve) => setTimeout(resolve, 1500));
-    imagePreviews.forEach((preview) => URL.revokeObjectURL(preview));
+
+    // Clean up all image previews
+    mainMateri.imagePreviews.forEach((preview) => URL.revokeObjectURL(preview));
+    subSections.forEach((section) => {
+      section.imagePreviews.forEach((preview) => URL.revokeObjectURL(preview));
+    });
+
+    // TODO: Send data to API
+    console.log("Main Material:", mainMateri);
+    console.log("Sub-sections:", subSections);
+
     router.push(`/guru/kelas/${kelasId}/materi`);
   };
 
@@ -177,7 +325,7 @@ const TambahMateriPage = () => {
               <ArrowBackIos sx={{ fontSize: 18, color: "#336d82", ml: 0.5 }} />
             </button>
             <h1 className="text-[20px] md:text-[24px] font-bold text-center flex-1 font-poppins tracking-wide">
-              UPLOAD MATERI PEMBELAJARAN
+              BUAT MATERI PEMBELAJARAN
             </h1>
           </div>
         </div>
@@ -187,158 +335,97 @@ const TambahMateriPage = () => {
 
         {/* Step 1: Form */}
         {currentStep === 1 && (
-          <div className="mx-auto max-w-4xl">
-            {/* Dashed Border Container */}
-            <div className="border-2 border-dashed border-[#336d82]/40 rounded-2xl p-4 md:p-5 space-y-4 bg-white/50 backdrop-blur-sm shadow-lg">
-              {/* Judul Materi */}
-              <TextInputSection
-                sectionNumber={1}
-                title="Isi judul materi"
-                value={formData.judul}
-                placeholder="Ketik disini untuk menulis judul materi...."
-                confirmed={confirmed.judul}
-                onChange={(value) => {
-                  setFormData({ ...formData, judul: value });
-                  setConfirmed({ ...confirmed, judul: false });
-                }}
-                onDelete={() => handleDelete("judul")}
-                onConfirm={() => handleConfirm("judul")}
-              />
-
-              {/* File Upload */}
-              <FileUploadCard
-                sectionNumber={2}
-                title="Unggah materi dalam bentuk file (Opsional)"
-                file={formData.fileMateri}
-                accept=".pdf,.doc,.docx"
-                formatHint="Format: PDF, DOC, DOCX"
-                confirmed={confirmed.fileMateri}
-                isDragging={isDraggingFile}
-                onFileSelect={(e) => handleFileSelect(e, "file")}
-                onRemove={() => handleRemoveFile("file")}
-                onConfirm={() => handleConfirm("fileMateri")}
-                onDragOver={(e) => handleDragOver(e, "file")}
-                onDragLeave={(e) => handleDragLeave(e, "file")}
-                onDrop={(e) => handleDrop(e, "file")}
-                inputId="file-upload"
-              />
-
-              {/* Video Upload */}
-              <FileUploadCard
-                sectionNumber={3}
-                title="Unggah materi dalam bentuk video (Opsional)"
-                file={formData.videoMateri}
-                accept="video/*"
-                formatHint="Format: MP4, AVI, MOV"
-                confirmed={confirmed.videoMateri}
-                isDragging={isDraggingVideo}
-                onFileSelect={(e) => handleFileSelect(e, "video")}
-                onRemove={() => handleRemoveFile("video")}
-                onConfirm={() => handleConfirm("videoMateri")}
-                onDragOver={(e) => handleDragOver(e, "video")}
-                onDragLeave={(e) => handleDragLeave(e, "video")}
-                onDrop={(e) => handleDrop(e, "video")}
-                inputId="video-upload"
-              />
+          <div className="mx-auto max-w-4xl space-y-6">
+            {/* Info Banner */}
+            <div className="bg-gradient-to-r from-[#336d82]/10 to-[#2a5a6d]/10 border-l-4 border-[#336d82] rounded-lg p-4 shadow-sm">
+              <p className="text-sm text-gray-800 font-poppins leading-relaxed">
+                <strong className="text-[#336d82]">ℹ️ Cara Kerja:</strong>
+                <br />
+                1. Isi <strong>Judul Materi Utama</strong> (wajib) - Contoh: "Pecahan"
+                <br />
+                2. Tambahkan <strong>Sub-Materi</strong> (opsional) - Contoh: "Pecahan Biasa", "Pecahan Campuran"
+              </p>
             </div>
 
-            {/* Penjelasan Materi */}
-            <div className="bg-gradient-to-br from-[#336d82] to-[#2a5a6d] rounded-xl p-5 mt-4 shadow-lg hover:shadow-xl transition-shadow">
-              <h2 className="text-[17px] md:text-[19px] font-semibold text-white mb-3 font-poppins flex items-center gap-2">
-                <span className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center text-sm">
-                  4
-                </span>
-                Isi penjelasan materi
-              </h2>
+            {/* A. MAIN MATERIAL TITLE */}
+            <MainMateriTitle
+              materiData={mainMateri}
+              isDraggingFile={isDraggingMainFile}
+              isDraggingVideo={isDraggingMainVideo}
+              onUpdate={setMainMateri}
+              onFileSelect={handleMainFileSelect}
+              onImageSelect={handleMainImageSelect}
+              onRemoveImage={handleMainRemoveImage}
+              onDragOver={handleMainDragOver}
+              onDragLeave={handleMainDragLeave}
+              onDrop={handleMainDrop}
+            />
 
-              <ImagePreviewCard
-                previews={imagePreviews}
-                onRemove={handleRemoveImage}
-              />
-
-              <textarea
-                value={formData.penjelasan}
-                onChange={(e) => {
-                  setFormData({ ...formData, penjelasan: e.target.value });
-                  setConfirmed({ ...confirmed, penjelasan: false });
-                }}
-                placeholder="Ketik disini untuk menulis materi...."
-                className="w-full px-4 py-3 rounded-xl text-[14px] border-none focus:outline-none focus:ring-2 focus:ring-white/50 resize-none font-poppins shadow-inner bg-white text-gray-900"
-                rows={5}
-                disabled={confirmed.penjelasan}
-              />
-
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mt-3">
-                <input
-                  type="file"
-                  id="image-upload"
-                  accept="image/*"
-                  multiple
-                  onChange={handleImageSelect}
-                  className="hidden"
-                  disabled={confirmed.penjelasan}
-                />
-                <label htmlFor="image-upload">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      !confirmed.penjelasan &&
-                      document.getElementById("image-upload")?.click()
-                    }
-                    disabled={confirmed.penjelasan}
-                    className={`px-5 py-2.5 rounded-xl text-[12px] font-semibold transition-all flex items-center gap-2 font-poppins shadow-md hover:shadow-lg ${
-                      confirmed.penjelasan
-                        ? "bg-gray-400 text-gray-200 cursor-not-allowed"
-                        : "bg-gradient-to-r from-[#fcc61d] to-[#f5b800] text-white hover:-translate-y-0.5"
-                    }`}
-                  >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
-                    </svg>
-                    Tambah Gambar
-                  </button>
-                </label>
-                <div className="flex gap-2 w-full sm:w-auto">
-                  <button
-                    onClick={() => handleDelete("penjelasan")}
-                    disabled={confirmed.penjelasan}
-                    className={`flex-1 sm:flex-none px-7 py-2 rounded-xl text-[12px] font-semibold transition-all font-poppins shadow-md hover:shadow-lg ${
-                      confirmed.penjelasan
-                        ? "bg-gray-400 text-gray-200 cursor-not-allowed"
-                        : "bg-[#ff1919] text-white hover:bg-[#e01515] hover:-translate-y-0.5"
-                    }`}
-                  >
-                    Hapus
-                  </button>
-                  <button
-                    onClick={() => handleConfirm("penjelasan")}
-                    disabled={!formData.penjelasan || confirmed.penjelasan}
-                    className={`flex-1 sm:flex-none px-7 py-2 rounded-xl text-[12px] font-semibold transition-all flex items-center gap-2 font-poppins shadow-md hover:shadow-lg ${
-                      confirmed.penjelasan
-                        ? "bg-[#2ea062] text-white cursor-default"
-                        : !formData.penjelasan
-                        ? "bg-gray-400 text-gray-200 cursor-not-allowed"
-                        : "bg-[#2ea062] text-white hover:bg-[#26824f] hover:-translate-y-0.5"
-                    }`}
-                  >
-                    {confirmed.penjelasan && (
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                      </svg>
-                    )}
-                    Konfirmasi
-                  </button>
+            {/* B. SUB-MATERIAL SECTIONS */}
+            {subSections.length > 0 && (
+              <div className="space-y-4">
+                <div className="flex items-center gap-3 pt-4">
+                  <div className="flex-1 h-px bg-gradient-to-r from-transparent via-[#336d82]/30 to-transparent"></div>
+                  <span className="text-sm font-semibold text-[#336d82] font-poppins px-3 py-1 bg-white rounded-full shadow-sm border border-[#336d82]/20">
+                    📖 Sub-Materi ({subSections.length})
+                  </span>
+                  <div className="flex-1 h-px bg-gradient-to-r from-transparent via-[#336d82]/30 to-transparent"></div>
                 </div>
+
+                {subSections.map((section, index) => (
+                  <MateriSection
+                    key={section.id}
+                    section={section}
+                    sectionIndex={index}
+                    totalSections={subSections.length}
+                    isDraggingFile={
+                      activeDragSection === section.id && dragType === "file"
+                    }
+                    isDraggingVideo={
+                      activeDragSection === section.id && dragType === "video"
+                    }
+                    onUpdate={(updated) =>
+                      handleUpdateSubSection(section.id, updated)
+                    }
+                    onDelete={() => handleRemoveSubSection(section.id)}
+                    onFileSelect={(e, type) =>
+                      handleSubFileSelect(section.id, e, type)
+                    }
+                    onImageSelect={(e) => handleSubImageSelect(section.id, e)}
+                    onRemoveImage={(imgIndex) =>
+                      handleSubRemoveImage(section.id, imgIndex)
+                    }
+                    onDragOver={(e, type) =>
+                      handleSubDragOver(section.id, e, type)
+                    }
+                    onDragLeave={(e, type) => handleSubDragLeave(e, type)}
+                    onDrop={(e, type) => handleSubDrop(section.id, e, type)}
+                  />
+                ))}
               </div>
+            )}
+
+            {/* Add Sub-Section Button */}
+            <div className="flex justify-center pt-4">
+              <button
+                onClick={handleAddSubSection}
+                className="flex items-center gap-3 px-8 py-4 bg-white border-2 border-dashed border-[#fcc61d] text-[#336d82] rounded-xl hover:bg-[#fcc61d]/5 hover:border-solid transition-all font-semibold font-poppins shadow-md hover:shadow-lg group"
+              >
+                <div className="w-8 h-8 bg-gradient-to-br from-[#fcc61d] to-[#f5b800] rounded-full flex items-center justify-center group-hover:scale-110 transition-transform shadow-md">
+                  <Add sx={{ fontSize: 20, color: "white" }} />
+                </div>
+                Tambah Sub-Materi
+              </button>
             </div>
 
             {/* Lanjut Button */}
-            <div className="flex justify-center mt-6">
+            <div className="flex justify-center pt-6">
               <button
                 onClick={() => setCurrentStep(2)}
-                className="bg-gradient-to-r from-[#336d82] to-[#2a5a6d] text-white px-24 md:px-36 py-3.5 rounded-xl text-[17px] md:text-[19px] font-semibold hover:from-[#2a5a6d] hover:to-[#1f4550] transition-all duration-300 w-full max-w-md font-poppins shadow-xl hover:shadow-2xl hover:-translate-y-1"
+                disabled={!mainMateri.title.trim()}
+                className="bg-gradient-to-r from-[#336d82] to-[#2a5a6d] text-white px-24 md:px-36 py-3.5 rounded-xl text-[17px] md:text-[19px] font-semibold hover:from-[#2a5a6d] hover:to-[#1f4550] transition-all duration-300 w-full max-w-md font-poppins shadow-xl hover:shadow-2xl hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Lanjut
+                Lanjut ke Tinjau
               </button>
             </div>
           </div>
@@ -363,81 +450,135 @@ const TambahMateriPage = () => {
                 </button>
               </div>
 
-              <div className="space-y-5">
-                <div className="bg-gradient-to-r from-gray-50 to-white p-4 rounded-xl border border-gray-100">
-                  <label className="block text-sm font-semibold text-gray-500 mb-2 font-poppins">
-                    📝 Judul Materi
-                  </label>
-                  <p className="text-gray-900 font-poppins text-base">
-                    {formData.judul || "-"}
-                  </p>
-                </div>
-
-                {formData.fileMateri && (
-                  <div className="bg-gradient-to-r from-gray-50 to-white p-4 rounded-xl border border-gray-100">
-                    <label className="block text-sm font-semibold text-gray-500 mb-2 font-poppins">
-                      📄 File Materi
-                    </label>
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg flex items-center justify-center shadow-sm">
-                        <InsertDriveFile sx={{ fontSize: 22, color: "#666" }} />
-                      </div>
-                      <p className="text-gray-900 text-sm font-poppins">
-                        {formData.fileMateri.name}
-                      </p>
-                    </div>
+              {/* Main Material Review */}
+              <div className="border-2 border-[#336d82] rounded-xl p-5 bg-gradient-to-br from-[#336d82]/5 to-white mb-6">
+                <div className="flex items-center gap-3 mb-4 pb-3 border-b-2 border-[#336d82]/20">
+                  <div className="w-10 h-10 bg-gradient-to-br from-[#336d82] to-[#2a5a6d] rounded-xl flex items-center justify-center shadow-md">
+                    <span className="text-white font-bold text-lg">📚</span>
                   </div>
-                )}
-
-                {formData.videoMateri && (
-                  <div className="bg-gradient-to-r from-gray-50 to-white p-4 rounded-xl border border-gray-100">
-                    <label className="block text-sm font-semibold text-gray-500 mb-2 font-poppins">
-                      🎥 Video Materi
-                    </label>
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg flex items-center justify-center shadow-sm">
-                        <InsertDriveFile sx={{ fontSize: 22, color: "#666" }} />
-                      </div>
-                      <p className="text-gray-900 text-sm font-poppins">
-                        {formData.videoMateri.name}
-                      </p>
-                    </div>
-                  </div>
-                )}
-
-                {formData.penjelasan && (
-                  <div className="bg-gradient-to-r from-gray-50 to-white p-4 rounded-xl border border-gray-100">
-                    <label className="block text-sm font-semibold text-gray-500 mb-2 font-poppins">
-                      📖 Penjelasan Materi
-                    </label>
-                    <p className="text-gray-700 whitespace-pre-wrap text-sm font-poppins leading-relaxed">
-                      {formData.penjelasan}
+                  <div>
+                    <h3 className="text-lg font-bold text-[#336d82] font-poppins">
+                      {mainMateri.title || "Materi Utama"}
+                    </h3>
+                    <p className="text-xs text-gray-600 font-poppins">
+                      Topik Utama Pembelajaran
                     </p>
                   </div>
-                )}
+                </div>
 
-                {imagePreviews.length > 0 && (
-                  <div className="bg-gradient-to-r from-gray-50 to-white p-4 rounded-xl border border-gray-100">
-                    <label className="block text-sm font-semibold text-gray-500 mb-3 font-poppins">
-                      🖼️ Gambar ({formData.images.length})
-                    </label>
-                    <div className="space-y-3">
-                      {imagePreviews.map((preview, index) => (
-                        <div
-                          key={index}
-                          className="bg-white rounded-xl p-3 shadow-md border border-gray-200"
-                        >
-                          <img
-                            src={preview}
-                            alt={`Preview ${index + 1}`}
-                            className="w-full h-auto max-h-[350px] object-contain rounded-lg"
-                          />
-                        </div>
-                      ))}
+                <div className="space-y-3">
+                  {mainMateri.file && (
+                    <div className="bg-white p-3 rounded-lg border border-gray-100">
+                      <label className="block text-xs font-semibold text-gray-500 mb-1 font-poppins">
+                        📄 File
+                      </label>
+                      <div className="flex items-center gap-2">
+                        <InsertDriveFile sx={{ fontSize: 18, color: "#666" }} />
+                        <p className="text-gray-900 text-xs font-poppins">
+                          {mainMateri.file.name}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
+
+                  {mainMateri.video && (
+                    <div className="bg-white p-3 rounded-lg border border-gray-100">
+                      <label className="block text-xs font-semibold text-gray-500 mb-1 font-poppins">
+                        🎥 Video
+                      </label>
+                      <div className="flex items-center gap-2">
+                        <InsertDriveFile sx={{ fontSize: 18, color: "#666" }} />
+                        <p className="text-gray-900 text-xs font-poppins">
+                          {mainMateri.video.name}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  {mainMateri.explanation && (
+                    <div className="bg-white p-3 rounded-lg border border-gray-100">
+                      <label className="block text-xs font-semibold text-gray-500 mb-1 font-poppins">
+                        📖 Penjelasan
+                      </label>
+                      <p className="text-gray-700 whitespace-pre-wrap text-xs font-poppins leading-relaxed">
+                        {mainMateri.explanation}
+                      </p>
+                    </div>
+                  )}
+
+                  {mainMateri.imagePreviews.length > 0 && (
+                    <div className="bg-white p-3 rounded-lg border border-gray-100">
+                      <label className="block text-xs font-semibold text-gray-500 mb-2 font-poppins">
+                        🖼️ Gambar ({mainMateri.images.length})
+                      </label>
+                      <div className="space-y-2">
+                        {mainMateri.imagePreviews.map((preview, imgIndex) => (
+                          <img
+                            key={imgIndex}
+                            src={preview}
+                            alt={`Preview ${imgIndex + 1}`}
+                            className="w-full h-auto max-h-[200px] object-contain rounded-lg border border-gray-200"
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
+
+              {/* Sub-Sections Review */}
+              {subSections.length > 0 && (
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="flex-1 h-px bg-gradient-to-r from-transparent via-[#336d82]/30 to-transparent"></div>
+                    <span className="text-sm font-semibold text-[#336d82] font-poppins">
+                      Sub-Materi ({subSections.length})
+                    </span>
+                    <div className="flex-1 h-px bg-gradient-to-r from-transparent via-[#336d82]/30 to-transparent"></div>
+                  </div>
+
+                  {subSections.map((section, index) => (
+                    <div
+                      key={section.id}
+                      className="border-2 border-dashed border-[#336d82]/30 rounded-xl p-4 bg-white/70"
+                    >
+                      <div className="flex items-center gap-3 mb-3 pb-2 border-b border-gray-200">
+                        <div className="w-8 h-8 bg-gradient-to-br from-[#fcc61d] to-[#f5b800] rounded-lg flex items-center justify-center text-white font-bold shadow-sm">
+                          {index + 1}
+                        </div>
+                        <h4 className="text-base font-bold text-[#336d82] font-poppins">
+                          {section.title || `Sub-Materi ${index + 1}`}
+                        </h4>
+                      </div>
+
+                      <div className="space-y-2 text-xs">
+                        {section.file && (
+                          <div className="flex items-center gap-2">
+                            <InsertDriveFile sx={{ fontSize: 16 }} />
+                            <span className="font-poppins">{section.file.name}</span>
+                          </div>
+                        )}
+                        {section.video && (
+                          <div className="flex items-center gap-2">
+                            <InsertDriveFile sx={{ fontSize: 16 }} />
+                            <span className="font-poppins">{section.video.name}</span>
+                          </div>
+                        )}
+                        {section.explanation && (
+                          <p className="text-gray-700 font-poppins">
+                            {section.explanation}
+                          </p>
+                        )}
+                        {section.imagePreviews.length > 0 && (
+                          <p className="text-gray-600 font-poppins">
+                            🖼️ {section.images.length} gambar
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
 
               <div className="flex flex-col sm:flex-row justify-between gap-3 pt-6 mt-6 border-t-2 border-gray-100">
                 <button

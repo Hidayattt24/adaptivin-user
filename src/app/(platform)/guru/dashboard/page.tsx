@@ -4,12 +4,12 @@ import React, { useState, useMemo } from "react";
 import ClassCard from "@/components/guru/ClassCard";
 import TeacherProfile from "@/components/guru/TeacherProfile";
 import { getCardColor } from "@/constants/guru/cardColors";
-import { Kelas } from "@/types/guru";
 import { Highlighter } from "@/components/ui/highlighter";
 import { useClasses } from "@/hooks/guru/useClasses";
 import { GridSkeleton } from "@/components/guru/skeletons";
 import { ErrorState } from "@/components/guru/ErrorState";
 import { useDebounce } from "@/hooks/guru/useDebounce";
+import { Search, ChevronLeft, ChevronRight } from "@mui/icons-material";
 
 const DashboardGuruPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -78,7 +78,7 @@ const DashboardGuruPage = () => {
           {/* Greeting Text */}
           <div className="flex-1">
             <h1
-              className="montserrat-medium text-white mb-4 animate-fade-in"
+              className="montserrat-medium text-white mb-4"
               style={{
                 fontSize: "clamp(32px, 5vw, 50px)",
                 lineHeight: "1.3",
@@ -116,19 +116,63 @@ const DashboardGuruPage = () => {
           />
         </div>
 
-        {/* Search Bar */}
-        <div className="mb-8">
-          <input
-            type="text"
-            placeholder="Cari kelas..."
-            value={searchQuery}
-            onChange={(e) => {
-              setSearchQuery(e.target.value);
-              setCurrentPage(1); // Reset to first page on search
-            }}
-            className="w-full md:w-96 px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#336d82] focus:border-transparent"
-            aria-label="Cari kelas"
-          />
+        {/* Modern Search Bar - Centered */}
+        <div className="mb-12 flex justify-center">
+          <div className="relative w-full max-w-3xl">
+            <div className="flex gap-3">
+              <div className="relative flex-1">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <Search sx={{ fontSize: 24, color: "#336d82" }} />
+                </div>
+                <input
+                  type="text"
+                  placeholder="Cari kelas berdasarkan nama..."
+                  value={searchQuery}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      // Trigger search on Enter
+                      e.currentTarget.blur();
+                    }
+                  }}
+                  className="w-full pl-12 pr-4 py-4 rounded-2xl bg-white/95 backdrop-blur-sm border-2 border-white/50 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-white focus:border-white transition-all duration-300 text-gray-800 placeholder-gray-500 font-poppins"
+                  aria-label="Cari kelas"
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => {
+                      setSearchQuery("");
+                      setCurrentPage(1);
+                    }}
+                    className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
+                    aria-label="Hapus pencarian"
+                  >
+                    <span className="text-xl">×</span>
+                  </button>
+                )}
+              </div>
+              <button
+                onClick={() => {
+                  // Search button - currently search is automatic via onChange
+                  // This button provides visual feedback
+                  document.querySelector<HTMLInputElement>('input[aria-label="Cari kelas"]')?.blur();
+                }}
+                className="px-8 py-4 rounded-2xl bg-white/95 backdrop-blur-sm border-2 border-white/50 shadow-lg hover:shadow-xl hover:bg-white transition-all duration-300 font-poppins font-semibold text-[#336d82] flex items-center gap-2"
+                aria-label="Cari"
+              >
+                <Search sx={{ fontSize: 20 }} />
+                Cari
+              </button>
+            </div>
+            {searchQuery && (
+              <p className="mt-3 text-white/90 text-sm font-poppins text-center">
+                Menampilkan {filteredClasses.length} hasil untuk "{searchQuery}"
+              </p>
+            )}
+          </div>
         </div>
 
         {/* Class Cards - With Lazy Loading */}
@@ -145,13 +189,42 @@ const DashboardGuruPage = () => {
             />
           </div>
         ) : paginatedClasses.length === 0 ? (
-          <div className="pb-24">
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
-              <p className="text-gray-600">
+          <div className="pb-24 flex justify-center items-center min-h-[400px]">
+            <div className="bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl border-2 border-white/50 p-16 text-center max-w-2xl animate-bounce-slow">
+              <div className="mb-6">
+                <svg
+                  className="w-24 h-24 mx-auto text-[#336d82] animate-pulse"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+              </div>
+              <h3 className="text-2xl font-bold text-[#336d82] mb-3 font-poppins">
+                {searchQuery ? "Tidak Ditemukan" : "Belum Ada Kelas"}
+              </h3>
+              <p className="text-gray-600 text-lg font-poppins">
                 {searchQuery
-                  ? "Tidak ada kelas yang sesuai dengan pencarian."
-                  : "Belum ada kelas."}
+                  ? `Tidak ada kelas yang sesuai dengan pencarian "${searchQuery}"`
+                  : "Belum ada kelas yang tersedia saat ini"}
               </p>
+              {searchQuery && (
+                <button
+                  onClick={() => {
+                    setSearchQuery("");
+                    setCurrentPage(1);
+                  }}
+                  className="mt-6 px-6 py-3 bg-[#336d82] text-white rounded-xl hover:bg-[#2a5a6d] transition-colors font-poppins font-semibold shadow-lg hover:shadow-xl"
+                >
+                  Hapus Pencarian
+                </button>
+              )}
             </div>
           </div>
         ) : (
@@ -174,30 +247,75 @@ const DashboardGuruPage = () => {
               ))}
             </div>
 
-            {/* Pagination */}
+            {/* Modern Pagination */}
             {totalPages > 1 && (
-              <div className="flex justify-center items-center gap-2 pb-24" role="navigation" aria-label="Pagination">
-                <button
-                  onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
-                  disabled={currentPage === 1}
-                  className="px-4 py-2 rounded-lg border border-gray-300 bg-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
-                  aria-label="Halaman sebelumnya"
-                >
-                  Sebelumnya
-                </button>
+              <div className="flex flex-col items-center gap-4 pb-24" role="navigation" aria-label="Pagination">
+                {/* Page Info */}
+                <div className="bg-white/20 backdrop-blur-sm px-6 py-2 rounded-full">
+                  <span className="text-white font-semibold font-poppins text-sm" aria-live="polite">
+                    Halaman {currentPage} dari {totalPages}
+                  </span>
+                </div>
 
-                <span className="px-4 py-2 text-white font-medium" aria-live="polite">
-                  Halaman {currentPage} dari {totalPages}
-                </span>
+                {/* Navigation Buttons */}
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                    disabled={currentPage === 1}
+                    className="group flex items-center gap-2 px-6 py-3 rounded-xl bg-white/95 backdrop-blur-sm shadow-lg hover:shadow-xl disabled:opacity-40 disabled:cursor-not-allowed hover:bg-white transition-all duration-300 font-poppins font-semibold text-[#336d82]"
+                    aria-label="Halaman sebelumnya"
+                  >
+                    <ChevronLeft
+                      sx={{ fontSize: 20 }}
+                      className="transition-transform group-hover:-translate-x-1"
+                    />
+                    Sebelumnya
+                  </button>
 
-                <button
-                  onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
-                  disabled={currentPage === totalPages}
-                  className="px-4 py-2 rounded-lg border border-gray-300 bg-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
-                  aria-label="Halaman selanjutnya"
-                >
-                  Selanjutnya
-                </button>
+                  {/* Page Numbers */}
+                  <div className="hidden sm:flex items-center gap-2">
+                    {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                      let pageNum;
+                      if (totalPages <= 5) {
+                        pageNum = i + 1;
+                      } else if (currentPage <= 3) {
+                        pageNum = i + 1;
+                      } else if (currentPage >= totalPages - 2) {
+                        pageNum = totalPages - 4 + i;
+                      } else {
+                        pageNum = currentPage - 2 + i;
+                      }
+
+                      return (
+                        <button
+                          key={pageNum}
+                          onClick={() => setCurrentPage(pageNum)}
+                          className={`w-10 h-10 rounded-lg font-semibold font-poppins transition-all duration-300 ${currentPage === pageNum
+                            ? "bg-white text-[#336d82] shadow-lg scale-110"
+                            : "bg-white/20 text-white hover:bg-white/30"
+                            }`}
+                          aria-label={`Halaman ${pageNum}`}
+                          aria-current={currentPage === pageNum ? "page" : undefined}
+                        >
+                          {pageNum}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <button
+                    onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+                    disabled={currentPage === totalPages}
+                    className="group flex items-center gap-2 px-6 py-3 rounded-xl bg-white/95 backdrop-blur-sm shadow-lg hover:shadow-xl disabled:opacity-40 disabled:cursor-not-allowed hover:bg-white transition-all duration-300 font-poppins font-semibold text-[#336d82]"
+                    aria-label="Halaman selanjutnya"
+                  >
+                    Selanjutnya
+                    <ChevronRight
+                      sx={{ fontSize: 20 }}
+                      className="transition-transform group-hover:translate-x-1"
+                    />
+                  </button>
+                </div>
               </div>
             )}
           </>
@@ -208,3 +326,26 @@ const DashboardGuruPage = () => {
 };
 
 export default DashboardGuruPage;
+
+// Add custom animation styles
+const styles = `
+  @keyframes bounce-slow {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  .animate-bounce-slow {
+    animation: bounce-slow 3s ease-in-out infinite;
+  }
+`;
+
+// Inject styles
+if (typeof document !== 'undefined') {
+  const styleSheet = document.createElement("style");
+  styleSheet.textContent = styles;
+  document.head.appendChild(styleSheet);
+}

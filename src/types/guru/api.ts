@@ -40,9 +40,7 @@ export interface MateriCreateRequest {
   status?: "published" | "draft";
 }
 
-export interface MateriUpdateRequest extends Partial<MateriCreateRequest> {
-  // All fields optional for update
-}
+export type MateriUpdateRequest = Partial<MateriCreateRequest>;
 
 // Soal/Quiz
 export interface SoalResponse {
@@ -63,9 +61,7 @@ export interface SoalCreateRequest {
   jawabanBenar: string;
 }
 
-export interface SoalUpdateRequest extends Partial<SoalCreateRequest> {
-  // All fields optional for update
-}
+export type SoalUpdateRequest = Partial<SoalCreateRequest>;
 
 // Siswa
 export interface SiswaResponse {
@@ -85,9 +81,7 @@ export interface SiswaCreateRequest {
   jenisKelamin: "Laki-laki" | "Perempuan";
 }
 
-export interface SiswaUpdateRequest extends Partial<SiswaCreateRequest> {
-  // All fields optional for update
-}
+export type SiswaUpdateRequest = Partial<SiswaCreateRequest>;
 
 // Laporan
 export interface PerformanceByLevel {

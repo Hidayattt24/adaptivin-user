@@ -18,3 +18,7 @@ export { PrefetchLink } from "./PrefetchLink";
 
 // Skeletons
 export * from "./skeletons";
+
+// Upload components
+export { UploadTimeline } from "./UploadTimeline";
+export { FileUploadCard } from "./FileUploadCard";

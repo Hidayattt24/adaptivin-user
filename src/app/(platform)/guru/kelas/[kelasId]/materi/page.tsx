@@ -7,88 +7,49 @@ import SearchBar from "@/components/guru/SearchBar";
 import MateriCard from "@/components/guru/MateriCard";
 import EmptyState from "@/components/guru/EmptyState";
 import PageHeader from "@/components/guru/PageHeader";
+import { useMateriList } from "@/hooks/guru/useMateri";
+import { useDebounce } from "@/hooks/guru/useDebounce";
+import { TableSkeleton } from "@/components/guru/skeletons";
+import { ErrorState } from "@/components/guru/ErrorState";
 
 const MateriListPage = () => {
   const params = useParams();
-  const kelasId = params.kelasId;
+  const kelasId = params.kelasId as string;
 
-  // Dummy data untuk kelas
+  const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // Debounce search query
+  const debouncedSearch = useDebounce(searchQuery, 350);
+
+  // Lazy load materi data
+  const { data, isLoading, error, refetch } = useMateriList(kelasId, currentPage);
+
+  // Dummy data untuk kelas (should come from parent layout or API)
   const kelasData = {
     nama: "MATEMATIKA KELAS IV",
   };
 
-  const [searchQuery, setSearchQuery] = useState("");
-  const [allMateriList] = useState([
-    {
-      id: "1",
-      judul: "Pecahan Dasar & Bilangan",
-      topik: "Bilangan",
-      status: "published" as const,
-      deskripsi: "Pengenalan konsep pecahan dan operasi dasar bilangan",
-      jumlahSiswaSelesai: 25,
-      totalSiswa: 30,
-      createdAt: "2024-10-20",
-    },
-    {
-      id: "2",
-      judul: "Perkalian & Pembagian",
-      topik: "Operasi Hitung",
-      status: "published" as const,
-      deskripsi: "Mempelajari operasi perkalian dan pembagian bilangan cacah",
-      jumlahSiswaSelesai: 28,
-      totalSiswa: 30,
-      createdAt: "2024-10-22",
-    },
-    {
-      id: "3",
-      judul: "Geometri Bangun Datar",
-      topik: "Geometri",
-      status: "published" as const,
-      deskripsi: "Mengenal berbagai bangun datar dan sifat-sifatnya",
-      jumlahSiswaSelesai: 20,
-      totalSiswa: 30,
-      createdAt: "2024-10-25",
-    },
-    {
-      id: "4",
-      judul: "Pengukuran Waktu",
-      topik: "Pengukuran",
-      status: "draft" as const,
-      deskripsi: "Memahami konsep waktu dan cara mengukurnya",
-      jumlahSiswaSelesai: 0,
-      totalSiswa: 30,
-      createdAt: "2024-10-26",
-    },
-    {
-      id: "5",
-      judul: "Statistika Sederhana",
-      topik: "Statistika",
-      status: "published" as const,
-      deskripsi: "Pengenalan diagram batang dan pengolahan data sederhana",
-      jumlahSiswaSelesai: 15,
-      totalSiswa: 30,
-      createdAt: "2024-10-27",
-    },
-  ]);
-
   // Filter materi berdasarkan search query
   const filteredMateriList = useMemo(() => {
-    if (!searchQuery.trim()) {
-      return allMateriList;
+    const materiList = data?.items || [];
+
+    if (!debouncedSearch.trim()) {
+      return materiList;
     }
 
-    const query = searchQuery.toLowerCase();
-    return allMateriList.filter(
+    const query = debouncedSearch.toLowerCase();
+    return materiList.filter(
       (materi) =>
         materi.judul.toLowerCase().includes(query) ||
         materi.topik.toLowerCase().includes(query) ||
         materi.deskripsi.toLowerCase().includes(query)
     );
-  }, [searchQuery, allMateriList]);
+  }, [data, debouncedSearch]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    // Search sudah dilakukan secara realtime lewat useMemo
+    setCurrentPage(1); // Reset to first page on search
   };
 
   return (
@@ -105,23 +66,35 @@ const MateriListPage = () => {
       {/* Search Bar Component */}
       <SearchBar
         value={searchQuery}
-        onChange={setSearchQuery}
+        onChange={(value) => {
+          setSearchQuery(value);
+          setCurrentPage(1);
+        }}
         onSubmit={handleSearch}
         placeholder="Cari materi pembelajaran...."
         className="mb-8"
       />
 
       {/* Search Results Info */}
-      {searchQuery && (
-        <div className="mb-4">
+      {searchQuery && !isLoading && (
+        <div className="mb-4" role="status" aria-live="polite">
           <p className="text-[#336d82] poppins-medium">
-            Menampilkan {filteredMateriList.length} hasil untuk &ldquo;{searchQuery}&rdquo;
+            Menampilkan {filteredMateriList.length} hasil untuk &ldquo;
+            {searchQuery}&rdquo;
           </p>
         </div>
       )}
 
-      {/* Materi List */}
-      {filteredMateriList.length === 0 ? (
+      {/* Loading State */}
+      {isLoading ? (
+        <TableSkeleton rows={5} />
+      ) : error ? (
+        <ErrorState
+          title="Gagal Memuat Materi"
+          message="Terjadi kesalahan saat memuat daftar materi. Silakan coba lagi."
+          onRetry={() => refetch()}
+        />
+      ) : filteredMateriList.length === 0 ? (
         <EmptyState
           type={searchQuery ? "search" : "empty"}
           searchQuery={searchQuery}
@@ -135,12 +108,12 @@ const MateriListPage = () => {
           onAction={searchQuery ? () => setSearchQuery("") : undefined}
         />
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-6" role="list" aria-label="Daftar materi">
           {filteredMateriList.map((materi) => (
             <MateriCard
               key={materi.id}
               id={materi.id}
-              kelasId={kelasId as string}
+              kelasId={kelasId}
               judul={materi.judul}
               deskripsi={materi.deskripsi}
               topik={materi.topik}
@@ -149,6 +122,33 @@ const MateriListPage = () => {
               totalSiswa={materi.totalSiswa}
             />
           ))}
+        </div>
+      )}
+
+      {/* Pagination - if API returns pagination data */}
+      {data?.totalPages && data.totalPages > 1 && (
+        <div className="flex justify-center items-center gap-2 mt-8" role="navigation" aria-label="Pagination">
+          <button
+            onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+            disabled={currentPage === 1}
+            className="px-4 py-2 rounded-lg border border-gray-300 bg-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
+            aria-label="Halaman sebelumnya"
+          >
+            Sebelumnya
+          </button>
+
+          <span className="px-4 py-2 font-medium" aria-live="polite">
+            Halaman {currentPage} dari {data.totalPages}
+          </span>
+
+          <button
+            onClick={() => setCurrentPage((prev) => Math.min(data.totalPages, prev + 1))}
+            disabled={currentPage === data.totalPages}
+            className="px-4 py-2 rounded-lg border border-gray-300 bg-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
+            aria-label="Halaman selanjutnya"
+          >
+            Selanjutnya
+          </button>
         </div>
       )}
     </div>

@@ -7,12 +7,20 @@ import StudentSearchBar from "@/components/guru/StudentSearchBar";
 import PerformanceChart from "@/components/guru/PerformanceChart";
 import MateriProgressCard from "@/components/guru/MateriProgressCard";
 import { Siswa, Materi, StudentReport } from "@/types/guru";
+import { useClassReport } from "@/hooks/guru/useLaporan";
+import { CardSkeleton } from "@/components/guru/skeletons/CardSkeleton";
+import { ChartSkeleton } from "@/components/guru/skeletons/ChartSkeleton";
+import { ErrorState } from "@/components/guru/ErrorState";
 
 const LaporanKelasPage = () => {
   const params = useParams();
-  const kelasId = params.kelasId;
+  const kelasId = params.kelasId as string;
 
-  // Dummy data for students
+  // Lazy load class report data with React Query
+  const { data: reportData, isLoading, error, refetch } = useClassReport(kelasId);
+
+  // TODO: Replace with actual API data when backend is ready
+  // For now, use dummy data as fallback
   const studentList: Siswa[] = [
     { id: "1", nama: "FARHAN", nis: "001", tanggalLahir: "2010-05-15", tempatLahir: "Jakarta", jenisKelamin: "Laki-laki" },
     { id: "2", nama: "SITI", nis: "002", tanggalLahir: "2010-08-20", tempatLahir: "Bandung", jenisKelamin: "Perempuan" },
@@ -194,64 +202,98 @@ const LaporanKelasPage = () => {
           </h1>
 
           {/* Student Search Bar */}
-          <StudentSearchBar
-            students={studentList.map(s => ({ id: s.id, nama: s.nama, nis: s.nis }))}
-            selectedStudent={selectedStudent}
-            onSelectStudent={setSelectedStudent}
-          />
+          {isLoading ? (
+            <div className="h-12 bg-white/20 rounded-lg animate-pulse"></div>
+          ) : (
+            <StudentSearchBar
+              students={studentList.map(s => ({ id: s.id, nama: s.nama, nis: s.nis }))}
+              selectedStudent={selectedStudent}
+              onSelectStudent={setSelectedStudent}
+              aria-label="Pilih siswa untuk melihat laporan"
+            />
+          )}
         </div>
       </div>
 
-      {/* Performance Chart Section - Overall Performance */}
-      {currentReport && performanceData.length > 0 && (
-        <div className="mb-6">
-          <PerformanceChart
-            data={performanceData}
-            materiTitle="Performa Pembelajaran Keseluruhan"
-            studentName={currentReport.nama}
-          />
-        </div>
-      )}
-
-      {/* Materials Section */}
-      <div className="mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-[#336d82] text-4xl poppins-semibold">
-            MATERI DIPELAJARI
-          </h2>
-
-          {/* Download PDF Button */}
-          <button
-            onClick={handleDownloadPDF}
-            className="bg-[#336d82] rounded-[18px] h-[54px] px-6 flex items-center gap-3 hover:bg-[#2a5a6a] transition-colors shadow-lg"
-          >
-            <div className="bg-white rounded-full w-[40px] h-[40px] flex items-center justify-center">
-              <DownloadIcon sx={{ fontSize: 20, color: "#336d82" }} />
-            </div>
-            <span className="text-white text-base poppins-semibold">
-              Download PDF
-            </span>
-          </button>
-        </div>
-
-        {/* Material Progress Card - Single Card Display */}
-        {currentCardMateri ? (
-          <MateriProgressCard
-            materi={currentCardMateri}
-            allMaterials={studentMaterials}
-            onViewGrafik={() => console.log("View Grafik", currentCardMateri.materiId)}
-            onViewHasilKuis={() => console.log("View Hasil Kuis", currentCardMateri.materiId)}
-            onViewAnalisa={() => console.log("View Analisa", currentCardMateri.materiId)}
-            onMateriChange={(materiId) => setSelectedCardMateri(materiId)}
-          />
-        ) : (
-          <div className="bg-white rounded-[20px] p-12 shadow-lg text-center">
-            <p className="text-gray-500 text-xl poppins-medium">
-              Belum ada data materi untuk siswa ini
-            </p>
+      {/* Loading State */}
+      {isLoading ? (
+        <>
+          {/* Performance Chart Skeleton */}
+          <div className="mb-6">
+            <ChartSkeleton />
           </div>
-        )}
-      </div>
+
+          {/* Materials Section Skeleton */}
+          <div className="mb-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="h-10 bg-gray-200 rounded w-80 animate-pulse"></div>
+              <div className="h-14 bg-gray-200 rounded w-48 animate-pulse"></div>
+            </div>
+            <CardSkeleton />
+          </div>
+        </>
+      ) : error ? (
+        /* Error State */
+        <ErrorState
+          title="Gagal Memuat Laporan"
+          message="Terjadi kesalahan saat memuat laporan kelas. Silakan coba lagi."
+          onRetry={() => refetch()}
+        />
+      ) : (
+        <>
+          {/* Performance Chart Section - Overall Performance */}
+          {currentReport && performanceData.length > 0 && (
+            <div className="mb-6">
+              <PerformanceChart
+                data={performanceData}
+                materiTitle="Performa Pembelajaran Keseluruhan"
+                studentName={currentReport.nama}
+              />
+            </div>
+          )}
+
+          {/* Materials Section */}
+          <div className="mb-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-[#336d82] text-4xl poppins-semibold">
+                MATERI DIPELAJARI
+              </h2>
+
+              {/* Download PDF Button */}
+              <button
+                onClick={handleDownloadPDF}
+                className="bg-[#336d82] rounded-[18px] h-[54px] px-6 flex items-center gap-3 hover:bg-[#2a5a6a] transition-colors shadow-lg"
+                aria-label="Download laporan PDF"
+              >
+                <div className="bg-white rounded-full w-[40px] h-[40px] flex items-center justify-center">
+                  <DownloadIcon sx={{ fontSize: 20, color: "#336d82" }} />
+                </div>
+                <span className="text-white text-base poppins-semibold">
+                  Download PDF
+                </span>
+              </button>
+            </div>
+
+            {/* Material Progress Card - Single Card Display */}
+            {currentCardMateri ? (
+              <MateriProgressCard
+                materi={currentCardMateri}
+                allMaterials={studentMaterials}
+                onViewGrafik={() => console.log("View Grafik", currentCardMateri.materiId)}
+                onViewHasilKuis={() => console.log("View Hasil Kuis", currentCardMateri.materiId)}
+                onViewAnalisa={() => console.log("View Analisa", currentCardMateri.materiId)}
+                onMateriChange={(materiId) => setSelectedCardMateri(materiId)}
+              />
+            ) : (
+              <div className="bg-white rounded-[20px] p-12 shadow-lg text-center">
+                <p className="text-gray-500 text-xl poppins-medium">
+                  Belum ada data materi untuk siswa ini
+                </p>
+              </div>
+            )}
+          </div>
+        </>
+      )}
     </div>
   );
 };

@@ -58,7 +58,7 @@ const MateriCard: React.FC<MateriCardProps> = ({
 
       {/* Action Buttons */}
       <div className="flex gap-3 self-end">
-        <Link href={`/guru/kelas/${kelasId}/materi/${id}`}>
+        <Link href={`/guru/kelas/${kelasId}/materi/edit?id=${id}`}>
           <button
             onClick={onKelolaMaterial}
             className="bg-[#336d82] text-white px-4 py-2 rounded-[15px] flex items-center gap-2 hover:bg-[#2a5a6a] transition-all hover:shadow-lg h-[44px]"

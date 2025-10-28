@@ -28,3 +28,8 @@ export { MainMateriTitle } from "./MainMateriTitle";
 export type { MainMateriData } from "./MainMateriTitle";
 export { MateriSection } from "./MateriSection";
 export type { MateriSectionData } from "./MateriSection";
+
+// Editable components
+export { EditableTitleSection } from "./EditableTitleSection";
+export { EditableFileSection } from "./EditableFileSection";
+export { EditableExplanationSection } from "./EditableExplanationSection";

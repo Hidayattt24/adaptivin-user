@@ -1,32 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(cat:*)",
-      "Bash(npm install:*)",
-      "WebFetch(domain:www.npmjs.com)",
-      "WebFetch(domain:github.com)",
-      "Bash(npm uninstall:*)",
-      "Bash(git diff:*)",
-      "Bash(git add:*)",
-      "Bash(git push:*)",
-      "mcp__figma-desktop__get_design_context",
-      "Bash(find:*)",
-      "WebSearch",
-      "Bash(cd:*)",
-      "mcp__figma-desktop__get_screenshot",
-      "Bash(ls:*)",
-      "Bash(mkdir:*)",
-      "Bash(tree:*)",
-      "Bash(mv:*)",
-      "Bash(pnpm dlx:*)",
-      "Bash(npm --version:*)",
-      "Bash(npx shadcn@latest add:*)",
-      "WebFetch(domain:magicui.design)",
-      "Bash(npx magicui-cli@latest init)",
-      "Bash(npm run build:*)",
-      "Bash(pkill:*)",
-      "mcp__ide__getDiagnostics",
-      "Read(//d/**)"
+      "Bash(npx next lint:*)",
+      "Bash(git commit:*)"
     ],
     "deny": [],
     "ask": []

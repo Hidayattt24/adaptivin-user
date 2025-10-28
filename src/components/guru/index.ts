@@ -33,3 +33,8 @@ export type { MateriSectionData } from "./MateriSection";
 export { EditableTitleSection } from "./EditableTitleSection";
 export { EditableFileSection } from "./EditableFileSection";
 export { EditableExplanationSection } from "./EditableExplanationSection";
+
+// Page components
+export { default as MateriPageHeader } from "./MateriPageHeader";
+export { default as PreviewModal } from "./PreviewModal";
+export { default as EditableImageGallery } from "./EditableImageGallery";

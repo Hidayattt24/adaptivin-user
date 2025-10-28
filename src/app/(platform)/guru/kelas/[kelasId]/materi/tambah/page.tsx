@@ -3,7 +3,6 @@
 import React, { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import {
-  ArrowBackIos,
   Autorenew,
   InsertDriveFile,
   Add,
@@ -12,6 +11,7 @@ import {
   UploadTimeline,
   MainMateriTitle,
   MateriSection,
+  MateriPageHeader,
   type MainMateriData,
   type MateriSectionData,
 } from "@/components/guru";
@@ -315,20 +315,10 @@ const TambahMateriPage = () => {
       {/* Content Container */}
       <div className="relative z-10">
         {/* Header Card */}
-        <div className="mx-auto mb-6 max-w-4xl">
-          <div className="bg-gradient-to-r from-[#336d82] to-[#2a5a6d] text-white rounded-2xl flex items-center px-6 py-4 gap-4 shadow-xl hover:shadow-2xl transition-shadow">
-            <button
-              onClick={() => router.push(`/guru/kelas/${kelasId}/materi`)}
-              className="w-[45px] h-[45px] bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white hover:scale-110 transition-all duration-200 flex-shrink-0 shadow-md"
-              aria-label="Kembali"
-            >
-              <ArrowBackIos sx={{ fontSize: 18, color: "#336d82", ml: 0.5 }} />
-            </button>
-            <h1 className="text-[20px] md:text-[24px] font-bold text-center flex-1 font-poppins tracking-wide">
-              BUAT MATERI PEMBELAJARAN
-            </h1>
-          </div>
-        </div>
+        <MateriPageHeader
+          kelasId={kelasId}
+          title="BUAT MATERI PEMBELAJARAN"
+        />
 
         {/* Timeline */}
         <UploadTimeline currentStep={currentStep} />

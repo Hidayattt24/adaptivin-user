@@ -37,23 +37,6 @@ const MateriCard: React.FC<MateriCardProps> = ({
           {judul}
         </h2>
         <p className="text-white/90 text-sm poppins-regular">{deskripsi}</p>
-        <div className="flex items-center gap-3 mt-2">
-          <span className="bg-white/20 text-white px-3 py-0.5 rounded-full text-xs poppins-medium">
-            {topik}
-          </span>
-          <span
-            className={`px-3 py-0.5 rounded-full text-xs poppins-medium ${
-              status === "published"
-                ? "bg-green-500/20 text-white"
-                : "bg-yellow-500/20 text-white"
-            }`}
-          >
-            {status === "published" ? "Dipublikasi" : "Draft"}
-          </span>
-          <span className="text-white/80 text-xs poppins-regular">
-            {jumlahSiswaSelesai}/{totalSiswa} siswa selesai
-          </span>
-        </div>
       </div>
 
       {/* Action Buttons */}
@@ -71,7 +54,7 @@ const MateriCard: React.FC<MateriCardProps> = ({
             </span>
           </button>
         </Link>
-        <Link href={`/guru/kelas/${kelasId}/materi/${id}/kuis`}>
+        <Link href={`/guru/kelas/${kelasId}/materi/${id}/edit-kuis`}>
           <button
             onClick={onKelolaKuis}
             className="bg-[#336d82] text-white px-4 py-2 rounded-[15px] flex items-center gap-2 hover:bg-[#2a5a6a] transition-all hover:shadow-lg h-[44px]"

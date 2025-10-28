@@ -2,11 +2,13 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import { ArrowBackIos } from "@mui/icons-material";
+import { ArrowBack, CheckCircle } from "@mui/icons-material";
 import {
   EditableTitleSection,
   EditableFileSection,
   EditableExplanationSection,
+  MateriPageHeader,
+  PreviewModal,
 } from "@/components/guru";
 
 // Toast notification types
@@ -41,6 +43,12 @@ const EditMateriPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [materialData, setMaterialData] = useState<MaterialData | null>(null);
   const [toasts, setToasts] = useState<Toast[]>([]);
+  const [previewModal, setPreviewModal] = useState<{
+    isOpen: boolean;
+    type: "image" | "pdf" | "video" | "document";
+    src: string;
+    fileName?: string;
+  }>({ isOpen: false, type: "image", src: "" });
 
   // Toast notification helper
   const showToast = useCallback((message: string, type: ToastType = "success") => {
@@ -66,8 +74,10 @@ const EditMateriPage = () => {
         const mockData: MaterialData = {
           id: materiId,
           title: "Pecahan biasa & campuran",
-          fileName: "File belajar pecahan dasar bilangan",
-          videoName: "Video belajar pecahan dasar bilangan",
+          fileName: "File belajar pecahan dasar bilangan.pdf",
+          fileUrl: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf", // Mock PDF URL
+          videoName: "Video belajar pecahan dasar bilangan.mp4",
+          videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4", // Mock video URL
           explanation:
             "Cara Menghitung Luas Agar Semua Kebagian!\n\nBayangkan kamu punya satu kue yang sangat enak dan kamu ingin berbagi dengan 3 temanmu. Kalau kamu ingin membaginya dengan adil, kue itu perlu dipotong jadi 4 bagian yang sama besar (untuk kamu dan 3 temanmu). Nah, satu potongan kue itu adalah 1/4 (satu per empat) dari seluruh kue!\n\nKenapa disebut 1/4?\n\n1 adalah satu potong (bagian yang kamu punya)\n4 adalah jumlah total potongan (untuk kamu dan temanmu semua)\n\nJadi, pecahan campuran itu kayak kamu punya 1 kue utuh PLUS 1/4 potongan dari kue lagi. Itu artinya kamu sebenarnya punya 1 1/4 kue!",
           imageUrls: [
@@ -217,10 +227,10 @@ const EditMateriPage = () => {
       setMaterialData((prev) =>
         prev
           ? {
-              ...prev,
-              explanation,
-              imageUrls: [...prev.imageUrls, ...newImageUrls],
-            }
+            ...prev,
+            explanation,
+            imageUrls: [...prev.imageUrls, ...newImageUrls],
+          }
           : null
       );
       showToast("Penjelasan berhasil diperbarui", "success");
@@ -260,6 +270,35 @@ const EditMateriPage = () => {
     }, 1000);
   };
 
+  const handlePreviewFile = () => {
+    if (!materialData?.fileUrl) return;
+
+    const fileExtension = materialData.fileName?.split(".").pop()?.toLowerCase();
+    let type: "pdf" | "document" = "document";
+
+    if (fileExtension === "pdf") {
+      type = "pdf";
+    }
+
+    setPreviewModal({
+      isOpen: true,
+      type,
+      src: materialData.fileUrl,
+      fileName: materialData.fileName,
+    });
+  };
+
+  const handlePreviewVideo = () => {
+    if (!materialData?.videoUrl) return;
+
+    setPreviewModal({
+      isOpen: true,
+      type: "video",
+      src: materialData.videoUrl,
+      fileName: materialData.videoName,
+    });
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white flex items-center justify-center">
@@ -296,13 +335,12 @@ const EditMateriPage = () => {
         {toasts.map((toast) => (
           <div
             key={toast.id}
-            className={`px-6 py-4 rounded-xl shadow-lg font-poppins font-semibold text-white animate-slide-in ${
-              toast.type === "success"
-                ? "bg-gradient-to-r from-[#2ea062] to-[#26824f]"
-                : toast.type === "error"
+            className={`px-6 py-4 rounded-xl shadow-lg font-poppins font-semibold text-white animate-slide-in ${toast.type === "success"
+              ? "bg-gradient-to-r from-[#2ea062] to-[#26824f]"
+              : toast.type === "error"
                 ? "bg-gradient-to-r from-[#ff1919] to-[#e01515]"
                 : "bg-gradient-to-r from-[#336d82] to-[#2a5a6d]"
-            }`}
+              }`}
           >
             {toast.message}
           </div>
@@ -310,25 +348,16 @@ const EditMateriPage = () => {
       </div>
 
       {/* Header */}
-      <div className="bg-gradient-to-r from-[#336d82] to-[#2a5a6d] py-6 px-4 shadow-xl sticky top-0 z-40">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex items-center gap-4">
-            <button
-              onClick={handleBack}
-              className="w-10 h-10 flex items-center justify-center bg-white/10 hover:bg-white/20 rounded-full transition-all hover:scale-110 backdrop-blur-sm"
-              aria-label="Kembali"
-            >
-              <ArrowBackIos sx={{ fontSize: 18, color: "white", ml: 0.5 }} />
-            </button>
-            <h1 className="text-[20px] md:text-[24px] font-bold text-white text-center flex-1 font-poppins tracking-wide">
-              EDIT MATERI PEMBELAJARAN
-            </h1>
-          </div>
-        </div>
+      <div className="py-6 px-4 sticky top-0 z-40 bg-gradient-to-br from-gray-50 to-white">
+        <MateriPageHeader
+          kelasId={kelasId}
+          title="EDIT MATERI PEMBELAJARAN"
+          onBack={handleBack}
+        />
       </div>
 
       {/* Main Content */}
-      <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
+      <div className="max-w-4xl mx-auto px-4 pb-8 space-y-6">
         {/* Title Section */}
         <EditableTitleSection
           initialTitle={materialData.title}
@@ -340,10 +369,12 @@ const EditMateriPage = () => {
           title="Unggah materi dalam bentuk file"
           initialFile={null}
           initialFileName={materialData.fileName}
+          initialFileUrl={materialData.fileUrl}
           accept=".pdf,.doc,.docx"
           formatHint="Format: PDF, DOC, DOCX"
           onSave={handleSaveFile}
           onDelete={handleDeleteFile}
+          onPreview={handlePreviewFile}
         />
 
         {/* Video Section */}
@@ -351,10 +382,12 @@ const EditMateriPage = () => {
           title="Unggah materi dalam bentuk video"
           initialFile={null}
           initialFileName={materialData.videoName}
+          initialFileUrl={materialData.videoUrl}
           accept="video/*"
           formatHint="Format: MP4, AVI, MOV"
           onSave={handleSaveVideo}
           onDelete={handleDeleteVideo}
+          onPreview={handlePreviewVideo}
         />
 
         {/* Explanation Section */}
@@ -365,25 +398,49 @@ const EditMateriPage = () => {
           onDelete={handleDeleteExplanation}
         />
 
-        {/* Action Buttons */}
-        <div className="flex gap-4 pt-6">
-          <button
-            onClick={handleBack}
-            className="flex-1 md:flex-none px-12 py-3.5 rounded-xl text-[17px] md:text-[19px] font-semibold transition-all duration-300 font-poppins shadow-md hover:shadow-lg bg-white border-2 border-[#336d82] text-[#336d82] hover:bg-gray-50"
-          >
-            Kembali
-          </button>
-          <button
-            onClick={handleSubmit}
-            className="flex-1 md:flex-none px-16 py-3.5 rounded-xl text-[17px] md:text-[19px] font-semibold transition-all duration-300 font-poppins shadow-xl hover:shadow-2xl hover:-translate-y-1 bg-gradient-to-r from-[#336d82] to-[#2a5a6d] text-white hover:from-[#2a5a6d] hover:to-[#1f4550]"
-          >
-            Submit
-          </button>
+        {/* Action Buttons - Professional Design */}
+        <div className="sticky bottom-0 -mx-4 px-4 py-6 bg-gradient-to-t from-white via-white to-transparent backdrop-blur-sm border-t border-gray-100 mt-8">
+          <div className="max-w-4xl mx-auto flex flex-col gap-3">
+            {/* Tombol Simpan - Di Atas */}
+            <button
+              onClick={handleSubmit}
+              className="w-full flex items-center justify-center gap-2 px-12 py-4 rounded-xl text-base font-semibold transition-all duration-300 font-poppins shadow-xl hover:shadow-2xl hover:-translate-y-1 bg-gradient-to-r from-[#2ea062] to-[#26824f] text-white hover:from-[#26824f] hover:to-[#1f6640] relative overflow-hidden group"
+            >
+              <span className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></span>
+              <span className="relative flex items-center gap-2">
+                <CheckCircle sx={{ fontSize: 20 }} />
+                Simpan Semua Perubahan
+              </span>
+            </button>
+
+            {/* Tombol Kembali - Di Bawah */}
+            <button
+              onClick={handleBack}
+              className="w-full flex items-center justify-center gap-2 px-8 py-4 rounded-xl text-base font-semibold transition-all duration-300 font-poppins shadow-md hover:shadow-lg bg-white border-2 border-[#336d82] text-[#336d82] hover:bg-[#336d82] hover:text-white group"
+            >
+              <ArrowBack
+                sx={{ fontSize: 20 }}
+                className="transition-transform group-hover:-translate-x-1"
+              />
+              Kembali
+            </button>
+          </div>
         </div>
       </div>
 
       {/* Bottom spacing */}
       <div className="h-12"></div>
+
+      {/* Preview Modal */}
+      <PreviewModal
+        isOpen={previewModal.isOpen}
+        onClose={() =>
+          setPreviewModal({ isOpen: false, type: "image", src: "" })
+        }
+        type={previewModal.type}
+        src={previewModal.src}
+        fileName={previewModal.fileName}
+      />
 
       <style jsx>{`
         @keyframes slide-in {

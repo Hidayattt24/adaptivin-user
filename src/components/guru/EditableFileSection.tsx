@@ -8,26 +8,31 @@ import {
   CheckCircle,
   InsertDriveFile,
   CloudUpload,
+  Visibility,
 } from "@mui/icons-material";
 
 interface EditableFileSectionProps {
   title: string;
   initialFile: File | null;
   initialFileName?: string;
+  initialFileUrl?: string;
   accept: string;
   formatHint: string;
   onSave: (file: File | null) => Promise<void>;
   onDelete?: () => Promise<void>;
+  onPreview?: () => void;
 }
 
 export function EditableFileSection({
   title,
   initialFile,
   initialFileName,
+  initialFileUrl,
   accept,
   formatHint,
   onSave,
   onDelete,
+  onPreview,
 }: EditableFileSectionProps) {
   const [file, setFile] = useState<File | null>(initialFile);
   const [fileName, setFileName] = useState(initialFileName || initialFile?.name || "");
@@ -180,13 +185,24 @@ export function EditableFileSection({
 
       <div className="flex gap-2 mt-3 justify-end">
         {!isEditing ? (
-          <button
-            onClick={handleEdit}
-            className="px-5 py-2 rounded-xl text-[12px] font-semibold transition-all flex items-center gap-2 font-poppins shadow-md hover:shadow-lg bg-gradient-to-r from-[#fcc61d] to-[#f5b800] text-white hover:-translate-y-0.5"
-          >
-            <Edit sx={{ fontSize: 16 }} />
-            Edit
-          </button>
+          <>
+            {onPreview && (initialFileUrl || file) && (
+              <button
+                onClick={onPreview}
+                className="px-5 py-2 rounded-xl text-[12px] font-semibold transition-all flex items-center gap-2 font-poppins shadow-md hover:shadow-lg bg-white text-[#336d82] hover:bg-gray-50 hover:-translate-y-0.5"
+              >
+                <Visibility sx={{ fontSize: 16 }} />
+                Preview
+              </button>
+            )}
+            <button
+              onClick={handleEdit}
+              className="px-5 py-2 rounded-xl text-[12px] font-semibold transition-all flex items-center gap-2 font-poppins shadow-md hover:shadow-lg bg-gradient-to-r from-[#fcc61d] to-[#f5b800] text-white hover:-translate-y-0.5"
+            >
+              <Edit sx={{ fontSize: 16 }} />
+              Edit
+            </button>
+          </>
         ) : (
           <>
             <button

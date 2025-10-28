@@ -7,8 +7,10 @@ import {
   Delete,
   CheckCircle,
   AddPhotoAlternate,
-  Close,
+  ZoomIn,
 } from "@mui/icons-material";
+import EditableImageGallery from "./EditableImageGallery";
+import PreviewModal from "./PreviewModal";
 
 interface EditableExplanationSectionProps {
   initialExplanation: string;
@@ -29,6 +31,10 @@ export function EditableExplanationSection({
   const [isEditing, setIsEditing] = useState(false);
   const [isSaved, setIsSaved] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
+  const [previewModal, setPreviewModal] = useState<{
+    isOpen: boolean;
+    imageIndex: number;
+  }>({ isOpen: false, imageIndex: 0 });
 
   const hasChanges =
     explanation !== initialExplanation || images.length > 0;
@@ -72,6 +78,38 @@ export function EditableExplanationSection({
     setIsSaved(false);
   };
 
+  const handleImageClick = (index: number) => {
+    setPreviewModal({ isOpen: true, imageIndex: index });
+  };
+
+  const handleImageEdit = (index: number) => {
+    // Trigger file input for replacement
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "image/*";
+    input.onchange = (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (file) {
+        const preview = imagePreviews[index];
+        if (preview.startsWith("blob:")) {
+          URL.revokeObjectURL(preview);
+        }
+
+        const newPreview = URL.createObjectURL(file);
+        const newImages = [...images];
+        const newPreviews = [...imagePreviews];
+
+        newImages[index] = file;
+        newPreviews[index] = newPreview;
+
+        setImages(newImages);
+        setImagePreviews(newPreviews);
+        setIsSaved(false);
+      }
+    };
+    input.click();
+  };
+
   const handleSave = async () => {
     if (!explanation.trim()) return;
 
@@ -102,6 +140,18 @@ export function EditableExplanationSection({
     setImagePreviews(initialImages);
     setIsEditing(false);
     setIsSaved(true);
+  };
+
+  const handleDeleteAllImages = async () => {
+    // Only delete images, keep explanation text
+    imagePreviews.forEach((preview) => {
+      if (preview.startsWith("blob:")) {
+        URL.revokeObjectURL(preview);
+      }
+    });
+    setImages([]);
+    setImagePreviews([]);
+    setIsSaved(false);
   };
 
   const handleDeleteAll = async () => {
@@ -138,13 +188,26 @@ export function EditableExplanationSection({
         )}
       </div>
 
-      {/* Image Gallery - Full Width Previews */}
-      {imagePreviews.length > 0 && (
+      {/* Image Gallery with Edit/Delete/Preview */}
+      {imagePreviews.length > 0 && isEditing && (
+        <div className="mb-4">
+          <EditableImageGallery
+            images={imagePreviews}
+            onImageClick={handleImageClick}
+            onImageDelete={handleRemoveImage}
+            onImageEdit={handleImageEdit}
+          />
+        </div>
+      )}
+
+      {/* Read-only Image Gallery with Preview Hint */}
+      {imagePreviews.length > 0 && !isEditing && (
         <div className="mb-4 space-y-3">
           {imagePreviews.map((preview, index) => (
             <div
               key={index}
-              className="relative bg-white rounded-xl p-3 shadow-md hover:shadow-lg transition-all"
+              className="relative bg-white rounded-xl p-3 shadow-md hover:shadow-lg transition-all group cursor-pointer"
+              onClick={() => handleImageClick(index)}
             >
               <img
                 src={preview}
@@ -152,19 +215,34 @@ export function EditableExplanationSection({
                 className="w-full h-auto max-h-[400px] object-contain rounded-lg"
                 loading="lazy"
               />
-              {isEditing && (
+              {/* Hover Overlay - Preview Only */}
+              <div className="absolute inset-0 bg-black/40 rounded-xl flex flex-col items-center justify-center gap-3 transition-opacity duration-200 opacity-0 group-hover:opacity-100">
                 <button
-                  onClick={() => handleRemoveImage(index)}
-                  className="absolute top-5 right-5 bg-[#ff1919] text-white rounded-full p-2 hover:bg-[#e01515] hover:scale-110 transition-all shadow-lg"
-                  aria-label="Hapus gambar"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleImageClick(index);
+                  }}
+                  className="w-14 h-14 bg-white/95 hover:bg-white rounded-full flex items-center justify-center transition-all hover:scale-110 shadow-lg"
+                  aria-label="Preview"
                 >
-                  <Close sx={{ fontSize: 18 }} />
+                  <ZoomIn sx={{ fontSize: 28, color: "#336d82" }} />
                 </button>
-              )}
+                <p className="text-white text-xs font-semibold font-poppins bg-black/50 px-3 py-1.5 rounded-full">
+                  Klik Edit untuk mengubah gambar
+                </p>
+              </div>
             </div>
           ))}
         </div>
       )}
+
+      {/* Preview Modal */}
+      <PreviewModal
+        isOpen={previewModal.isOpen}
+        onClose={() => setPreviewModal({ isOpen: false, imageIndex: 0 })}
+        type="image"
+        src={imagePreviews[previewModal.imageIndex] || ""}
+      />
 
       <textarea
         value={explanation}
@@ -173,11 +251,10 @@ export function EditableExplanationSection({
           setIsSaved(false);
         }}
         placeholder="Ketik disini untuk menulis materi..."
-        className={`w-full px-4 py-3 rounded-xl text-[14px] border-2 resize-none font-poppins shadow-inner bg-white text-gray-900 transition-all ${
-          isEditing
+        className={`w-full px-4 py-3 rounded-xl text-[14px] border-2 resize-none font-poppins shadow-inner bg-white text-gray-900 transition-all ${isEditing
             ? "border-[#fcc61d] focus:outline-none focus:ring-2 focus:ring-[#fcc61d]/50"
             : "border-transparent focus:outline-none focus:ring-2 focus:ring-white/50"
-        }`}
+          }`}
         rows={5}
         disabled={!isEditing || isLoading}
       />

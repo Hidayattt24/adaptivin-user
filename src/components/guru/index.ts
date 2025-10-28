@@ -22,3 +22,5 @@ export * from "./skeletons";
 // Upload components
 export { UploadTimeline } from "./UploadTimeline";
 export { FileUploadCard } from "./FileUploadCard";
+export { TextInputSection } from "./TextInputSection";
+export { ImagePreviewCard } from "./ImagePreviewCard";

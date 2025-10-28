@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, usePathname } from "next/navigation";
 import KelasNavigationSidebar from "@/components/guru/KelasNavigationSidebar";
 import Image from "next/image";
 import MenuIcon from "@mui/icons-material/Menu";
@@ -12,8 +12,12 @@ export default function KelasLayout({
   children: React.ReactNode;
 }) {
   const params = useParams();
+  const pathname = usePathname();
   const kelasId = params.kelasId as string;
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
+  // Check if we're on tambah/edit pages - hide sidebar and profile
+  const isTambahOrEditPage = pathname.includes("/tambah") || pathname.includes("/edit");
 
   // Dummy data untuk guru
   const guruData = {
@@ -21,6 +25,11 @@ export default function KelasLayout({
     email: "isabella@gmail.com",
     foto: "/guru/foto-profil/profil-guru.svg",
   };
+
+  // If it's tambah or edit page, render without sidebar and profile
+  if (isTambahOrEditPage) {
+    return <div className="min-h-screen bg-white">{children}</div>;
+  }
 
   return (
     <div className="min-h-screen bg-white">

@@ -1,183 +1,127 @@
 "use client";
 
-import React, { useState, useRef } from "react";
-import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
-import DeleteIcon from "@mui/icons-material/Delete";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import React from "react";
+import { CloudUpload, InsertDriveFile, CheckCircle } from "@mui/icons-material";
 
 interface FileUploadCardProps {
-  label: string;
-  accept?: string;
-  maxSize?: number; // in MB
-  files: File[];
-  onFilesChange: (files: File[]) => void;
-  optional?: boolean;
+  sectionNumber: number;
+  title: string;
+  file: File | null;
+  accept: string;
+  formatHint: string;
+  confirmed: boolean;
+  isDragging: boolean;
+  onFileSelect: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onRemove: () => void;
+  onConfirm: () => void;
+  onDragOver: (e: React.DragEvent) => void;
+  onDragLeave: (e: React.DragEvent) => void;
+  onDrop: (e: React.DragEvent) => void;
+  inputId: string;
 }
 
 export function FileUploadCard({
-  label,
-  accept = "*",
-  maxSize = 10,
-  files,
-  onFilesChange,
-  optional = false,
+  sectionNumber,
+  title,
+  file,
+  accept,
+  formatHint,
+  confirmed,
+  isDragging,
+  onFileSelect,
+  onRemove,
+  onConfirm,
+  onDragOver,
+  onDragLeave,
+  onDrop,
+  inputId,
 }: FileUploadCardProps) {
-  const [isDragging, setIsDragging] = useState(false);
-  const [error, setError] = useState("");
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(true);
-  };
-
-  const handleDragLeave = () => {
-    setIsDragging(false);
-  };
-
-  const validateAndAddFiles = (newFiles: FileList | null) => {
-    if (!newFiles) return;
-
-    setError("");
-    const validFiles: File[] = [];
-
-    Array.from(newFiles).forEach((file) => {
-      // Check file size
-      if (file.size > maxSize * 1024 * 1024) {
-        setError(`File ${file.name} terlalu besar. Maksimal ${maxSize}MB`);
-        return;
-      }
-
-      // Check if file already exists
-      if (files.some((f) => f.name === file.name && f.size === file.size)) {
-        setError(`File ${file.name} sudah ditambahkan`);
-        return;
-      }
-
-      validFiles.push(file);
-    });
-
-    if (validFiles.length > 0) {
-      onFilesChange([...files, ...validFiles]);
-    }
-  };
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-    validateAndAddFiles(e.dataTransfer.files);
-  };
-
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    validateAndAddFiles(e.target.files);
-  };
-
-  const removeFile = (index: number) => {
-    onFilesChange(files.filter((_, i) => i !== index));
-  };
-
-  const formatFileSize = (bytes: number) => {
-    if (bytes < 1024) return bytes + " B";
-    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
-    return (bytes / (1024 * 1024)).toFixed(1) + " MB";
-  };
-
-  const getFileIcon = (fileName: string) => {
-    const ext = fileName.split(".").pop()?.toLowerCase();
-    // You can customize icons based on file type
-    return <InsertDriveFileIcon className="text-[#336d82]" />;
-  };
-
   return (
-    <div className="space-y-4">
-      <div className="flex items-center gap-2">
-        <label className="text-sm font-medium text-gray-700">{label}</label>
-        {optional && (
-          <span className="text-xs text-gray-500">(Opsional)</span>
-        )}
-      </div>
-
-      {/* Upload Area */}
+    <div className="bg-gradient-to-br from-[#336d82] to-[#2a5a6d] rounded-xl p-5 shadow-md hover:shadow-lg transition-shadow">
+      <h2 className="text-[17px] md:text-[19px] font-semibold text-white mb-3 font-poppins flex items-center gap-2">
+        <span className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center text-sm">
+          {sectionNumber}
+        </span>
+        {title}
+      </h2>
       <div
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
-        onClick={() => fileInputRef.current?.click()}
-        className={`
-          border-2 border-dashed rounded-lg p-8 text-center cursor-pointer
-          transition-all duration-200
-          ${
-            isDragging
-              ? "border-[#336d82] bg-blue-50"
-              : "border-gray-300 hover:border-[#336d82] hover:bg-gray-50"
-          }
-        `}
+        className={`bg-white rounded-xl p-5 transition-all shadow-inner ${
+          isDragging
+            ? "border-2 border-[#336d82] border-dashed bg-[#336d82]/5 scale-[1.02]"
+            : "border-2 border-transparent"
+        }`}
+        onDragOver={onDragOver}
+        onDragLeave={onDragLeave}
+        onDrop={onDrop}
       >
-        <CloudUploadIcon
-          className={`mx-auto mb-3 ${
-            isDragging ? "text-[#336d82]" : "text-gray-400"
-          }`}
-          sx={{ fontSize: 48 }}
-        />
-        <p className="text-sm text-gray-600 mb-1">
-          <span className="text-[#336d82] font-medium">Klik untuk upload</span>{" "}
-          atau drag & drop
-        </p>
-        <p className="text-xs text-gray-500">Maksimal {maxSize}MB</p>
-
         <input
-          ref={fileInputRef}
           type="file"
+          id={inputId}
           accept={accept}
-          multiple
-          onChange={handleFileSelect}
+          onChange={onFileSelect}
           className="hidden"
+          disabled={confirmed}
         />
-      </div>
-
-      {/* Error Message */}
-      {error && (
-        <div
-          className="bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700"
-          role="alert"
-        >
-          {error}
-        </div>
-      )}
-
-      {/* File List */}
-      {files.length > 0 && (
-        <div className="space-y-2">
-          {files.map((file, index) => (
-            <div
-              key={index}
-              className="flex items-center gap-3 bg-white border border-gray-200 rounded-lg p-3 hover:bg-gray-50 transition-colors"
-            >
-              {getFileIcon(file.name)}
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-900 truncate">
-                  {file.name}
-                </p>
-                <p className="text-xs text-gray-500">
-                  {formatFileSize(file.size)}
-                </p>
-              </div>
-              <CheckCircleIcon className="text-green-500" fontSize="small" />
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  removeFile(index);
-                }}
-                className="p-1 hover:bg-red-50 rounded-full transition-colors"
-                aria-label={`Hapus ${file.name}`}
-              >
-                <DeleteIcon className="text-red-500" fontSize="small" />
-              </button>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl flex items-center justify-center shadow-sm">
+              <InsertDriveFile sx={{ fontSize: 28, color: "#666" }} />
             </div>
-          ))}
+            <div>
+              <p className="text-[14px] font-semibold text-gray-800 font-poppins">
+                {file ? file.name : "Tidak ada file dipilih"}
+              </p>
+              <p className="text-[12px] text-gray-500 font-poppins mt-0.5">
+                {formatHint}
+              </p>
+            </div>
+          </div>
+          <label
+            htmlFor={inputId}
+            className={`cursor-pointer ${
+              confirmed ? "cursor-not-allowed" : ""
+            }`}
+          >
+            <div
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-[12px] font-semibold transition-all font-poppins shadow-md hover:shadow-lg ${
+                confirmed
+                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  : "bg-gradient-to-r from-[#336d82] to-[#2a5a6d] text-white hover:-translate-y-0.5"
+              }`}
+            >
+              <CloudUpload sx={{ fontSize: 18 }} />
+              Pilih file
+            </div>
+          </label>
         </div>
-      )}
+      </div>
+      <div className="flex justify-end gap-2 mt-3">
+        <button
+          onClick={onRemove}
+          disabled={confirmed}
+          className={`px-7 py-2 rounded-xl text-[12px] font-semibold transition-all font-poppins shadow-md hover:shadow-lg ${
+            confirmed
+              ? "bg-gray-400 text-gray-200 cursor-not-allowed"
+              : "bg-[#ff1919] text-white hover:bg-[#e01515] hover:-translate-y-0.5"
+          }`}
+        >
+          Hapus
+        </button>
+        <button
+          onClick={onConfirm}
+          disabled={!file || confirmed}
+          className={`px-7 py-2 rounded-xl text-[12px] font-semibold transition-all flex items-center gap-2 font-poppins shadow-md hover:shadow-lg ${
+            confirmed
+              ? "bg-[#2ea062] text-white cursor-default"
+              : !file
+              ? "bg-gray-400 text-gray-200 cursor-not-allowed"
+              : "bg-[#2ea062] text-white hover:bg-[#26824f] hover:-translate-y-0.5"
+          }`}
+        >
+          {confirmed && <CheckCircle sx={{ fontSize: 16 }} />}
+          Konfirmasi
+        </button>
+      </div>
     </div>
   );
 }

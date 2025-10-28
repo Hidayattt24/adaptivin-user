@@ -6,3 +6,30 @@ export { default as PageHeader } from "./PageHeader";
 export { default as KelasNavigationSidebar } from "./KelasNavigationSidebar";
 export { default as ClassCard } from "./ClassCard";
 export { default as TeacherProfile } from "./TeacherProfile";
+
+// Lazy-loaded components
+export { PerformanceChartLazy } from "./PerformanceChart.lazy";
+export { MateriProgressCardLazy } from "./MateriProgressCard.lazy";
+
+// Utility components
+export { ErrorState } from "./ErrorState";
+export { LazySection } from "./LazySection";
+export { PrefetchLink } from "./PrefetchLink";
+
+// Skeletons
+export * from "./skeletons";
+
+// Upload components
+export { UploadTimeline } from "./UploadTimeline";
+export { FileUploadCard } from "./FileUploadCard";
+export { TextInputSection } from "./TextInputSection";
+export { ImagePreviewCard } from "./ImagePreviewCard";
+export { MainMateriTitle } from "./MainMateriTitle";
+export type { MainMateriData } from "./MainMateriTitle";
+export { MateriSection } from "./MateriSection";
+export type { MateriSectionData } from "./MateriSection";
+
+// Editable components
+export { EditableTitleSection } from "./EditableTitleSection";
+export { EditableFileSection } from "./EditableFileSection";
+export { EditableExplanationSection } from "./EditableExplanationSection";

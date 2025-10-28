@@ -3,13 +3,23 @@
 import React from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { useSiswaDetail } from "@/hooks/guru/useSiswa";
+import { CardSkeleton } from "@/components/guru/skeletons/CardSkeleton";
+import { ErrorState } from "@/components/guru/ErrorState";
 
 const DetailSiswaPage = () => {
   const params = useParams();
-  const kelasId = params.kelasId;
-  const siswaId = params.siswaId;
+  const kelasId = params.kelasId as string;
+  const siswaId = params.siswaId as string;
 
-  // Data dummy
+  // Lazy load siswa detail with React Query
+  const { data: siswaDetail, isLoading, error, refetch } = useSiswaDetail(
+    kelasId,
+    siswaId
+  );
+
+  // TODO: Replace with actual API data when backend is ready
+  // For now, use dummy data as fallback
   const siswaData = {
     id: siswaId,
     nama: "Ahmad Fauzi",
@@ -47,10 +57,55 @@ const DetailSiswaPage = () => {
     },
   ];
 
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="p-6">
+        {/* Breadcrumb Skeleton */}
+        <div className="h-4 bg-gray-200 rounded w-96 mb-4 animate-pulse"></div>
+
+        {/* Profile Skeleton */}
+        <CardSkeleton />
+
+        {/* Stats Grid Skeleton */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 my-6">
+          <CardSkeleton />
+          <CardSkeleton />
+          <CardSkeleton />
+          <CardSkeleton />
+        </div>
+
+        {/* Progress Skeleton */}
+        <CardSkeleton />
+
+        {/* Activity Skeleton */}
+        <div className="mt-6">
+          <CardSkeleton />
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="p-6">
+        <ErrorState
+          title="Gagal Memuat Detail Siswa"
+          message="Terjadi kesalahan saat memuat detail siswa. Silakan coba lagi."
+          onRetry={() => refetch()}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="p-6">
       {/* Breadcrumb */}
-      <div className="flex items-center gap-2 text-sm text-gray-600 mb-4">
+      <nav
+        className="flex items-center gap-2 text-sm text-gray-600 mb-4"
+        aria-label="Breadcrumb"
+      >
         <Link href="/guru/dashboard" className="hover:text-blue-600">
           Dashboard
         </Link>
@@ -67,7 +122,7 @@ const DetailSiswaPage = () => {
         </Link>
         <span>/</span>
         <span className="text-gray-900">{siswaData.nama}</span>
-      </div>
+      </nav>
 
       {/* Student Profile */}
       <div className="bg-white rounded-lg shadow-md p-6 mb-6">

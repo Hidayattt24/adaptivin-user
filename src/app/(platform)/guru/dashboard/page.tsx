@@ -1,68 +1,46 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import ClassCard from "@/components/guru/ClassCard";
 import TeacherProfile from "@/components/guru/TeacherProfile";
 import { getCardColor } from "@/constants/guru/cardColors";
 import { Kelas } from "@/types/guru";
 import { Highlighter } from "@/components/ui/highlighter";
+import { useClasses } from "@/hooks/guru/useClasses";
+import { GridSkeleton } from "@/components/guru/skeletons";
+import { ErrorState } from "@/components/guru/ErrorState";
+import { useDebounce } from "@/hooks/guru/useDebounce";
 
 const DashboardGuruPage = () => {
-  const [kelasList] = useState<Kelas[]>([
-    // Data dummy - nanti akan diambil dari API
-    // Backend bisa mengirim data dengan format:
-    // { id, nama, jumlahSiswa, colorIndex (optional) }
-    {
-      id: "1",
-      nama: "Matematika Kelas IV A",
-      jumlahSiswa: 28,
-    },
-    {
-      id: "2",
-      nama: "Matematika Kelas IV B",
-      jumlahSiswa: 30,
-    },
-    {
-      id: "3",
-      nama: "Matematika Kelas V A",
-      jumlahSiswa: 25,
-    },
-    {
-      id: "4",
-      nama: "Matematika Kelas V B",
-      jumlahSiswa: 27,
-    },
-    {
-      id: "5",
-      nama: "Matematika Kelas VI A",
-      jumlahSiswa: 26,
-    },
-    {
-      id: "6",
-      nama: "Matematika Kelas VI B",
-      jumlahSiswa: 29,
-    },
-    {
-      id: "7",
-      nama: "Matematika Kelas IV C",
-      jumlahSiswa: 31,
-    },
-    {
-      id: "8",
-      nama: "Matematika Kelas V C",
-      jumlahSiswa: 28,
-    },
-    {
-      id: "9",
-      nama: "Matematika Kelas VI C",
-      jumlahSiswa: 30,
-    },
-    {
-      id: "10",
-      nama: "Matematika Kelas IV D",
-      jumlahSiswa: 27,
-    },
-  ]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 9; // 3x3 grid
+
+  // Lazy load classes data
+  const { data: classesData, isLoading, error, refetch } = useClasses();
+
+  // Debounce search to avoid excessive filtering
+  const debouncedSearch = useDebounce(searchQuery, 300);
+
+  // Filter classes based on search
+  const filteredClasses = useMemo(() => {
+    if (!classesData) return [];
+
+    const allClasses = classesData || [];
+
+    if (!debouncedSearch) return allClasses;
+
+    return allClasses.filter((kelas) =>
+      kelas.nama.toLowerCase().includes(debouncedSearch.toLowerCase())
+    );
+  }, [classesData, debouncedSearch]);
+
+  // Pagination
+  const totalPages = Math.ceil(filteredClasses.length / itemsPerPage);
+  const paginatedClasses = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    return filteredClasses.slice(startIndex, startIndex + itemsPerPage);
+  }, [filteredClasses, currentPage, itemsPerPage]);
 
   // Student profile images (first 3)
   const studentProfiles = [
@@ -138,20 +116,92 @@ const DashboardGuruPage = () => {
           />
         </div>
 
-        {/* Class Cards - Enhanced with gradient and modern styling */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pb-24">
-          {kelasList.map((kelas, cardIndex) => (
-            <ClassCard
-              key={kelas.id}
-              id={kelas.id}
-              nama={kelas.nama}
-              jumlahSiswa={kelas.jumlahSiswa}
-              color={getCardColor(cardIndex)}
-              studentProfiles={studentProfiles}
-              index={cardIndex}
-            />
-          ))}
+        {/* Search Bar */}
+        <div className="mb-8">
+          <input
+            type="text"
+            placeholder="Cari kelas..."
+            value={searchQuery}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setCurrentPage(1); // Reset to first page on search
+            }}
+            className="w-full md:w-96 px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#336d82] focus:border-transparent"
+            aria-label="Cari kelas"
+          />
         </div>
+
+        {/* Class Cards - With Lazy Loading */}
+        {isLoading ? (
+          <div className="pb-24">
+            <GridSkeleton count={9} />
+          </div>
+        ) : error ? (
+          <div className="pb-24">
+            <ErrorState
+              title="Gagal Memuat Kelas"
+              message="Terjadi kesalahan saat memuat daftar kelas. Silakan coba lagi."
+              onRetry={() => refetch()}
+            />
+          </div>
+        ) : paginatedClasses.length === 0 ? (
+          <div className="pb-24">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
+              <p className="text-gray-600">
+                {searchQuery
+                  ? "Tidak ada kelas yang sesuai dengan pencarian."
+                  : "Belum ada kelas."}
+              </p>
+            </div>
+          </div>
+        ) : (
+          <>
+            <div
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pb-8"
+              role="list"
+              aria-label="Daftar kelas"
+            >
+              {paginatedClasses.map((kelas, cardIndex) => (
+                <ClassCard
+                  key={kelas.id}
+                  id={kelas.id}
+                  nama={kelas.nama}
+                  jumlahSiswa={kelas.jumlahSiswa}
+                  color={getCardColor(cardIndex)}
+                  studentProfiles={studentProfiles}
+                  index={cardIndex}
+                />
+              ))}
+            </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex justify-center items-center gap-2 pb-24" role="navigation" aria-label="Pagination">
+                <button
+                  onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                  disabled={currentPage === 1}
+                  className="px-4 py-2 rounded-lg border border-gray-300 bg-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
+                  aria-label="Halaman sebelumnya"
+                >
+                  Sebelumnya
+                </button>
+
+                <span className="px-4 py-2 text-white font-medium" aria-live="polite">
+                  Halaman {currentPage} dari {totalPages}
+                </span>
+
+                <button
+                  onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+                  disabled={currentPage === totalPages}
+                  className="px-4 py-2 rounded-lg border border-gray-300 bg-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
+                  aria-label="Halaman selanjutnya"
+                >
+                  Selanjutnya
+                </button>
+              </div>
+            )}
+          </>
+        )}
       </div>
     </div>
   );

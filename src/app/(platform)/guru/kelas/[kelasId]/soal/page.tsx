@@ -9,26 +9,35 @@ import TotalSoalCards from "@/components/guru/TotalSoalCards";
 import MateriSelector from "@/components/guru/MateriSelector";
 import Pagination from "@/components/guru/Pagination";
 import EmptyState from "@/components/guru/EmptyState";
+import { useSoalList } from "@/hooks/guru/useSoal";
+import { CardSkeleton } from "@/components/guru/skeletons/CardSkeleton";
+import { ErrorState } from "@/components/guru/ErrorState";
 
 const SoalListPage = () => {
   const params = useParams();
   const router = useRouter();
-  const kelasId = params.kelasId;
+  const kelasId = params.kelasId as string;
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 2;
+  const [selectedMateri, setSelectedMateri] = useState<string | null>("1");
 
-  // Dummy data for materials
-  const [materiList] = useState([
+  // Lazy load soal data with React Query
+  const { data: soalData, isLoading, error, refetch } = useSoalList(
+    kelasId,
+    selectedMateri || undefined,
+    currentPage
+  );
+
+  // TODO: Replace with actual API data when backend is ready
+  // For now, use dummy data as fallback
+  const materiList = [
     { id: "1", nama: "Pecahan biasa & campuran" },
     { id: "2", nama: "Perkalian & Pembagian" },
     { id: "3", nama: "Geometri Bangun Datar" },
-  ]);
+  ];
 
-  const [selectedMateri, setSelectedMateri] = useState<string | null>("1");
-
-  // Dummy quiz data
-  const [allQuizList] = useState([
+  const allQuizList = [
     {
       id: "1",
       materiId: "1",
@@ -67,7 +76,7 @@ const SoalListPage = () => {
       difficulty: "C2" as const,
       normalTime: 5,
     },
-  ]);
+  ];
 
   // Filter quiz by selected material
   const filteredQuizList = useMemo(() => {
@@ -125,50 +134,80 @@ const SoalListPage = () => {
         />
       </div>
 
-      {/* Total Soal Cards */}
-      <TotalSoalCards
-        totalSoal={totalSoal}
-        totalC1={totalC1}
-        totalC2={totalC2}
-        className="mb-8"
-      />
+      {/* Loading State */}
+      {isLoading ? (
+        <>
+          {/* Skeleton for Total Cards */}
+          <div className="grid grid-cols-3 gap-4 mb-8">
+            <CardSkeleton />
+            <CardSkeleton />
+            <CardSkeleton />
+          </div>
 
-      {/* Section Title */}
-      <h3 className="text-[#336d82] text-2xl poppins-semibold mb-6">
-        Kumpulan Bank Soal
-      </h3>
+          {/* Section Title Skeleton */}
+          <div className="h-8 bg-gray-200 rounded w-64 mb-6 animate-pulse"></div>
 
-      {/* Quiz List */}
-      {filteredQuizList.length === 0 ? (
-        <EmptyState
-          type="empty"
-          title="Belum Ada Soal"
-          message="Mulai buat soal pertama untuk materi ini"
+          {/* Skeleton for Quiz Cards */}
+          <div className="space-y-6 mb-8">
+            <CardSkeleton />
+            <CardSkeleton />
+          </div>
+        </>
+      ) : error ? (
+        /* Error State */
+        <ErrorState
+          title="Gagal Memuat Soal"
+          message="Terjadi kesalahan saat memuat daftar soal. Silakan coba lagi."
+          onRetry={() => refetch()}
         />
       ) : (
         <>
-          <div className="space-y-6 mb-8">
-            {currentQuizList.map((quiz) => (
-              <QuizCard
-                key={quiz.id}
-                id={quiz.id}
-                question={quiz.question}
-                difficulty={quiz.difficulty}
-                normalTime={quiz.normalTime}
-                onEdit={() => handleEdit(quiz.id)}
-                onDelete={() => handleDelete(quiz.id)}
-              />
-            ))}
-          </div>
+          {/* Total Soal Cards */}
+          <TotalSoalCards
+            totalSoal={totalSoal}
+            totalC1={totalC1}
+            totalC2={totalC2}
+            className="mb-8"
+          />
 
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={setCurrentPage}
-              className="mt-8"
+          {/* Section Title */}
+          <h3 className="text-[#336d82] text-2xl poppins-semibold mb-6">
+            Kumpulan Bank Soal
+          </h3>
+
+          {/* Quiz List */}
+          {filteredQuizList.length === 0 ? (
+            <EmptyState
+              type="empty"
+              title="Belum Ada Soal"
+              message="Mulai buat soal pertama untuk materi ini"
             />
+          ) : (
+            <>
+              <div className="space-y-6 mb-8" role="list" aria-label="Daftar soal">
+                {currentQuizList.map((quiz) => (
+                  <QuizCard
+                    key={quiz.id}
+                    id={quiz.id}
+                    question={quiz.question}
+                    difficulty={quiz.difficulty}
+                    normalTime={quiz.normalTime}
+                    onEdit={() => handleEdit(quiz.id)}
+                    onDelete={() => handleDelete(quiz.id)}
+                  />
+                ))}
+              </div>
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={setCurrentPage}
+                  className="mt-8"
+                />
+              )}
+            </>
           )}
         </>
       )}

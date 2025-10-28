@@ -3,6 +3,8 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { queryClient } from "@/lib/query-client";
 
 export default function GuruLayout({
   children,
@@ -16,17 +18,23 @@ export default function GuruLayout({
     return pathname === path || pathname.startsWith(path);
   };
 
-  // Check if we're on the dashboard page or kelas detail pages
+  // Check if we're on the dashboard page, kelas detail pages, or tambah page
   const isDashboardPage = pathname === "/guru/dashboard";
   const isKelasDetailPage = pathname.includes("/guru/kelas/") && pathname !== "/guru/kelas";
+  const isTambahPage = pathname.includes("/tambah");
 
-  // If it's dashboard page or kelas detail page, render without navbar and sidebar
-  if (isDashboardPage || isKelasDetailPage) {
-    return <>{children}</>;
+  // If it's dashboard page, kelas detail page, or tambah page, render without navbar and sidebar
+  if (isDashboardPage || isKelasDetailPage || isTambahPage) {
+    return (
+      <QueryClientProvider client={queryClient}>
+        {children}
+      </QueryClientProvider>
+    );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <QueryClientProvider client={queryClient}>
+      <div className="min-h-screen bg-gray-50">
       {/* Top Navbar */}
       <nav className="bg-white shadow-sm fixed top-0 left-0 right-0 z-30">
         <div className="px-4 sm:px-6 lg:px-8">
@@ -210,5 +218,6 @@ export default function GuruLayout({
         {children}
       </main>
     </div>
+    </QueryClientProvider>
   );
 }

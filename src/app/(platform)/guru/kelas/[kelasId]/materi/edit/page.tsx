@@ -1,10 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { ArrowBackIos } from "@mui/icons-material";
 import {
-  UploadTimeline,
   EditableTitleSection,
   EditableFileSection,
   EditableExplanationSection,
@@ -43,54 +42,54 @@ const EditMateriPage = () => {
   const [materialData, setMaterialData] = useState<MaterialData | null>(null);
   const [toasts, setToasts] = useState<Toast[]>([]);
 
-  // Fetch material data on mount
-  useEffect(() => {
-    if (materiId) {
-      fetchMaterialData();
-    } else {
-      setIsLoading(false);
-    }
-  }, [materiId]);
-
-  const fetchMaterialData = async () => {
-    setIsLoading(true);
-    try {
-      // TODO: Replace with actual API call
-      // const response = await fetch(`/api/materi/${materiId}`);
-      // const data = await response.json();
-
-      // Mock data for now
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      const mockData: MaterialData = {
-        id: materiId,
-        title: "Pecahan biasa & campuran",
-        fileName: "File belajar pecahan dasar bilangan",
-        videoName: "Video belajar pecahan dasar bilangan",
-        explanation:
-          "Cara Menghitung Luas Agar Semua Kebagian!\n\nBayangkan kamu punya satu kue yang sangat enak dan kamu ingin berbagi dengan 3 temanmu. Kalau kamu ingin membaginya dengan adil, kue itu perlu dipotong jadi 4 bagian yang sama besar (untuk kamu dan 3 temanmu). Nah, satu potongan kue itu adalah 1/4 (satu per empat) dari seluruh kue!\n\nKenapa disebut 1/4?\n\n1 adalah satu potong (bagian yang kamu punya)\n4 adalah jumlah total potongan (untuk kamu dan temanmu semua)\n\nJadi, pecahan campuran itu kayak kamu punya 1 kue utuh PLUS 1/4 potongan dari kue lagi. Itu artinya kamu sebenarnya punya 1 1/4 kue!",
-        imageUrls: [
-          "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=800&h=600&fit=crop",
-        ],
-      };
-
-      setMaterialData(mockData);
-    } catch (error) {
-      console.error("Failed to fetch material data:", error);
-      showToast("Gagal memuat data materi", "error");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   // Toast notification helper
-  const showToast = (message: string, type: ToastType = "success") => {
+  const showToast = useCallback((message: string, type: ToastType = "success") => {
     const id = Date.now();
     setToasts((prev) => [...prev, { id, message, type }]);
     setTimeout(() => {
       setToasts((prev) => prev.filter((toast) => toast.id !== id));
     }, 3000);
-  };
+  }, []);
+
+  // Fetch material data on mount
+  useEffect(() => {
+    const fetchMaterialData = async () => {
+      setIsLoading(true);
+      try {
+        // TODO: Replace with actual API call
+        // const response = await fetch(`/api/materi/${materiId}`);
+        // const data = await response.json();
+
+        // Mock data for now
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+
+        const mockData: MaterialData = {
+          id: materiId,
+          title: "Pecahan biasa & campuran",
+          fileName: "File belajar pecahan dasar bilangan",
+          videoName: "Video belajar pecahan dasar bilangan",
+          explanation:
+            "Cara Menghitung Luas Agar Semua Kebagian!\n\nBayangkan kamu punya satu kue yang sangat enak dan kamu ingin berbagi dengan 3 temanmu. Kalau kamu ingin membaginya dengan adil, kue itu perlu dipotong jadi 4 bagian yang sama besar (untuk kamu dan 3 temanmu). Nah, satu potongan kue itu adalah 1/4 (satu per empat) dari seluruh kue!\n\nKenapa disebut 1/4?\n\n1 adalah satu potong (bagian yang kamu punya)\n4 adalah jumlah total potongan (untuk kamu dan temanmu semua)\n\nJadi, pecahan campuran itu kayak kamu punya 1 kue utuh PLUS 1/4 potongan dari kue lagi. Itu artinya kamu sebenarnya punya 1 1/4 kue!",
+          imageUrls: [
+            "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=800&h=600&fit=crop",
+          ],
+        };
+
+        setMaterialData(mockData);
+      } catch (error) {
+        console.error("Failed to fetch material data:", error);
+        showToast("Gagal memuat data materi", "error");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (materiId) {
+      fetchMaterialData();
+    } else {
+      setIsLoading(false);
+    }
+  }, [materiId, showToast]);
 
   // API handlers
   const handleSaveTitle = async (newTitle: string) => {
@@ -326,11 +325,6 @@ const EditMateriPage = () => {
             </h1>
           </div>
         </div>
-      </div>
-
-      {/* Timeline */}
-      <div className="py-6 px-4 bg-white shadow-sm">
-        <UploadTimeline currentStep={2} />
       </div>
 
       {/* Main Content */}

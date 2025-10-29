@@ -1,4 +1,4 @@
-import { CardSkeleton } from "./CardSkeleton";
+import { CardSkeleton } from "@/components/guru";
 
 export function GridSkeleton({ count = 6 }: { count?: number }) {
   return (

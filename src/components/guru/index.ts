@@ -1,40 +1,57 @@
-// Export all guru components for easy importing
-export { default as SearchBar } from "./SearchBar";
-export { default as MateriCard } from "./MateriCard";
-export { default as EmptyState } from "./EmptyState";
-export { default as PageHeader } from "./PageHeader";
-export { default as KelasNavigationSidebar } from "./KelasNavigationSidebar";
-export { default as ClassCard } from "./ClassCard";
-export { default as TeacherProfile } from "./TeacherProfile";
+// Dashboard Components
+export { default as TotalMuridCard } from "./dashboard/TotalMuridCard";
+export { default as TotalSoalCards } from "./dashboard/TotalSoalCards";
+export { default as PerformanceChart } from "./dashboard/PerformanceChart";
+export { default as TeacherProfile } from "./dashboard/TeacherProfile";
 
-// Lazy-loaded components
-export { PerformanceChartLazy } from "./PerformanceChart.lazy";
-export { MateriProgressCardLazy } from "./MateriProgressCard.lazy";
+// Kelas Components
+export { default as ClassCard } from "./kelas/ClassCard";
+export { default as KelasNavigationSidebar } from "./kelas/KelasNavigationSidebar";
 
-// Utility components
-export { ErrorState } from "./ErrorState";
-export { LazySection } from "./LazySection";
-export { PrefetchLink } from "./PrefetchLink";
+// Materi Components
+export { default as MateriCard } from "./materi/MateriCard";
+export { MateriSection, type MateriSectionData } from "./materi/MateriSection";
+export { default as MateriSelector } from "./materi/MateriSelector";
+export { default as MateriDropdownSelector } from "./materi/MateriDropdownSelector";
+export { default as MateriPageHeader } from "./materi/MateriPageHeader";
+export { default as MateriProgressCard } from "./materi/MateriProgressCard";
+export { MainMateriTitle, type MainMateriData } from "./materi/MainMateriTitle";
+export { default as QuizCard } from "./materi/QuizCard";
+export { EditableExplanationSection } from "./materi/EditableExplanationSection";
+export { EditableFileSection } from "./materi/EditableFileSection";
+export { default as EditableImageGallery } from "./materi/EditableImageGallery";
+export { EditableTitleSection } from "./materi/EditableTitleSection";
+export { FileUploadCard } from "./materi/FileUploadCard";
+export { ImagePreviewCard } from "./materi/ImagePreviewCard";
+export { TextInputSection } from "./materi/TextInputSection";
+export { UploadTimeline } from "./materi/UploadTimeline";
+
+// Siswa Components
+export { default as StudentCard } from "./siswa/StudentCard";
+export { default as StudentSearchBar } from "./siswa/StudentSearchBar";
+export { default as StudentSelector } from "./siswa/StudentSelector";
+
+// Soal Components
+export { default as CustomDropdown } from "./soal/CustomDropdown";
+export { default as FileUploadArea } from "./soal/FileUploadArea";
+export { default as QuestionSection } from "./soal/QuestionSection";
+export { QuestionPreviewModal } from "./soal/QuestionPreviewModal";
+export { QuestionEditModal } from "./soal/QuestionEditModal";
+export { SoalClusterCard } from "./soal/SoalClusterCard";
+export type { Question, QuestionType, AnswerType, TimeUnit } from "./soal/QuestionSection";
+
+// Common/Shared Components
+export { default as EmptyState } from "./common/EmptyState";
+export { ErrorState } from "./common/ErrorState";
+export { default as PageHeader } from "./common/PageHeader";
+export { default as Pagination } from "./common/Pagination";
+export { default as PreviewModal } from "./common/PreviewModal";
+export { default as SearchBar } from "./common/SearchBar";
+export { PrefetchLink } from "./common/PrefetchLink";
+export { LazySection } from "./common/LazySection";
 
 // Skeletons
-export * from "./skeletons";
-
-// Upload components
-export { UploadTimeline } from "./UploadTimeline";
-export { FileUploadCard } from "./FileUploadCard";
-export { TextInputSection } from "./TextInputSection";
-export { ImagePreviewCard } from "./ImagePreviewCard";
-export { MainMateriTitle } from "./MainMateriTitle";
-export type { MainMateriData } from "./MainMateriTitle";
-export { MateriSection } from "./MateriSection";
-export type { MateriSectionData } from "./MateriSection";
-
-// Editable components
-export { EditableTitleSection } from "./EditableTitleSection";
-export { EditableFileSection } from "./EditableFileSection";
-export { EditableExplanationSection } from "./EditableExplanationSection";
-
-// Page components
-export { default as MateriPageHeader } from "./MateriPageHeader";
-export { default as PreviewModal } from "./PreviewModal";
-export { default as EditableImageGallery } from "./EditableImageGallery";
+export { CardSkeleton } from "./skeletons/CardSkeleton";
+export { ChartSkeleton } from "./skeletons/ChartSkeleton";
+export { GridSkeleton } from "./skeletons/GridSkeleton";
+export { TableSkeleton } from "./skeletons/TableSkeleton";

@@ -3,14 +3,16 @@
 import React, { useState, useMemo } from "react";
 import { useParams } from "next/navigation";
 import DownloadIcon from "@mui/icons-material/Download";
-import StudentSearchBar from "@/components/guru/StudentSearchBar";
-import PerformanceChart from "@/components/guru/PerformanceChart";
-import MateriProgressCard from "@/components/guru/MateriProgressCard";
+import {
+  StudentSearchBar,
+  PerformanceChart,
+  MateriProgressCard,
+  CardSkeleton,
+  ChartSkeleton,
+  ErrorState,
+} from "@/components/guru";
 import { Siswa, Materi, StudentReport } from "@/types/guru";
 import { useClassReport } from "@/hooks/guru/useLaporan";
-import { CardSkeleton } from "@/components/guru/skeletons/CardSkeleton";
-import { ChartSkeleton } from "@/components/guru/skeletons/ChartSkeleton";
-import { ErrorState } from "@/components/guru/ErrorState";
 
 const LaporanKelasPage = () => {
   const params = useParams();

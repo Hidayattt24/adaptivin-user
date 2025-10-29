@@ -2,16 +2,18 @@
 
 import React, { useState, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
-import PageHeader from "@/components/guru/PageHeader";
-import SearchBar from "@/components/guru/SearchBar";
-import StudentCard from "@/components/guru/StudentCard";
-import TotalMuridCard from "@/components/guru/TotalMuridCard";
-import Pagination from "@/components/guru/Pagination";
-import EmptyState from "@/components/guru/EmptyState";
+import {
+  PageHeader,
+  SearchBar,
+  StudentCard,
+  TotalMuridCard,
+  Pagination,
+  EmptyState,
+  CardSkeleton,
+  ErrorState,
+} from "@/components/guru";
 import { useSiswaList } from "@/hooks/guru/useSiswa";
 import { useDebounce } from "@/hooks/guru/useDebounce";
-import { CardSkeleton } from "@/components/guru/skeletons/CardSkeleton";
-import { ErrorState } from "@/components/guru/ErrorState";
 
 const SiswaListPage = () => {
   const params = useParams();

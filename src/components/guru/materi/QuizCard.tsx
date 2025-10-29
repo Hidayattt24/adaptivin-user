@@ -1,15 +1,14 @@
 "use client";
 
 import React from "react";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
+import { Visibility, Delete } from "@mui/icons-material";
 
 interface QuizCardProps {
   id: string;
   question: string;
   difficulty: "C1" | "C2" | "C3" | "C4" | "C5" | "C6";
   normalTime: number; // in minutes
-  onEdit?: () => void;
+  onPreview?: () => void;
   onDelete?: () => void;
 }
 
@@ -17,7 +16,7 @@ const QuizCard: React.FC<QuizCardProps> = ({
   question,
   difficulty,
   normalTime,
-  onEdit,
+  onPreview,
   onDelete,
 }) => {
   return (
@@ -57,18 +56,20 @@ const QuizCard: React.FC<QuizCardProps> = ({
         {/* Action Buttons */}
         <div className="flex gap-2 flex-shrink-0">
           <button
-            onClick={onEdit}
+            onClick={onPreview}
             className="w-[40px] h-[40px] bg-white rounded-full flex items-center justify-center hover:bg-gray-50 transition-all hover:shadow-lg shadow-md"
-            aria-label="Edit quiz"
+            aria-label="Preview soal"
+            title="Preview Soal"
           >
-            <EditIcon className="text-[#336d82]" sx={{ fontSize: 20 }} />
+            <Visibility className="text-[#336d82]" sx={{ fontSize: 20 }} />
           </button>
           <button
             onClick={onDelete}
-            className="w-[40px] h-[40px] bg-white rounded-full flex items-center justify-center hover:bg-gray-50 transition-all hover:shadow-lg shadow-md"
+            className="w-[40px] h-[40px] bg-white rounded-full flex items-center justify-center hover:bg-red-50 transition-all hover:shadow-lg shadow-md group"
             aria-label="Delete quiz"
+            title="Hapus Soal"
           >
-            <DeleteIcon className="text-[#336d82]" sx={{ fontSize: 20 }} />
+            <Delete className="text-[#336d82] group-hover:text-[#ff1919]" sx={{ fontSize: 20 }} />
           </button>
         </div>
       </div>

@@ -9,8 +9,7 @@ import {
   AddPhotoAlternate,
   ZoomIn,
 } from "@mui/icons-material";
-import EditableImageGallery from "./EditableImageGallery";
-import PreviewModal from "./PreviewModal";
+import { EditableImageGallery, PreviewModal } from "@/components/guru";
 
 interface EditableExplanationSectionProps {
   initialExplanation: string;
@@ -252,8 +251,8 @@ export function EditableExplanationSection({
         }}
         placeholder="Ketik disini untuk menulis materi..."
         className={`w-full px-4 py-3 rounded-xl text-[14px] border-2 resize-none font-poppins shadow-inner bg-white text-gray-900 transition-all ${isEditing
-            ? "border-[#fcc61d] focus:outline-none focus:ring-2 focus:ring-[#fcc61d]/50"
-            : "border-transparent focus:outline-none focus:ring-2 focus:ring-white/50"
+          ? "border-[#fcc61d] focus:outline-none focus:ring-2 focus:ring-[#fcc61d]/50"
+          : "border-transparent focus:outline-none focus:ring-2 focus:ring-white/50"
           }`}
         rows={5}
         disabled={!isEditing || isLoading}

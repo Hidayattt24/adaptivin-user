@@ -1,13 +1,10 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import ClassCard from "@/components/guru/ClassCard";
-import TeacherProfile from "@/components/guru/TeacherProfile";
+import { ClassCard, TeacherProfile, GridSkeleton, ErrorState } from "@/components/guru";
 import { getCardColor } from "@/constants/guru/cardColors";
 import { Highlighter } from "@/components/ui/highlighter";
 import { useClasses } from "@/hooks/guru/useClasses";
-import { GridSkeleton } from "@/components/guru/skeletons";
-import { ErrorState } from "@/components/guru/ErrorState";
 import { useDebounce } from "@/hooks/guru/useDebounce";
 import { Search, ChevronLeft, ChevronRight } from "@mui/icons-material";
 

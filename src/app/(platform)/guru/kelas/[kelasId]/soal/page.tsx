@@ -2,16 +2,21 @@
 
 import React, { useState, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
-import AddIcon from "@mui/icons-material/Add";
-import PageHeader from "@/components/guru/PageHeader";
-import QuizCard from "@/components/guru/QuizCard";
-import TotalSoalCards from "@/components/guru/TotalSoalCards";
-import MateriSelector from "@/components/guru/MateriSelector";
-import Pagination from "@/components/guru/Pagination";
-import EmptyState from "@/components/guru/EmptyState";
+import { Add as AddIcon, FolderCopy } from "@mui/icons-material";
+import {
+  PageHeader,
+  QuizCard,
+  TotalSoalCards,
+  MateriSelector,
+  Pagination,
+  EmptyState,
+  CardSkeleton,
+  ErrorState,
+  QuestionPreviewModal,
+  type Question,
+} from "@/components/guru";
 import { useSoalList } from "@/hooks/guru/useSoal";
-import { CardSkeleton } from "@/components/guru/skeletons/CardSkeleton";
-import { ErrorState } from "@/components/guru/ErrorState";
+import Swal from "sweetalert2";
 
 const SoalListPage = () => {
   const params = useParams();
@@ -21,6 +26,8 @@ const SoalListPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 2;
   const [selectedMateri, setSelectedMateri] = useState<string | null>("1");
+  const [previewQuestion, setPreviewQuestion] = useState<Question | null>(null);
+  const [previewNumber, setPreviewNumber] = useState(0);
 
   // Lazy load soal data with React Query
   const { data: soalData, isLoading, error, refetch } = useSoalList(
@@ -43,7 +50,7 @@ const SoalListPage = () => {
       materiId: "1",
       question:
         "Sebuah kue dipotong menjadi 12 bagian sama besar. Rani memakan 1⁄3 bagian kue. Berapa potong kue yang........",
-      difficulty: "C1" as const,
+      difficulty: "C1" as "C1" | "C2" | "C3" | "C4" | "C5" | "C6",
       normalTime: 5,
     },
     {
@@ -51,7 +58,7 @@ const SoalListPage = () => {
       materiId: "1",
       question:
         "Jika 2/5 dari sebuah pizza dimakan oleh Budi, berapa bagian pizza yang tersisa?",
-      difficulty: "C2" as const,
+      difficulty: "C2" as "C1" | "C2" | "C3" | "C4" | "C5" | "C6",
       normalTime: 7,
     },
     {
@@ -59,22 +66,29 @@ const SoalListPage = () => {
       materiId: "1",
       question:
         "Hitunglah hasil dari 3/4 + 1/2. Berikan jawaban dalam bentuk pecahan paling sederhana.",
-      difficulty: "C1" as const,
+      difficulty: "C3" as "C1" | "C2" | "C3" | "C4" | "C5" | "C6",
       normalTime: 6,
     },
     {
       id: "4",
       materiId: "2",
       question: "Berapa hasil dari 15 × 24?",
-      difficulty: "C1" as const,
+      difficulty: "C4" as "C1" | "C2" | "C3" | "C4" | "C5" | "C6",
       normalTime: 4,
     },
     {
       id: "5",
       materiId: "2",
       question: "Selesaikan pembagian berikut: 144 ÷ 12 = ?",
-      difficulty: "C2" as const,
+      difficulty: "C5" as "C1" | "C2" | "C3" | "C4" | "C5" | "C6",
       normalTime: 5,
+    },
+    {
+      id: "6",
+      materiId: "1",
+      question: "Buatlah soal cerita tentang pecahan!",
+      difficulty: "C6" as "C1" | "C2" | "C3" | "C4" | "C5" | "C6",
+      normalTime: 10,
     },
   ];
 
@@ -86,8 +100,14 @@ const SoalListPage = () => {
 
   // Calculate statistics
   const totalSoal = filteredQuizList.length;
-  const totalC1 = filteredQuizList.filter((q) => q.difficulty === "C1").length;
-  const totalC2 = filteredQuizList.filter((q) => q.difficulty === "C2").length;
+  const bloomStats = {
+    C1: filteredQuizList.filter((q) => q.difficulty === "C1").length,
+    C2: filteredQuizList.filter((q) => q.difficulty === "C2").length,
+    C3: filteredQuizList.filter((q) => q.difficulty === "C3").length,
+    C4: filteredQuizList.filter((q) => q.difficulty === "C4").length,
+    C5: filteredQuizList.filter((q) => q.difficulty === "C5").length,
+    C6: filteredQuizList.filter((q) => q.difficulty === "C6").length,
+  };
 
   // Pagination
   const totalPages = Math.ceil(filteredQuizList.length / itemsPerPage);
@@ -95,13 +115,60 @@ const SoalListPage = () => {
   const endIndex = startIndex + itemsPerPage;
   const currentQuizList = filteredQuizList.slice(startIndex, endIndex);
 
-  const handleEdit = (quizId: string) => {
-    router.push(`/guru/kelas/${kelasId}/soal/${quizId}/edit`);
+  // Convert quiz data to Question format for preview
+  const convertToQuestion = (quiz: typeof allQuizList[0]): Question => {
+    return {
+      id: quiz.id,
+      questionType: quiz.difficulty,
+      questionFile: null,
+      questionFilePreview: null,
+      questionText: quiz.question,
+      answerType: "Tulisan",
+      answerFile: null,
+      answerFilePreview: null,
+      answerText: "Jawaban untuk soal ini", // Dummy answer
+      timeValue: quiz.normalTime,
+      timeUnit: "Menit",
+    };
+  };
+
+  const handlePreview = (quizId: string) => {
+    const quiz = allQuizList.find((q) => q.id === quizId);
+    if (quiz) {
+      const question = convertToQuestion(quiz);
+      const number = allQuizList.findIndex((q) => q.id === quizId) + 1;
+      setPreviewQuestion(question);
+      setPreviewNumber(number);
+    }
   };
 
   const handleDelete = (quizId: string) => {
-    // Implement delete logic
-    console.log("Delete quiz:", quizId);
+    const quiz = allQuizList.find((q) => q.id === quizId);
+    const number = allQuizList.findIndex((q) => q.id === quizId) + 1;
+
+    Swal.fire({
+      title: "Hapus Soal?",
+      html: `Apakah Anda yakin ingin menghapus <strong>Soal Nomor ${number}</strong>?<br/><small class="text-gray-600">Tindakan ini tidak dapat dibatalkan.</small>`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#ff1919",
+      cancelButtonColor: "#6b7280",
+      confirmButtonText: "Ya, Hapus!",
+      cancelButtonText: "Batal",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // TODO: Implement actual delete logic with API
+        console.log("Delete quiz:", quizId);
+
+        Swal.fire({
+          icon: "success",
+          title: "Terhapus!",
+          text: "Soal berhasil dihapus",
+          confirmButtonColor: "#336d82",
+          timer: 2000,
+        });
+      }
+    });
   };
 
   const selectedMateriName =
@@ -165,15 +232,23 @@ const SoalListPage = () => {
           {/* Total Soal Cards */}
           <TotalSoalCards
             totalSoal={totalSoal}
-            totalC1={totalC1}
-            totalC2={totalC2}
+            bloomStats={bloomStats}
             className="mb-8"
           />
 
-          {/* Section Title */}
-          <h3 className="text-[#336d82] text-2xl poppins-semibold mb-6">
-            Kumpulan Bank Soal
-          </h3>
+          {/* Section Title with Button */}
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-[#336d82] text-2xl poppins-semibold">
+              Kumpulan Bank Soal
+            </h3>
+            <button
+              onClick={() => router.push(`/guru/kelas/${kelasId}/soal/bank`)}
+              className="bg-gradient-to-r from-[#336d82] to-[#2a5a6d] hover:from-[#2a5a6d] hover:to-[#1f4a5a] text-white px-6 py-3 rounded-xl poppins-semibold transition-all shadow-lg hover:shadow-xl flex items-center gap-2"
+            >
+              <FolderCopy sx={{ fontSize: 20 }} />
+              Lihat Semua Bank Soal
+            </button>
+          </div>
 
           {/* Quiz List */}
           {filteredQuizList.length === 0 ? (
@@ -192,7 +267,7 @@ const SoalListPage = () => {
                     question={quiz.question}
                     difficulty={quiz.difficulty}
                     normalTime={quiz.normalTime}
-                    onEdit={() => handleEdit(quiz.id)}
+                    onPreview={() => handlePreview(quiz.id)}
                     onDelete={() => handleDelete(quiz.id)}
                   />
                 ))}
@@ -211,6 +286,14 @@ const SoalListPage = () => {
           )}
         </>
       )}
+
+      {/* Preview Modal */}
+      <QuestionPreviewModal
+        isOpen={!!previewQuestion}
+        question={previewQuestion}
+        questionNumber={previewNumber}
+        onClose={() => setPreviewQuestion(null)}
+      />
     </div>
   );
 };

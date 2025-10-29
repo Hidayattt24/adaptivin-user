@@ -3,14 +3,16 @@
 import React, { useState, useMemo } from "react";
 import { useParams } from "next/navigation";
 import AddIcon from "@mui/icons-material/Add";
-import SearchBar from "@/components/guru/SearchBar";
-import MateriCard from "@/components/guru/MateriCard";
-import EmptyState from "@/components/guru/EmptyState";
-import PageHeader from "@/components/guru/PageHeader";
+import {
+  SearchBar,
+  MateriCard,
+  EmptyState,
+  PageHeader,
+  TableSkeleton,
+  ErrorState,
+} from "@/components/guru";
 import { useMateriList } from "@/hooks/guru/useMateri";
 import { useDebounce } from "@/hooks/guru/useDebounce";
-import { TableSkeleton } from "@/components/guru/skeletons";
-import { ErrorState } from "@/components/guru/ErrorState";
 
 const MateriListPage = () => {
   const params = useParams();

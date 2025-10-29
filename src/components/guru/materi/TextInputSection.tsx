@@ -70,11 +70,10 @@ export function TextInputSection({
             type="button"
             onClick={onImageUpload}
             disabled={confirmed}
-            className={`px-5 py-2.5 rounded-xl text-[12px] font-semibold transition-all flex items-center gap-2 font-poppins shadow-md hover:shadow-lg ${
-              confirmed
-                ? "bg-gray-400 text-gray-200 cursor-not-allowed"
-                : "bg-gradient-to-r from-[#fcc61d] to-[#f5b800] text-white hover:-translate-y-0.5"
-            }`}
+            className={`px-5 py-2.5 rounded-xl text-[12px] font-semibold transition-all flex items-center gap-2 font-poppins shadow-md hover:shadow-lg ${confirmed
+              ? "bg-gray-400 text-gray-200 cursor-not-allowed"
+              : "bg-gradient-to-r from-[#fcc61d] to-[#f5b800] text-white hover:-translate-y-0.5"
+              }`}
           >
             <AddPhotoAlternate sx={{ fontSize: 16 }} />
             Tambah Gambar
@@ -85,24 +84,22 @@ export function TextInputSection({
           <button
             onClick={onDelete}
             disabled={confirmed}
-            className={`${showImageUpload ? 'flex-1 sm:flex-none' : 'flex-1'} px-7 py-2 rounded-xl text-[12px] font-semibold transition-all font-poppins shadow-md hover:shadow-lg ${
-              confirmed
-                ? "bg-gray-400 text-gray-200 cursor-not-allowed"
-                : "bg-[#ff1919] text-white hover:bg-[#e01515] hover:-translate-y-0.5"
-            }`}
+            className={`${showImageUpload ? 'flex-1 sm:flex-none' : 'flex-1'} px-7 py-2 rounded-xl text-[12px] font-semibold transition-all font-poppins shadow-md hover:shadow-lg ${confirmed
+              ? "bg-gray-400 text-gray-200 cursor-not-allowed"
+              : "bg-[#ff1919] text-white hover:bg-[#e01515] hover:-translate-y-0.5"
+              }`}
           >
             Hapus
           </button>
           <button
             onClick={onConfirm}
             disabled={!value || confirmed}
-            className={`${showImageUpload ? 'flex-1 sm:flex-none' : 'flex-1'} px-7 py-2 rounded-xl text-[12px] font-semibold transition-all flex items-center justify-center gap-2 font-poppins shadow-md hover:shadow-lg ${
-              confirmed
-                ? "bg-[#2ea062] text-white cursor-default"
-                : !value
+            className={`${showImageUpload ? 'flex-1 sm:flex-none' : 'flex-1'} px-7 py-2 rounded-xl text-[12px] font-semibold transition-all flex items-center justify-center gap-2 font-poppins shadow-md hover:shadow-lg ${confirmed
+              ? "bg-[#2ea062] text-white cursor-default"
+              : !value
                 ? "bg-gray-400 text-gray-200 cursor-not-allowed"
                 : "bg-[#2ea062] text-white hover:bg-[#26824f] hover:-translate-y-0.5"
-            }`}
+              }`}
           >
             {confirmed && <CheckCircle sx={{ fontSize: 16 }} />}
             Konfirmasi

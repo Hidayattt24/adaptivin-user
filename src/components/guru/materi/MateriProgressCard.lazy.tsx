@@ -1,5 +1,5 @@
 import dynamic from "next/dynamic";
-import { CardSkeleton } from "./skeletons/CardSkeleton";
+import { CardSkeleton } from "@/components/guru";
 
 // Lazy load MateriProgressCard with code-splitting
 export const MateriProgressCardLazy = dynamic(

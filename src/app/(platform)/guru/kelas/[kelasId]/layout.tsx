@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { useParams, usePathname } from "next/navigation";
-import KelasNavigationSidebar from "@/components/guru/KelasNavigationSidebar";
+import { KelasNavigationSidebar } from "@/components/guru";
 import Image from "next/image";
 import MenuIcon from "@mui/icons-material/Menu";
 
@@ -16,8 +16,8 @@ export default function KelasLayout({
   const kelasId = params.kelasId as string;
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
-  // Check if we're on tambah/edit pages - hide sidebar and profile
-  const isTambahOrEditPage = pathname.includes("/tambah") || pathname.includes("/edit");
+  // Check if we're on tambah/edit/bank pages - hide sidebar and profile
+  const isFullscreenPage = pathname.includes("/tambah") || pathname.includes("/edit") || pathname.includes("/bank");
 
   // Dummy data untuk guru
   const guruData = {
@@ -26,8 +26,8 @@ export default function KelasLayout({
     foto: "/guru/foto-profil/profil-guru.svg",
   };
 
-  // If it's tambah or edit page, render without sidebar and profile
-  if (isTambahOrEditPage) {
+  // If it's fullscreen page (tambah/edit/bank), render without sidebar and profile
+  if (isFullscreenPage) {
     return <div className="min-h-screen bg-white">{children}</div>;
   }
 

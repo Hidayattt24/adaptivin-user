@@ -1,5 +1,5 @@
 import dynamic from "next/dynamic";
-import { ChartSkeleton } from "./skeletons/ChartSkeleton";
+import { ChartSkeleton } from "@/components/guru";
 
 // Lazy load PerformanceChart with code-splitting
 // This separates the heavy recharts library into its own bundle

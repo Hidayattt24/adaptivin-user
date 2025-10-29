@@ -45,6 +45,26 @@ export default {
           "0%, 100%": { transform: "translateY(0px)" },
           "50%": { transform: "translateY(-20px)" },
         },
+        fadeIn: {
+          "0%": { opacity: "0" },
+          "100%": { opacity: "1" },
+        },
+        scaleIn: {
+          "0%": { transform: "scale(0.9)", opacity: "0" },
+          "100%": { transform: "scale(1)", opacity: "1" },
+        },
+        slideIn: {
+          "0%": { transform: "translateX(-20px)", opacity: "0" },
+          "100%": { transform: "translateX(0)", opacity: "1" },
+        },
+        slideDown: {
+          "0%": { transform: "translateY(-10px)", opacity: "0", maxHeight: "0" },
+          "100%": { transform: "translateY(0)", opacity: "1", maxHeight: "1000px" },
+        },
+        slideUp: {
+          "0%": { transform: "translateY(20px)", opacity: "0" },
+          "100%": { transform: "translateY(0)", opacity: "1" },
+        },
       },
       animation: {
         shimmer: "shimmer 2s infinite",
@@ -56,6 +76,11 @@ export default {
         "float-delay-2": "float 3s ease-in-out 2s infinite",
         "bounce-delay-1": "bounce 1s infinite 0.2s",
         "bounce-delay-2": "bounce 1s infinite 0.4s",
+        fadeIn: "fadeIn 0.3s ease-out",
+        scaleIn: "scaleIn 0.3s ease-out",
+        slideIn: "slideIn 0.5s ease-out forwards",
+        slideDown: "slideDown 0.4s ease-out forwards",
+        slideUp: "slideUp 0.3s ease-out",
       },
     },
   },

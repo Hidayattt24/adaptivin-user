@@ -50,6 +50,11 @@ export { default as SearchBar } from "./common/SearchBar";
 export { PrefetchLink } from "./common/PrefetchLink";
 export { LazySection } from "./common/LazySection";
 
+// Laporan Components
+export { default as GrafikPerkembanganModal } from "./laporan/GrafikPerkembanganModal";
+export { default as HasilKuisModal } from "./laporan/HasilKuisModal";
+export { default as AnalisaAIModal } from "./laporan/AnalisaAIModal";
+
 // Skeletons
 export { CardSkeleton } from "./skeletons/CardSkeleton";
 export { ChartSkeleton } from "./skeletons/ChartSkeleton";

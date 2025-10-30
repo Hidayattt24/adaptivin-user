@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Poppins, Montserrat } from "next/font/google";
+import { Poppins, Montserrat, Press_Start_2P } from "next/font/google";
 import "./globals.css";
 
 const poppins = Poppins({
@@ -18,6 +18,14 @@ const montserrat = Montserrat({
   display: "swap",
 });
 
+const pressStart2P = Press_Start_2P({
+  weight: ["400"],
+  style: ["normal"],
+  subsets: ["latin"],
+  variable: "--font-press-start",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   title: "Adaptivin - Sistem AI Pembelajaran Matematika SD",
   description:
@@ -30,7 +38,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="id" className={`${poppins.variable} ${montserrat.variable}`}>
+    <html lang="id" className={`${poppins.variable} ${montserrat.variable} ${pressStart2P.variable}`}>
       <body className={`${poppins.className} antialiased`}>{children}</body>
     </html>
   );

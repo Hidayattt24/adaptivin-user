@@ -1,10 +1,14 @@
 @import "tailwindcss";
 
+/* Import Press Start 2P Font from Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
   --font-poppins: "Poppins", sans-serif;
   --font-montserrat: "Montserrat", sans-serif;
+  --font-press-start: "Press Start 2P", system-ui;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -268,7 +272,8 @@ body {
 
 /* Override Tailwind defaults to use Poppins Medium */
 .font-normal {
-  font-weight: 500 !important; /* Override normal (400) to medium (500) */
+  font-weight: 500 !important;
+  /* Override normal (400) to medium (500) */
 }
 
 /* Utility classes for consistent font usage */
@@ -290,11 +295,9 @@ body {
 }
 
 .role-card-overlay {
-  background: linear-gradient(
-    135deg,
-    rgba(40, 135, 194, 0.1) 0%,
-    rgba(255, 255, 255, 0.05) 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(40, 135, 194, 0.1) 0%,
+      rgba(255, 255, 255, 0.05) 100%);
   transition: opacity 0.3s ease;
 }
 
@@ -364,14 +367,17 @@ body {
     opacity: 0;
     transform: scale(0.9);
   }
+
   20% {
     opacity: 1;
     transform: scale(1);
   }
+
   80% {
     opacity: 1;
     transform: scale(1);
   }
+
   100% {
     opacity: 1;
     transform: scale(1);
@@ -409,10 +415,12 @@ body {
     opacity: 0;
     transform: scale(0.8);
   }
+
   50% {
     opacity: 1;
     transform: scale(1);
   }
+
   100% {
     opacity: 1;
     transform: scale(1);
@@ -431,6 +439,14 @@ img[src^="data:image/png;base64"] {
   margin: 0 0.1em !important;
   vertical-align: -0.2em !important;
   max-width: none !important;
+}
+
+/* Press Start 2P Font Class - Override global * selector */
+.press-start-2p-regular,
+.press-start-2p-regular * {
+  font-family: "Press Start 2P", system-ui !important;
+  font-weight: 400 !important;
+  font-style: normal !important;
 }
 
 /* Pixelarticons Font Icons */

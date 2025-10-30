@@ -9,6 +9,7 @@ import MobileNavbar from "@/components/siswa/navigation/MobileNavbar";
 
 export default function BerandaSiswaPage() {
   const [isMobile, setIsMobile] = useState(true);
+  const [classes, setClasses] = useState<any[]>([]);
 
   useEffect(() => {
     const checkScreenSize = () => {
@@ -21,32 +22,74 @@ export default function BerandaSiswaPage() {
     return () => window.removeEventListener("resize", checkScreenSize);
   }, []);
 
+  // Fetch classes from API (example)
+  useEffect(() => {
+    // TODO: Replace with actual API call
+    // const fetchClasses = async () => {
+    //   const response = await fetch('/api/student/classes');
+    //   const data = await response.json();
+    //   setClasses(data);
+    // };
+    // fetchClasses();
+
+    // Dummy data for now - nanti diganti dengan data dari backend
+    const dummyClasses = [
+      {
+        id: "kelas-4",
+        name: "Kelas 4A", // Dari admin input
+        gradeLevel: 4,
+        subject: "Matematika",
+        imagePath: "/siswa/card-siswa/card-1.svg",
+      },
+      {
+        id: "kelas-5",
+        name: "Kelas 5B", // Dari admin input
+        gradeLevel: 5,
+        subject: "Matematika",
+        imagePath: "/siswa/card-siswa/card-2.svg",
+      },
+      {
+        id: "kelas-6",
+        name: "Kelas 6C", // Dari admin input
+        gradeLevel: 6,
+        subject: "Matematika",
+        imagePath: "/siswa/card-siswa/card-3.svg",
+      },
+    ];
+    setClasses(dummyClasses);
+  }, []);
+
   // Desktop warning
   if (!isMobile) {
     return <MobileWarning />;
   }
 
-  // Card data
-  const cards = [
-    {
-      id: "kelas-4",
-      title: "Matematika Kelas 4",
-      imagePath: "/siswa/card-siswa/kelas-4.svg",
-      link: "/siswa/materi/4",
-    },
-    {
-      id: "kelas-5",
-      title: "Matematika Kelas 5",
-      imagePath: "/siswa/card-siswa/kelas-5.svg",
-      link: "/siswa/materi/5",
-    },
-    {
-      id: "kelas-6",
-      title: "Matematika Kelas 6",
-      imagePath: "/siswa/card-siswa/Kelas 6.svg",
-      link: "/siswa/materi/6",
-    },
-  ];
+  // Helper function to convert number to Roman numeral
+  const toRoman = (num: number): string => {
+    const romanNumerals: { [key: number]: string } = {
+      1: "I",
+      2: "II",
+      3: "III",
+      4: "IV",
+      5: "V",
+      6: "VI",
+      7: "VII",
+      8: "VIII",
+      9: "IX",
+      10: "X",
+    };
+    return romanNumerals[num] || num.toString();
+  };
+
+  // Transform classes data to cards format
+  const cards = classes.map((classData, index) => ({
+    id: classData.id,
+    title: `${classData.subject} ${classData.name}`,
+    imagePath: classData.imagePath,
+    link: `/siswa/materi/${classData.gradeLevel}`,
+    // Dynamic displayTitle based on admin input
+    displayTitle: `${classData.subject}\nKelas ${toRoman(classData.gradeLevel)}`,
+  }));
 
   return (
     <div className="relative w-full min-h-screen overflow-x-hidden bg-white">

@@ -1,3 +1,5 @@
+import { AuthProvider } from "@/context/AuthContext";
+
 export default function AuthLayout({
   children,
 }: {
@@ -5,7 +7,7 @@ export default function AuthLayout({
 }) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
-      {children}
+      <AuthProvider>{children}</AuthProvider>
     </div>
   );
 }

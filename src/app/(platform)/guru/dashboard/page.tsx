@@ -7,11 +7,19 @@ import { Highlighter } from "@/components/ui/highlighter";
 import { useClasses } from "@/hooks/guru/useClasses";
 import { useDebounce } from "@/hooks/guru/useDebounce";
 import { Search, ChevronLeft, ChevronRight } from "@mui/icons-material";
+import { useRouter } from "next/navigation";
 
 const DashboardGuruPage = () => {
+  const Router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 9; // 3x3 grid
+
+  // handle logout
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    Router.push("/");
+  };
 
   // Lazy load classes data
   const { data: classesData, isLoading, error, refetch } = useClasses();
@@ -71,6 +79,11 @@ const DashboardGuruPage = () => {
 
       {/* Header Section */}
       <div className="container mx-auto px-6 md:px-12 lg:px-[135px] pt-16 md:pt-24 relative z-10">
+        <div>
+          <button onClick={handleLogout} className="p-4 bg-red-500 rounded-xl">
+            logout
+          </button>
+        </div>
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-16 md:mb-20 gap-6">
           {/* Greeting Text */}
           <div className="flex-1">
@@ -166,7 +179,7 @@ const DashboardGuruPage = () => {
             </div>
             {searchQuery && (
               <p className="mt-3 text-white/90 text-sm font-poppins text-center">
-                Menampilkan {filteredClasses.length} hasil untuk "{searchQuery}"
+                Menampilkan {filteredClasses.length} hasil untuk `{searchQuery}`
               </p>
             )}
           </div>

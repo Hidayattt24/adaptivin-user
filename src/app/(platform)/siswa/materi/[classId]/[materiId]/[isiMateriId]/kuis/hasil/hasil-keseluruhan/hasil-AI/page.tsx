@@ -162,9 +162,8 @@ export default function HasilAIPage() {
                 Hasil Keseluruhan
               </span>
               <span
-                className={`material-symbols-outlined text-[#336D82] text-[20px] transition-transform duration-300 ${
-                  showAnalysis ? "rotate-180" : ""
-                }`}
+                className={`material-symbols-outlined text-[#336D82] text-[20px] transition-transform duration-300 ${showAnalysis ? "rotate-180" : ""
+                  }`}
               >
                 expand_more
               </span>
@@ -201,9 +200,8 @@ export default function HasilAIPage() {
                 Rekomendasi Video
               </span>
               <span
-                className={`material-symbols-outlined text-[#336D82] text-[20px] transition-transform duration-300 ${
-                  showVideo ? "rotate-180" : ""
-                }`}
+                className={`material-symbols-outlined text-[#336D82] text-[20px] transition-transform duration-300 ${showVideo ? "rotate-180" : ""
+                  }`}
               >
                 expand_more
               </span>

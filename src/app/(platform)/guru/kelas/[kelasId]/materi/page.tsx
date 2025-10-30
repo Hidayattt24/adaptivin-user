@@ -55,14 +55,14 @@ const MateriListPage = () => {
   };
 
   return (
-    <div className="pb-12">
+    <div className="pb-12 sm:pb-16 md:pb-20">
       {/* Header Banner */}
       <PageHeader
         title={kelasData.nama}
         actionLabel="Tambah Materi"
         actionHref={`/guru/kelas/${kelasId}/materi/tambah`}
-        actionIcon={<AddIcon className="text-white" sx={{ fontSize: 20 }} />}
-        className="mb-8"
+        actionIcon={<AddIcon className="text-white" sx={{ fontSize: { xs: 16, sm: 18, md: 20 } }} />}
+        className="mb-6 sm:mb-7 md:mb-8"
       />
 
       {/* Search Bar Component */}
@@ -74,13 +74,13 @@ const MateriListPage = () => {
         }}
         onSubmit={handleSearch}
         placeholder="Cari materi pembelajaran...."
-        className="mb-8"
+        className="mb-6 sm:mb-7 md:mb-8"
       />
 
       {/* Search Results Info */}
       {searchQuery && !isLoading && (
-        <div className="mb-4" role="status" aria-live="polite">
-          <p className="text-[#336d82] poppins-medium">
+        <div className="mb-3 sm:mb-4" role="status" aria-live="polite">
+          <p className="text-[#336d82] text-sm sm:text-base poppins-medium">
             Menampilkan {filteredMateriList.length} hasil untuk &ldquo;
             {searchQuery}&rdquo;
           </p>
@@ -110,7 +110,7 @@ const MateriListPage = () => {
           onAction={searchQuery ? () => setSearchQuery("") : undefined}
         />
       ) : (
-        <div className="space-y-6" role="list" aria-label="Daftar materi">
+        <div className="space-y-4 sm:space-y-5 md:space-y-6" role="list" aria-label="Daftar materi">
           {filteredMateriList.map((materi) => (
             <MateriCard
               key={materi.id}
@@ -129,24 +129,24 @@ const MateriListPage = () => {
 
       {/* Pagination - if API returns pagination data */}
       {data?.totalPages && data.totalPages > 1 && (
-        <div className="flex justify-center items-center gap-2 mt-8" role="navigation" aria-label="Pagination">
+        <div className="flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-2 mt-6 sm:mt-7 md:mt-8" role="navigation" aria-label="Pagination">
           <button
             onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
             disabled={currentPage === 1}
-            className="px-4 py-2 rounded-lg border border-gray-300 bg-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
+            className="w-full sm:w-auto px-4 py-2 text-sm sm:text-base rounded-lg border border-gray-300 bg-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
             aria-label="Halaman sebelumnya"
           >
             Sebelumnya
           </button>
 
-          <span className="px-4 py-2 font-medium" aria-live="polite">
+          <span className="px-4 py-2 font-medium text-sm sm:text-base" aria-live="polite">
             Halaman {currentPage} dari {data.totalPages}
           </span>
 
           <button
             onClick={() => setCurrentPage((prev) => Math.min(data.totalPages, prev + 1))}
             disabled={currentPage === data.totalPages}
-            className="px-4 py-2 rounded-lg border border-gray-300 bg-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
+            className="w-full sm:w-auto px-4 py-2 text-sm sm:text-base rounded-lg border border-gray-300 bg-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
             aria-label="Halaman selanjutnya"
           >
             Selanjutnya

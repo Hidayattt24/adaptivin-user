@@ -196,54 +196,57 @@ const TambahSoalPage = () => {
 
   return (
     <>
-      <div className="min-h-screen bg-gradient-to-br from-[#e8f4f8] via-white to-[#f0f9fc] py-8 px-4">
-        {/* Header */}
-        <div className="max-w-4xl mx-auto mb-6">
-          <div className="bg-gradient-to-r from-[#336d82] to-[#2a5a6d] rounded-2xl px-6 py-4 flex items-center gap-4 shadow-xl">
+      <div className="min-h-screen bg-gradient-to-br from-[#e8f4f8] via-white to-[#f0f9fc] py-4 sm:py-8 px-3 sm:px-4 pb-24 sm:pb-8">
+        {/* Header - Mobile Optimized */}
+        <div className="max-w-4xl mx-auto mb-4 sm:mb-6">
+          <div className="bg-gradient-to-r from-[#336d82] to-[#2a5a6d] rounded-xl sm:rounded-2xl px-3 sm:px-6 py-3 sm:py-4 flex items-center gap-2 sm:gap-4 shadow-xl">
             <button
               onClick={() => router.push(`/guru/kelas/${kelasId}/materi`)}
-              className="w-12 h-12 bg-white rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-md"
+              className="w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-md flex-shrink-0"
             >
-              <ArrowBackIos sx={{ fontSize: 18, color: "#336d82", ml: 0.5 }} />
+              <ArrowBackIos sx={{ fontSize: 16, color: "#336d82", ml: 0.5 }} className="sm:text-lg" />
             </button>
-            <h1 className="text-2xl font-bold text-white font-poppins flex-1 text-center">
+            <h1 className="text-lg sm:text-2xl font-bold text-white font-poppins flex-1 text-center pr-8 sm:pr-10">
               TAMBAH SOAL
             </h1>
           </div>
         </div>
 
-        {/* Materi Selector */}
-        <div className="max-w-4xl mx-auto mb-8">
-          <div className="bg-white rounded-2xl p-6 shadow-xl border-2 border-[#336d82]/20">
-            <div className="flex items-center gap-4 mb-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-[#336d82] to-[#2a5a6d] rounded-xl flex items-center justify-center shadow-md">
-                <span className="text-white text-2xl">📚</span>
+        {/* Materi Selector - Mobile Optimized */}
+        <div className="max-w-4xl mx-auto mb-4 sm:mb-8">
+          <div className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-xl border-2 border-[#336d82]/20">
+            <div className="flex items-start sm:items-center gap-3 sm:gap-4 mb-4">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-[#336d82] to-[#2a5a6d] rounded-lg sm:rounded-xl flex items-center justify-center shadow-md flex-shrink-0">
+                <span className="text-white text-xl sm:text-2xl">📚</span>
               </div>
-              <div>
-                <h2 className="text-[#336d82] text-lg poppins-semibold">
+              <div className="flex-1 min-w-0">
+                <h2 className="text-[#336d82] text-base sm:text-lg poppins-semibold">
                   Pilih Materi
                 </h2>
-                <p className="text-gray-600 text-sm poppins-regular">
-                  Soal-soal ini akan dikaitkan dengan materi yang dipilih
+                <p className="text-gray-600 text-xs sm:text-sm poppins-regular">
+                  Soal akan dikaitkan dengan materi
                 </p>
               </div>
             </div>
-            <MateriDropdownSelector
-              materiList={materiList}
-              selectedMateri={selectedMateri}
-              onSelectMateri={setSelectedMateri}
-            />
+            <div className="w-full">
+              <MateriDropdownSelector
+                materiList={materiList}
+                selectedMateri={selectedMateri}
+                onSelectMateri={setSelectedMateri}
+                className="w-full"
+              />
+            </div>
             {!selectedMateri && (
-              <p className="text-amber-600 text-sm poppins-medium mt-3 flex items-center gap-2">
-                <span className="text-lg">⚠️</span>
-                Silakan pilih materi terlebih dahulu sebelum membuat soal
+              <p className="text-amber-600 text-xs sm:text-sm poppins-medium mt-3 flex items-start gap-2">
+                <span className="text-base sm:text-lg flex-shrink-0">⚠️</span>
+                <span>Silakan pilih materi terlebih dahulu sebelum membuat soal</span>
               </p>
             )}
           </div>
         </div>
 
-        {/* Questions Container */}
-        <div className="max-w-4xl mx-auto space-y-6">
+        {/* Questions Container - Mobile Optimized */}
+        <div className="max-w-4xl mx-auto space-y-4 sm:space-y-6">
           {questions.map((question, index) => (
             <QuestionSection
               key={question.id}
@@ -259,35 +262,35 @@ const TambahSoalPage = () => {
             />
           ))}
 
-          {/* Add Question Button - Full Width */}
+          {/* Add Question Button - Mobile Optimized */}
           <div className="w-full">
             <button
               onClick={handleAddQuestion}
               type="button"
-              className="w-full bg-white text-[#336d82] px-8 py-4 rounded-2xl font-bold hover:bg-gray-50 transition-all font-poppins shadow-lg flex items-center justify-center gap-3 border-2 border-[#336d82] hover:scale-[1.02] text-lg"
+              className="w-full bg-white text-[#336d82] px-4 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-bold hover:bg-gray-50 active:scale-95 transition-all font-poppins shadow-lg flex items-center justify-center gap-2 sm:gap-3 border-2 border-[#336d82] text-base sm:text-lg"
             >
-              <Add sx={{ fontSize: 28 }} />
-              Tambah Soal Baru
+              <Add sx={{ fontSize: 24 }} className="sm:text-[28px]" />
+              <span>Tambah Soal Baru</span>
             </button>
           </div>
 
-          {/* Submit Button - Full Width */}
-          <div className="w-full pt-4">
+          {/* Submit Button - Mobile Optimized */}
+          <div className="w-full pt-2 sm:pt-4">
             <button
               onClick={handleSubmit}
               disabled={isSubmitting}
               type="button"
-              className="w-full bg-gradient-to-r from-[#336d82] to-[#2a5a6d] text-white px-12 py-5 rounded-2xl font-bold hover:from-[#2a5a6d] hover:to-[#336d82] transition-all disabled:opacity-50 disabled:cursor-not-allowed font-poppins shadow-xl flex items-center justify-center gap-3 text-xl hover:scale-[1.02]"
+              className="w-full bg-gradient-to-r from-[#336d82] to-[#2a5a6d] text-white px-6 sm:px-12 py-4 sm:py-5 rounded-xl sm:rounded-2xl font-bold hover:from-[#2a5a6d] hover:to-[#336d82] active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed font-poppins shadow-xl flex items-center justify-center gap-2 sm:gap-3 text-base sm:text-xl"
             >
               {isSubmitting ? (
                 <>
-                  <div className="w-6 h-6 border-3 border-white border-t-transparent rounded-full animate-spin" />
-                  Menyimpan Soal...
+                  <div className="w-5 h-5 sm:w-6 sm:h-6 border-3 border-white border-t-transparent rounded-full animate-spin" />
+                  <span>Menyimpan Soal...</span>
                 </>
               ) : (
                 <>
-                  <CheckCircle sx={{ fontSize: 28 }} />
-                  Konfirmasi & Simpan ({questions.length} Soal)
+                  <CheckCircle sx={{ fontSize: 24 }} className="sm:text-[28px]" />
+                  <span>Konfirmasi & Simpan ({questions.length} Soal)</span>
                 </>
               )}
             </button>

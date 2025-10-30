@@ -1,8 +1,17 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useRef, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowBackIos, FolderCopy } from "@mui/icons-material";
+import { 
+    ArrowBackIos, 
+    FolderCopy, 
+    MoreVert,
+    ExpandMore,
+    ExpandLess,
+    FileDownload,
+    DeleteSweep,
+    Add
+} from "@mui/icons-material";
 import {
     SoalClusterCard,
     QuestionPreviewModal,
@@ -153,6 +162,9 @@ const BankSoalPage = () => {
     const [previewNumber, setPreviewNumber] = useState(0);
     const [editQuestion, setEditQuestion] = useState<Question | null>(null);
     const [editNumber, setEditNumber] = useState(0);
+    const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+    const [collapsedSections, setCollapsedSections] = useState<Set<string>>(new Set());
+    const dropdownRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
 
     // Group questions by Bloom level
     const groupedQuestions = useMemo(() => {
@@ -221,14 +233,136 @@ const BankSoalPage = () => {
         });
     };
 
+    // Toggle section collapse
+    const toggleSection = (level: string) => {
+        setCollapsedSections((prev) => {
+            const newSet = new Set(prev);
+            if (newSet.has(level)) {
+                newSet.delete(level);
+            } else {
+                newSet.add(level);
+            }
+            return newSet;
+        });
+    };
+
+    // Handle dropdown actions
+    const handleDropdownAction = (action: string, level: string) => {
+        setOpenDropdown(null);
+        
+        switch (action) {
+            case "expand":
+                setCollapsedSections((prev) => {
+                    const newSet = new Set(prev);
+                    newSet.delete(level);
+                    return newSet;
+                });
+                break;
+            case "collapse":
+                setCollapsedSections((prev) => new Set(prev).add(level));
+                break;
+            case "export":
+                Swal.fire({
+                    icon: "info",
+                    title: "Export Soal",
+                    text: `Mengexport ${groupedQuestions[level].length} soal dari kategori ${level}`,
+                    confirmButtonColor: "#336d82",
+                });
+                break;
+            case "deleteAll":
+                Swal.fire({
+                    title: "Hapus Semua Soal?",
+                    html: `Apakah Anda yakin ingin menghapus <strong>semua ${groupedQuestions[level].length} soal</strong> dari kategori ${level}?<br/><small class="text-gray-600">Tindakan ini tidak dapat dibatalkan.</small>`,
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#ff1919",
+                    cancelButtonColor: "#6b7280",
+                    confirmButtonText: "Ya, Hapus Semua!",
+                    cancelButtonText: "Batal",
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        setQuestions((prev) => prev.filter((q) => q.questionType !== level));
+                        Swal.fire({
+                            icon: "success",
+                            title: "Terhapus!",
+                            text: `Semua soal ${level} berhasil dihapus`,
+                            confirmButtonColor: "#336d82",
+                            timer: 2000,
+                        });
+                    }
+                });
+                break;
+            case "addNew":
+                router.push(`/guru/kelas/${kelasId}/soal/tambah`);
+                break;
+        }
+    };
+
+    // Close dropdown when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (openDropdown) {
+                const dropdownElement = dropdownRefs.current[openDropdown];
+                if (dropdownElement && !dropdownElement.contains(event.target as Node)) {
+                    setOpenDropdown(null);
+                }
+            }
+        };
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, [openDropdown]);
+
     const totalQuestions = questions.length;
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-[#e8f4f8] to-[#f0f9fc]">
-            {/* Sticky Compact Header */}
+        <div className="min-h-screen bg-gradient-to-br from-[#e8f4f8] to-[#f0f9fc] pb-20 sm:pb-6">
+            {/* Sticky Compact Header - Mobile Optimized */}
             <div className="sticky top-0 z-40 bg-gradient-to-r from-[#336d82] to-[#2a5a6d] shadow-2xl">
-                <div className="px-8 py-4">
-                    <div className="flex items-center justify-between">
+                <div className="px-3 sm:px-6 lg:px-8 py-3 sm:py-4">
+                    {/* Mobile Layout */}
+                    <div className="lg:hidden">
+                        {/* Top Row: Back Button & Title */}
+                        <div className="flex items-center gap-3 mb-3">
+                            <button
+                                onClick={() => router.back()}
+                                className="w-9 h-9 bg-white/20 hover:bg-white/30 active:bg-white/40 rounded-lg flex items-center justify-center transition-colors flex-shrink-0"
+                            >
+                                <ArrowBackIos sx={{ fontSize: 16, color: "white", ml: 0.5 }} />
+                            </button>
+                            <div className="flex-1 min-w-0">
+                                <h1 className="text-white text-lg sm:text-xl poppins-bold truncate">Bank Soal</h1>
+                                <p className="text-white/70 text-[10px] sm:text-xs poppins-medium truncate">
+                                    Kelola soal Taksonomi Bloom
+                                </p>
+                            </div>
+                            {/* Total Badge */}
+                            <div className="flex items-center gap-2 bg-white/15 backdrop-blur-sm rounded-lg px-3 py-1.5 flex-shrink-0">
+                                <FolderCopy sx={{ fontSize: 20, color: "white" }} />
+                                <span className="text-white text-lg poppins-bold">{totalQuestions}</span>
+                            </div>
+                        </div>
+
+                        {/* Bottom Row: Bloom Stats - Scrollable */}
+                        <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide -mx-3 px-3">
+                            {bloomCategories.map((cat) => (
+                                <div
+                                    key={cat.level}
+                                    className="bg-white/15 backdrop-blur-sm px-3 py-1.5 rounded-lg text-center min-w-[60px] flex-shrink-0"
+                                >
+                                    <p className="text-white text-xs poppins-semibold">
+                                        {cat.level}
+                                    </p>
+                                    <p className="text-white text-base poppins-bold">
+                                        {groupedQuestions[cat.level].length}
+                                    </p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Desktop Layout */}
+                    <div className="hidden lg:flex items-center justify-between">
                         {/* Left: Back Button & Title */}
                         <div className="flex items-center gap-4">
                             <button
@@ -277,63 +411,145 @@ const BankSoalPage = () => {
                 </div>
             </div>
 
-            {/* Content */}
-            <div className="px-8 py-6">
+            {/* Content - Mobile Optimized */}
+            <div className="px-3 sm:px-6 lg:px-8 py-4 sm:py-6">
                 {totalQuestions === 0 ? (
-                    <div className="bg-white rounded-2xl shadow-xl p-12 text-center">
-                        <FolderCopy sx={{ fontSize: 80, color: "#336d82", opacity: 0.3 }} />
-                        <h3 className="text-[#336d82] text-2xl poppins-bold mt-4 mb-2">
+                    <div className="bg-white rounded-xl sm:rounded-2xl shadow-xl p-8 sm:p-12 text-center">
+                        <FolderCopy sx={{ fontSize: 60, color: "#336d82", opacity: 0.3 }} className="sm:text-[80px]" />
+                        <h3 className="text-[#336d82] text-xl sm:text-2xl poppins-bold mt-4 mb-2">
                             Belum Ada Soal
                         </h3>
-                        <p className="text-gray-600 poppins-regular mb-6">
+                        <p className="text-gray-600 text-sm sm:text-base poppins-regular mb-6">
                             Mulai buat soal pertama Anda di halaman Tambah Soal
                         </p>
                         <button
                             onClick={() => router.push(`/guru/kelas/${kelasId}/soal/tambah`)}
-                            className="bg-[#336d82] hover:bg-[#2a5a6d] text-white px-8 py-3 rounded-xl poppins-semibold transition-colors"
+                            className="bg-[#336d82] hover:bg-[#2a5a6d] active:bg-[#234d5c] text-white px-6 sm:px-8 py-2.5 sm:py-3 rounded-lg sm:rounded-xl poppins-semibold transition-colors text-sm sm:text-base"
                         >
                             Tambah Soal Baru
                         </button>
                     </div>
                 ) : (
-                    <div className="space-y-6">
+                    <div className="space-y-4 sm:space-y-6">
                         {bloomCategories.map((category) => {
                             const categoryQuestions = groupedQuestions[category.level];
                             if (categoryQuestions.length === 0) return null;
 
+                            const isCollapsed = collapsedSections.has(category.level);
+                            
                             return (
                                 <div key={category.level}>
-                                    {/* Category Header - Compact */}
+                                    {/* Category Header with Dropdown - Mobile & Desktop */}
                                     <div
-                                        className={`bg-gradient-to-r ${category.color} rounded-xl px-5 py-3 mb-3 shadow-lg`}
+                                        className={`bg-gradient-to-r ${category.color} rounded-lg sm:rounded-xl px-4 sm:px-5 py-2.5 sm:py-3 mb-3 shadow-lg`}
                                     >
-                                        <div className="flex items-center justify-between">
-                                            <h2 className="text-white text-xl poppins-bold">
-                                                {category.label}
-                                            </h2>
-                                            <span className="bg-white/30 px-3 py-1 rounded-lg text-white text-sm poppins-bold">
-                                                {categoryQuestions.length} Soal
-                                            </span>
+                                        <div className="flex items-center justify-between gap-3">
+                                            {/* Left: Title & Badge */}
+                                            <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+                                                <h2 className="text-white text-base sm:text-xl poppins-bold truncate">
+                                                    {category.label}
+                                                </h2>
+                                                <span className="bg-white/30 px-2.5 sm:px-3 py-1 rounded-md sm:rounded-lg text-white text-xs sm:text-sm poppins-bold flex-shrink-0">
+                                                    {categoryQuestions.length} Soal
+                                                </span>
+                                            </div>
+
+                                            {/* Right: Actions */}
+                                            <div className="flex items-center gap-2 flex-shrink-0">
+                                                {/* Collapse/Expand Button */}
+                                                <button
+                                                    onClick={() => toggleSection(category.level)}
+                                                    className="w-8 h-8 sm:w-9 sm:h-9 bg-white/20 hover:bg-white/30 active:bg-white/40 rounded-lg flex items-center justify-center transition-colors"
+                                                    title={isCollapsed ? "Expand" : "Collapse"}
+                                                >
+                                                    {isCollapsed ? (
+                                                        <ExpandMore sx={{ fontSize: 20, color: "white" }} className="sm:text-2xl" />
+                                                    ) : (
+                                                        <ExpandLess sx={{ fontSize: 20, color: "white" }} className="sm:text-2xl" />
+                                                    )}
+                                                </button>
+
+                                                {/* Dropdown Menu Button */}
+                                                <div className="relative" ref={(el) => { dropdownRefs.current[category.level] = el; }}>
+                                                    <button
+                                                        onClick={() => setOpenDropdown(openDropdown === category.level ? null : category.level)}
+                                                        className="w-8 h-8 sm:w-9 sm:h-9 bg-white/20 hover:bg-white/30 active:bg-white/40 rounded-lg flex items-center justify-center transition-colors"
+                                                        title="More options"
+                                                    >
+                                                        <MoreVert sx={{ fontSize: 20, color: "white" }} className="sm:text-2xl" />
+                                                    </button>
+
+                                                    {/* Dropdown Menu */}
+                                                    {openDropdown === category.level && (
+                                                        <div className="absolute right-0 top-full mt-2 bg-white rounded-lg shadow-2xl border border-gray-200 py-1 min-w-[180px] sm:min-w-[200px] z-50 animate-slideDown">
+                                                            <button
+                                                                onClick={() => handleDropdownAction(isCollapsed ? "expand" : "collapse", category.level)}
+                                                                className="w-full px-4 py-2.5 text-left text-sm hover:bg-gray-50 active:bg-gray-100 transition-colors flex items-center gap-3 text-gray-700 poppins-medium"
+                                                            >
+                                                                {isCollapsed ? (
+                                                                    <>
+                                                                        <ExpandMore sx={{ fontSize: 18 }} />
+                                                                        <span>Expand Section</span>
+                                                                    </>
+                                                                ) : (
+                                                                    <>
+                                                                        <ExpandLess sx={{ fontSize: 18 }} />
+                                                                        <span>Collapse Section</span>
+                                                                    </>
+                                                                )}
+                                                            </button>
+                                                            
+                                                            <button
+                                                                onClick={() => handleDropdownAction("addNew", category.level)}
+                                                                className="w-full px-4 py-2.5 text-left text-sm hover:bg-gray-50 active:bg-gray-100 transition-colors flex items-center gap-3 text-gray-700 poppins-medium"
+                                                            >
+                                                                <Add sx={{ fontSize: 18 }} />
+                                                                <span>Tambah Soal Baru</span>
+                                                            </button>
+
+                                                            <button
+                                                                onClick={() => handleDropdownAction("export", category.level)}
+                                                                className="w-full px-4 py-2.5 text-left text-sm hover:bg-gray-50 active:bg-gray-100 transition-colors flex items-center gap-3 text-gray-700 poppins-medium"
+                                                            >
+                                                                <FileDownload sx={{ fontSize: 18 }} />
+                                                                <span>Export Soal {category.level}</span>
+                                                            </button>
+
+                                                            <div className="border-t border-gray-200 my-1"></div>
+
+                                                            <button
+                                                                onClick={() => handleDropdownAction("deleteAll", category.level)}
+                                                                className="w-full px-4 py-2.5 text-left text-sm hover:bg-red-50 active:bg-red-100 transition-colors flex items-center gap-3 text-red-600 poppins-medium"
+                                                            >
+                                                                <DeleteSweep sx={{ fontSize: 18 }} />
+                                                                <span>Hapus Semua Soal</span>
+                                                            </button>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
 
-                                    {/* Questions Grid - 4 columns for better space usage */}
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                                        {categoryQuestions.map((question) => {
-                                            const globalNumber =
-                                                questions.findIndex((q) => q.id === question.id) + 1;
-                                            return (
-                                                <SoalClusterCard
-                                                    key={question.id}
-                                                    question={question}
-                                                    questionNumber={globalNumber}
-                                                    onPreview={() => handlePreview(question, globalNumber)}
-                                                    onEdit={() => handleEdit(question, globalNumber)}
-                                                    onDelete={() => handleDelete(question, globalNumber)}
-                                                />
-                                            );
-                                        })}
-                                    </div>
+                                    {/* Questions Grid - Collapsible */}
+                                    {!isCollapsed && (
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 animate-slideDown">
+                                            {categoryQuestions.map((question) => {
+                                                const globalNumber =
+                                                    questions.findIndex((q) => q.id === question.id) + 1;
+                                                return (
+                                                    <SoalClusterCard
+                                                        key={question.id}
+                                                        question={question}
+                                                        questionNumber={globalNumber}
+                                                        onPreview={() => handlePreview(question, globalNumber)}
+                                                        onEdit={() => handleEdit(question, globalNumber)}
+                                                        onDelete={() => handleDelete(question, globalNumber)}
+                                                    />
+                                                );
+                                            })}
+                                        </div>
+                                    )}
                                 </div>
                             );
                         })}

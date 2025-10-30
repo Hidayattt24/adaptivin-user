@@ -175,19 +175,19 @@ const SoalListPage = () => {
     materiList.find((m) => m.id === selectedMateri)?.nama || "";
 
   return (
-    <div className="pb-12">
+    <div className="pb-20 sm:pb-20 md:pb-8">
       {/* Header Banner */}
       <PageHeader
         title="Kelola Soal"
         actionLabel="Tambah Soal"
         actionHref={`/guru/kelas/${kelasId}/soal/tambah`}
-        actionIcon={<AddIcon className="text-white" sx={{ fontSize: 20 }} />}
-        className="mb-8"
+        actionIcon={<AddIcon className="text-white" sx={{ fontSize: { xs: 18, sm: 20 } }} />}
+        className="mb-6 sm:mb-7 md:mb-8"
       />
 
       {/* Selected Material Name & Material Selector */}
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-[#336d82] text-3xl poppins-semibold">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 mb-4 sm:mb-5 md:mb-6">
+        <h2 className="text-[#336d82] text-xl sm:text-2xl md:text-3xl poppins-semibold">
           {selectedMateriName}
         </h2>
         <MateriSelector
@@ -197,7 +197,7 @@ const SoalListPage = () => {
             setSelectedMateri(materiId);
             setCurrentPage(1);
           }}
-          className="w-[305px]"
+          className="w-full sm:w-[280px] md:w-[305px]"
         />
       </div>
 
@@ -205,17 +205,17 @@ const SoalListPage = () => {
       {isLoading ? (
         <>
           {/* Skeleton for Total Cards */}
-          <div className="grid grid-cols-3 gap-4 mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mb-6 sm:mb-7 md:mb-8">
             <CardSkeleton />
             <CardSkeleton />
             <CardSkeleton />
           </div>
 
           {/* Section Title Skeleton */}
-          <div className="h-8 bg-gray-200 rounded w-64 mb-6 animate-pulse"></div>
+          <div className="h-6 sm:h-7 md:h-8 bg-gray-200 rounded w-48 sm:w-56 md:w-64 mb-4 sm:mb-5 md:mb-6 animate-pulse"></div>
 
           {/* Skeleton for Quiz Cards */}
-          <div className="space-y-6 mb-8">
+          <div className="space-y-4 sm:space-y-5 md:space-y-6 mb-6 sm:mb-7 md:mb-8">
             <CardSkeleton />
             <CardSkeleton />
           </div>
@@ -233,20 +233,21 @@ const SoalListPage = () => {
           <TotalSoalCards
             totalSoal={totalSoal}
             bloomStats={bloomStats}
-            className="mb-8"
+            className="mb-6 sm:mb-7 md:mb-8"
           />
 
           {/* Section Title with Button */}
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-[#336d82] text-2xl poppins-semibold">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 mb-4 sm:mb-5 md:mb-6">
+            <h3 className="text-[#336d82] text-lg sm:text-xl md:text-2xl poppins-semibold">
               Kumpulan Bank Soal
             </h3>
             <button
               onClick={() => router.push(`/guru/kelas/${kelasId}/soal/bank`)}
-              className="bg-gradient-to-r from-[#336d82] to-[#2a5a6d] hover:from-[#2a5a6d] hover:to-[#1f4a5a] text-white px-6 py-3 rounded-xl poppins-semibold transition-all shadow-lg hover:shadow-xl flex items-center gap-2"
+              className="bg-gradient-to-r from-[#336d82] to-[#2a5a6d] hover:from-[#2a5a6d] hover:to-[#1f4a5a] text-white px-4 sm:px-5 md:px-6 py-2 sm:py-2.5 md:py-3 rounded-lg sm:rounded-xl text-sm sm:text-base poppins-semibold transition-all shadow-lg hover:shadow-xl flex items-center gap-2 w-full sm:w-auto justify-center"
             >
-              <FolderCopy sx={{ fontSize: 20 }} />
-              Lihat Semua Bank Soal
+              <FolderCopy sx={{ fontSize: { xs: 18, sm: 20 } }} />
+              <span className="hidden sm:inline">Lihat Semua Bank Soal</span>
+              <span className="sm:hidden">Bank Soal</span>
             </button>
           </div>
 
@@ -259,7 +260,7 @@ const SoalListPage = () => {
             />
           ) : (
             <>
-              <div className="space-y-6 mb-8" role="list" aria-label="Daftar soal">
+              <div className="space-y-4 sm:space-y-5 md:space-y-6 mb-6 sm:mb-7 md:mb-8" role="list" aria-label="Daftar soal">
                 {currentQuizList.map((quiz) => (
                   <QuizCard
                     key={quiz.id}
@@ -279,7 +280,7 @@ const SoalListPage = () => {
                   currentPage={currentPage}
                   totalPages={totalPages}
                   onPageChange={setCurrentPage}
-                  className="mt-8"
+                  className="mt-6 sm:mt-7 md:mt-8"
                 />
               )}
             </>

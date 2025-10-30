@@ -83,22 +83,22 @@ export default function QuestionSection({
   };
 
   return (
-    <div className="bg-gradient-to-br from-[#336d82] to-[#4a8a9e] rounded-3xl p-6 shadow-2xl border-2 border-dashed border-white/30">
+    <div className="bg-gradient-to-br from-[#336d82] to-[#4a8a9e] rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-2xl border-2 border-dashed border-white/30">
       {/* Question Section */}
-      <div className="mb-6">
-        <h2 className="text-xl font-bold text-white font-poppins mb-4">
+      <div className="mb-4 sm:mb-6">
+        <h2 className="text-base sm:text-xl font-bold text-white font-poppins mb-3 sm:mb-4">
           Isi Soal Nomor {index + 1}
         </h2>
 
         {/* Question Type Dropdown */}
-        <div className="mb-4">
+        <div className="mb-3 sm:mb-4">
           <CustomDropdown
             value={question.questionType}
             options={questionTypeOptions}
             onChange={(value) => onUpdate(question.id, "questionType", value)}
             leftIcon={
-              <div className="w-10 h-10 bg-[#336d82] rounded-xl flex items-center justify-center shadow-md">
-                <span className="text-white font-bold text-base">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-[#336d82] rounded-lg sm:rounded-xl flex items-center justify-center shadow-md">
+                <span className="text-white font-bold text-sm sm:text-base">
                   {question.questionType}
                 </span>
               </div>
@@ -107,7 +107,7 @@ export default function QuestionSection({
         </div>
 
         {/* Question File Upload */}
-        <div className="mb-4">
+        <div className="mb-3 sm:mb-4">
           <FileUploadArea
             file={question.questionFile}
             filePreview={question.questionFilePreview}
@@ -130,19 +130,19 @@ export default function QuestionSection({
           value={question.questionText}
           onChange={(e) => onUpdate(question.id, "questionText", e.target.value)}
           placeholder="Isi soal anda disini..."
-          className="w-full px-4 py-3 rounded-xl border-2 border-white/30 bg-white/95 backdrop-blur-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-white shadow-md resize-none"
+          className="w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg sm:rounded-xl border-2 border-white/30 bg-white/95 backdrop-blur-sm text-gray-800 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-white shadow-md resize-none"
           rows={4}
         />
       </div>
 
       {/* Answer Section */}
-      <div className="mb-6">
-        <h2 className="text-xl font-bold text-white font-poppins mb-4">
+      <div className="mb-4 sm:mb-6">
+        <h2 className="text-base sm:text-xl font-bold text-white font-poppins mb-3 sm:mb-4">
           Isi Jawaban Nomor {index + 1}
         </h2>
 
         {/* Answer Type Dropdown */}
-        <div className="mb-4">
+        <div className="mb-3 sm:mb-4">
           <CustomDropdown
             value={question.answerType}
             options={answerTypeOptions}
@@ -153,7 +153,7 @@ export default function QuestionSection({
 
         {/* Answer File Upload (if Foto selected) */}
         {question.answerType === "Foto" && (
-          <div className="mb-4">
+          <div className="mb-3 sm:mb-4">
             <FileUploadArea
               file={question.answerFile}
               filePreview={question.answerFilePreview}
@@ -173,8 +173,8 @@ export default function QuestionSection({
 
         {/* Answer Text Input */}
         {question.answerType !== "Foto" && (
-          <div className="relative mb-4">
-            <div className="absolute left-4 top-4 pointer-events-none">
+          <div className="relative mb-3 sm:mb-4">
+            <div className="absolute left-3 sm:left-4 top-3 sm:top-4 pointer-events-none">
               {getAnswerIcon()}
             </div>
             <input
@@ -186,16 +186,16 @@ export default function QuestionSection({
                   ? "Masukkan jawaban dalam angka..."
                   : "Masukkan jawaban dalam teks..."
               }
-              className="w-full pl-14 pr-4 py-4 rounded-2xl border-2 border-white/30 bg-white/95 backdrop-blur-sm text-gray-800 font-medium focus:outline-none focus:ring-2 focus:ring-white focus:border-white shadow-lg hover:shadow-xl transition-all placeholder:text-gray-400"
+              className="w-full pl-11 sm:pl-14 pr-3 sm:pr-4 py-3 sm:py-4 rounded-xl sm:rounded-2xl border-2 border-white/30 bg-white/95 backdrop-blur-sm text-gray-800 text-sm sm:text-base font-medium focus:outline-none focus:ring-2 focus:ring-white focus:border-white shadow-lg hover:shadow-xl transition-all placeholder:text-gray-400"
             />
           </div>
         )}
 
         {/* Optional Support Image for Text/Number */}
         {question.answerType !== "Foto" && (
-          <div className="mt-4">
-            <p className="text-white/80 text-sm font-medium mb-2 flex items-center gap-2">
-              <ImageIcon sx={{ fontSize: 18 }} />
+          <div className="mt-3 sm:mt-4">
+            <p className="text-white/80 text-xs sm:text-sm font-medium mb-2 flex items-center gap-2">
+              <ImageIcon sx={{ fontSize: 16 }} className="sm:text-lg" />
               Gambar Pendukung Jawaban (Opsional)
             </p>
             <FileUploadArea
@@ -218,13 +218,13 @@ export default function QuestionSection({
       </div>
 
       {/* Time Section */}
-      <div className="mb-6">
-        <h2 className="text-xl font-bold text-white font-poppins mb-4 flex items-center gap-2">
-          <AccessTime sx={{ fontSize: 24 }} />
-          Lama waktu menjawab
+      <div className="mb-4 sm:mb-6">
+        <h2 className="text-base sm:text-xl font-bold text-white font-poppins mb-3 sm:mb-4 flex items-center gap-2">
+          <AccessTime sx={{ fontSize: 20 }} className="sm:text-2xl" />
+          <span>Lama waktu menjawab</span>
         </h2>
-        <div className="flex items-center gap-4">
-          <div className="relative flex-1 max-w-xs">
+        <div className="flex items-center gap-3 sm:gap-4">
+          <div className="relative flex-1 max-w-[120px] sm:max-w-xs">
             <input
               type="number"
               min="1"
@@ -232,15 +232,15 @@ export default function QuestionSection({
               onChange={(e) =>
                 onUpdate(question.id, "timeValue", parseInt(e.target.value) || 1)
               }
-              className="w-full px-6 py-4 rounded-2xl border-2 border-white/30 bg-white/95 backdrop-blur-sm text-gray-800 font-bold text-center text-2xl focus:outline-none focus:ring-2 focus:ring-white focus:border-white shadow-lg hover:shadow-xl transition-all"
+              className="w-full px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl border-2 border-white/30 bg-white/95 backdrop-blur-sm text-gray-800 font-bold text-center text-xl sm:text-2xl focus:outline-none focus:ring-2 focus:ring-white focus:border-white shadow-lg hover:shadow-xl transition-all"
             />
           </div>
-          <div className="flex-1 max-w-xs">
+          <div className="flex-1 max-w-[180px] sm:max-w-xs">
             <CustomDropdown
               value={question.timeUnit}
               options={timeUnitOptions}
               onChange={(value) => onUpdate(question.id, "timeUnit", value)}
-              leftIcon={<AccessTime sx={{ fontSize: 24, color: "#336d82" }} />}
+              leftIcon={<AccessTime sx={{ fontSize: 20, color: "#336d82" }} className="sm:text-2xl" />}
             />
           </div>
         </div>
@@ -252,10 +252,10 @@ export default function QuestionSection({
           <button
             onClick={() => onRemove(question.id)}
             type="button"
-            className="px-6 py-3 bg-red-500 text-white rounded-xl hover:bg-red-600 transition-colors flex items-center gap-2 font-poppins font-semibold shadow-lg"
+            className="px-4 sm:px-6 py-2.5 sm:py-3 bg-red-500 text-white rounded-lg sm:rounded-xl hover:bg-red-600 active:bg-red-700 transition-colors flex items-center gap-2 font-poppins font-semibold shadow-lg text-sm sm:text-base"
           >
-            <Delete sx={{ fontSize: 20 }} />
-            Hapus Soal Ini
+            <Delete sx={{ fontSize: 18 }} className="sm:text-xl" />
+            <span>Hapus Soal Ini</span>
           </button>
         </div>
       )}

@@ -114,26 +114,26 @@ const SiswaListPage = () => {
   };
 
   return (
-    <div className="pb-12">
+    <div className="pb-20 sm:pb-20 md:pb-8">
       {/* Header Banner */}
-      <PageHeader title="Kelola Murid" className="mb-8" />
+      <PageHeader title="Kelola Murid" className="mb-6 sm:mb-7 md:mb-8" />
 
       {/* Loading State */}
       {isLoading ? (
         <>
           {/* Top Section Skeleton */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-            <div className="lg:col-span-2 space-y-6">
-              <div className="h-10 bg-gray-200 rounded w-80 animate-pulse"></div>
-              <div className="h-12 bg-gray-200 rounded animate-pulse"></div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5 md:gap-6 mb-6 sm:mb-7 md:mb-8">
+            <div className="md:col-span-2 space-y-4 sm:space-y-5 md:space-y-6">
+              <div className="h-8 sm:h-9 md:h-10 bg-gray-200 rounded w-full sm:w-80 animate-pulse"></div>
+              <div className="h-10 sm:h-11 md:h-12 bg-gray-200 rounded animate-pulse"></div>
             </div>
-            <div className="lg:col-span-1">
+            <div className="md:col-span-1">
               <CardSkeleton />
             </div>
           </div>
 
           {/* Student List Skeleton */}
-          <div className="space-y-6 mb-8">
+          <div className="space-y-4 sm:space-y-5 md:space-y-6 mb-6 sm:mb-7 md:mb-8">
             <CardSkeleton />
             <CardSkeleton />
           </div>
@@ -148,10 +148,10 @@ const SiswaListPage = () => {
       ) : (
         <>
           {/* Top Section - Search and Total */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-4 lg:gap-6 mb-6 sm:mb-6 lg:mb-8">
             {/* Left: Informasi Murid Section */}
-            <div className="lg:col-span-2 space-y-6">
-              <h2 className="text-[#336d82] text-4xl poppins-semibold">
+            <div className="md:col-span-2 space-y-4 sm:space-y-4 lg:space-y-6">
+              <h2 className="text-[#336d82] text-2xl sm:text-2xl lg:text-4xl poppins-semibold">
                 INFORMASI MURID
               </h2>
               {/* Search Bar */}
@@ -165,15 +165,15 @@ const SiswaListPage = () => {
             </div>
 
             {/* Right: Total Murid Card */}
-            <div className="lg:col-span-1">
+            <div className="md:col-span-1">
               <TotalMuridCard total={allSiswaList.length} />
             </div>
           </div>
 
           {/* Search Results Info */}
           {searchQuery && (
-            <div className="mb-4">
-              <p className="text-[#336d82] poppins-medium">
+            <div className="mb-3 sm:mb-4">
+              <p className="text-[#336d82] text-sm sm:text-base poppins-medium">
                 Menampilkan {filteredSiswaList.length} hasil untuk &ldquo;{searchQuery}&rdquo;
               </p>
             </div>
@@ -195,7 +195,7 @@ const SiswaListPage = () => {
             />
           ) : (
             <>
-              <div className="space-y-6 mb-8" role="list" aria-label="Daftar siswa">
+              <div className="space-y-4 sm:space-y-5 md:space-y-6 mb-6 sm:mb-7 md:mb-8" role="list" aria-label="Daftar siswa">
                 {currentSiswaList.map((siswa) => (
                   <StudentCard
                     key={siswa.id}
@@ -217,7 +217,7 @@ const SiswaListPage = () => {
                   currentPage={currentPage}
                   totalPages={totalPages}
                   onPageChange={setCurrentPage}
-                  className="mt-8"
+                  className="mt-6 sm:mt-7 md:mt-8"
                 />
               )}
             </>

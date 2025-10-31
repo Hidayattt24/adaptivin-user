@@ -11,8 +11,8 @@ interface User {
   alamat?: string;
   jenis_kelamin?: string;
   tanggal_lahir?: string;
-  nip?: string; // untuk guru
-  nisn?: string; // untuk siswa
+  nip?: string; 
+  nisn?: string;
 }
 
 interface AuthContextType {

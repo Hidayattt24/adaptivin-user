@@ -18,6 +18,7 @@ const DashboardGuruPage = () => {
   // handle logout
   const handleLogout = () => {
     localStorage.removeItem("user");
+    localStorage.removeItem("token");
     Router.push("/");
   };
 

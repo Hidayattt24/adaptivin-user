@@ -7,6 +7,8 @@ import CardCarousel from "@/components/siswa/carousel/CardCarousel";
 import MobileNavbar from "@/components/siswa/navigation/MobileNavbar";
 import Image from "next/image";
 import Link from "next/link";
+import { div } from "framer-motion/client";
+
 
 export default function BerandaSiswaPage() {
   const [classes, setClasses] = useState<any[]>([]);
@@ -442,28 +444,27 @@ export default function BerandaSiswaPage() {
           <SectionTitle>Ayo Tentukan Level Petualanganmu</SectionTitle>
         </div>
 
-        {/* Section Title - Desktop/Tablet - Compact for Desktop */}
-        <div className="hidden md:block px-6 lg:px-8 py-3">
-          <div className="text-center max-w-5xl mx-auto">
-            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-[#E8F6FF] to-[#FFE8F5] px-5 py-2 rounded-full shadow-lg border-2 border-[#33A1E0]/20">
-              <span className="text-xl animate-bounce-gentle">🎯</span>
-              <h2 className="text-base font-bold text-[#2B7A9E] drop-shadow-sm">
-                Ayo Tentukan Level Petualanganmu
-              </h2>
-              <span className="text-xl animate-bounce-gentle" style={{ animationDelay: '0.5s' }}>🚀</span>
-            </div>
-          </div>
-        </div>
-
         {/* Card Carousel - Mobile */}
         <div className="md:hidden">
           <CardCarousel cards={cards} />
         </div>
 
-        {/* Card Grid - Desktop/Tablet - Compact for Desktop */}
+        {/* Card Grid - Desktop/Tablet - Centered with Title */}
         <div className="hidden md:block px-6 lg:px-8 pb-10">
-          <div className="max-w-4xl mx-auto">
-            <div className="grid grid-cols-3 gap-5">
+          <div className="max-w-4xl mx-auto flex flex-col items-center justify-center min-h-[70vh]">
+            {/* Section Title - Close to Cards */}
+            <div className="text-center mb-8">
+              <div className="inline-flex items-center gap-2 bg-gradient-to-r from-[#E8F6FF] to-[#FFE8F5] px-5 py-2 rounded-full shadow-lg border-2 border-[#33A1E0]/20">
+                <span className="text-xl animate-bounce-gentle">🎯</span>
+                <h2 className="text-base font-bold text-[#2B7A9E] drop-shadow-sm">
+                  Ayo Tentukan Level Petualanganmu
+                </h2>
+                <span className="text-xl animate-bounce-gentle" style={{ animationDelay: '0.5s' }}>🚀</span>
+              </div>
+            </div>
+
+            {/* Cards Grid */}
+            <div className="grid grid-cols-3 gap-5 w-full">
               {cards.map((card) => (
                 <Link key={card.id} href={card.link}>
                   <div className="group relative bg-white rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden border-2 border-[#33A1E0]/10 hover:border-[#33A1E0]/40 hover:-translate-y-3 hover:scale-[1.02]">
@@ -485,11 +486,11 @@ export default function BerandaSiswaPage() {
                       {/* Gradient Overlay */}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-500"></div>
 
-                      {/* Text Overlay with Animation */}
+                      {/* Text Overlay with Animation - No Shadow */}
                       {card.displayTitle && (
                         <div className="absolute inset-0 flex items-start justify-end p-5 transition-transform duration-500 group-hover:translate-y-[-4px]">
                           <div className="text-right transform transition-all duration-500 group-hover:scale-105">
-                            <div className="press-start-2p-regular text-white text-base leading-relaxed drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
+                            <div className="press-start-2p-regular text-white text-base leading-relaxed">
                               {card.displayTitle.split('\n').map((line, i) => (
                                 <div
                                   key={i}
@@ -518,27 +519,28 @@ export default function BerandaSiswaPage() {
               ))}
             </div>
 
-            {/* Empty State Message if no classes - Compact */}
-            {cards.length === 0 && (
-              <div className="text-center py-16 animate-fade-in">
-                <div className="w-32 h-32 mx-auto mb-5 bg-gradient-to-br from-[#E8F6FF] via-[#FFE8F5] to-[#FFF4E8] rounded-full flex items-center justify-center shadow-2xl animate-bounce-gentle border-4 border-white">
-                  <span className="text-6xl">📚</span>
-                </div>
-                <h3 className="text-xl font-bold text-[#2B7A9E] mb-2">Belum Ada Kelas Nih! 🤔</h3>
-                <p className="text-sm text-gray-600 max-w-md mx-auto">
-                  Tenang, kelas kamu akan muncul di sini setelah guru menambahkanmu. Sabar ya! 😊
-                </p>
-              </div>
-            )}
           </div>
+
+          {/* Empty State Message if no classes - Compact */}
+          {cards.length === 0 && (
+            <div className="text-center py-16 animate-fade-in">
+              <div className="w-32 h-32 mx-auto mb-5 bg-gradient-to-br from-[#E8F6FF] via-[#FFE8F5] to-[#FFF4E8] rounded-full flex items-center justify-center shadow-2xl animate-bounce-gentle border-4 border-white">
+                <span className="text-6xl">📚</span>
+              </div>
+              <h3 className="text-xl font-bold text-[#2B7A9E] mb-2">Belum Ada Kelas Nih! 🤔</h3>
+              <p className="text-sm text-gray-600 max-w-md mx-auto">
+                Tenang, kelas kamu akan muncul di sini setelah guru menambahkanmu. Sabar ya! 😊
+              </p>
+            </div>
+          )}
         </div>
-
-        {/* Navigation Bar - All screen sizes */}
-        <MobileNavbar characterImage="/siswa/foto-profil/kocheng-oren.svg" />
-
-        {/* Bottom Spacing for navbar */}
-        <div className="h-24 md:h-32 lg:h-36"></div>
       </div>
+
+      {/* Navigation Bar - All screen sizes */}
+      <MobileNavbar characterImage="/siswa/foto-profil/kocheng-oren.svg" />
+
+      {/* Bottom Spacing for navbar */}
+      <div className="h-24 md:h-32 lg:h-36"></div>
     </div>
   );
 }

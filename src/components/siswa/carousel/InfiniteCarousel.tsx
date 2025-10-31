@@ -291,18 +291,18 @@ export default function InfiniteCarousel({
 
 
 
-                  {/* Center indicator - Show when card is in center - Fixed position for mobile */}
+                  {/* Center indicator - Show when card is in center - Inside card bottom */}
                   {isCenter && !isSelected && (
-                    <div className="absolute top-2 sm:top-3 left-1/2 -translate-x-1/2 z-10 w-max max-w-[90%]">
+                    <div className="absolute bottom-3 sm:bottom-4 left-1/2 -translate-x-1/2 z-10 w-max max-w-[90%]">
                       <div className="bg-gradient-to-r from-[#FFB347] to-[#FF8C42] text-white text-[10px] sm:text-xs font-bold px-2.5 sm:px-3 py-1 rounded-full shadow-lg animate-bounce whitespace-nowrap">
                         👆 Klik untuk pilih!
                       </div>
                     </div>
                   )}
 
-                  {/* Selected badge - Fixed position for mobile */}
+                  {/* Selected badge - Inside card bottom */}
                   {isSelected && (
-                    <div className="absolute top-2 sm:top-3 left-1/2 -translate-x-1/2 z-10 w-max">
+                    <div className="absolute bottom-3 sm:bottom-4 left-1/2 -translate-x-1/2 z-10 w-max">
                       <div className="bg-gradient-to-r from-green-400 to-green-500 text-white text-[10px] sm:text-xs font-bold px-2.5 sm:px-3 py-1 rounded-full shadow-lg whitespace-nowrap">
                         ✓ Terpilih
                       </div>

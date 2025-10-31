@@ -56,13 +56,13 @@ export default function CardCarousel({ cards }: CardCarouselProps) {
 
   return (
     <div className="relative pb-8">
-      {/* Cards Container - Larger cards, modern spacing */}
+      {/* Cards Container - Responsive sizing */}
       <div
         ref={scrollContainerRef}
-        className="flex gap-8 overflow-x-auto scrollbar-hide snap-x snap-mandatory py-10 px-8 scroll-smooth"
+        className="flex gap-6 sm:gap-8 overflow-x-auto scrollbar-hide snap-x snap-mandatory py-10 px-6 sm:px-8 scroll-smooth"
         style={{
           scrollSnapType: "x mandatory",
-          scrollPaddingLeft: "calc(50% - 160px)",
+          scrollPaddingLeft: "calc(50% - 140px)",
         }}
       >
         {cards.map((card, index) => {
@@ -74,19 +74,19 @@ export default function CardCarousel({ cards }: CardCarouselProps) {
               style={{
                 transform: isCenter ? "scale(1.1)" : "scale(0.9)",
                 opacity: isCenter ? 1 : 0.6,
-                marginLeft: index === 0 ? "calc(50% - 160px)" : "0",
+                marginLeft: index === 0 ? "calc(50% - 140px)" : "0",
                 marginRight:
-                  index === cards.length - 1 ? "calc(50% - 160px)" : "0",
+                  index === cards.length - 1 ? "calc(50% - 140px)" : "0",
               }}
             >
               <Link href={card.link} className="block">
-                <div className="relative w-[320px] h-[393px]">
+                <div className="relative w-[280px] sm:w-[320px] h-auto">
                   <Image
                     src={card.imagePath}
                     alt={card.title}
                     width={320}
                     height={393}
-                    style={{ width: '320px', height: 'auto' }}
+                    style={{ width: '100%', height: 'auto' }}
                     className="object-contain transition-transform duration-300 hover:scale-105"
                     priority={index <= 2}
                   />
@@ -95,14 +95,14 @@ export default function CardCarousel({ cards }: CardCarouselProps) {
                     <div
                       className="absolute text-right pointer-events-none"
                       style={{
-                        top: '40px',
-                        bottom: '300px',
-                        right: '18px',
-                        left: '40px'
+                        top: '35px',
+                        bottom: '280px',
+                        right: '16px',
+                        left: '35px'
                       }}
                     >
                       <div
-                        className="press-start-2p-regular text-white text-[20px] leading-[32px]"
+                        className="press-start-2p-regular text-white text-[18px] sm:text-[20px] leading-[28px] sm:leading-[32px]"
                         style={{
                           fontFamily: '"Press Start 2P", system-ui',
                           fontWeight: 400

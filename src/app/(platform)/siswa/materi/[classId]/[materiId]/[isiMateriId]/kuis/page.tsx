@@ -6,12 +6,14 @@ import QuizProgress from "@/components/siswa/kuis/QuizProgress";
 import QuizBadge from "@/components/siswa/kuis/QuizBadge";
 import SlideToAnswer from "@/components/siswa/kuis/SlideToAnswer";
 import AnswerInput from "@/components/siswa/kuis/AnswerInput";
+import QuizTimer from "@/components/siswa/kuis/QuizTimer";
 import { quizData } from "@/data/quizData";
 
 export default function KuisPage() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [userAnswer, setUserAnswer] = useState("");
   const [answers, setAnswers] = useState<{ [key: number]: string }>({});
+  const [showTimeUpModal, setShowTimeUpModal] = useState(false);
 
   const params = useParams();
   const router = useRouter();
@@ -23,6 +25,10 @@ export default function KuisPage() {
 
   const currentQuestion = quizData[currentQuestionIndex];
   const totalQuestions = quizData.length;
+
+  // Timer settings - Default 5 menit (300 detik) untuk MVP
+  // Nantinya akan diambil dari data guru
+  const quizTimeLimit = 300; // 5 menit dalam detik
 
   const isAnswerValid = userAnswer.trim() !== "" && /^\d+$/.test(userAnswer.trim());
 
@@ -52,6 +58,19 @@ export default function KuisPage() {
     );
   };
 
+  const handleTimeUp = () => {
+    // Simpan jawaban yang sudah dijawab
+    sessionStorage.setItem("quizAnswers", JSON.stringify(answers));
+    setShowTimeUpModal(true);
+
+    // Auto redirect ke hasil keseluruhan setelah 3 detik
+    setTimeout(() => {
+      router.push(
+        `/siswa/materi/${classId}/${materiId}/${isiMateriId}/kuis/hasil/hasil-keseluruhan`
+      );
+    }, 3000);
+  };
+
   return (
     <div
       className="relative w-full min-h-screen overflow-x-hidden"
@@ -59,14 +78,51 @@ export default function KuisPage() {
         background: "linear-gradient(180deg, #336D82 -23.16%, #FFF 132.2%)",
       }}
     >
+      {/* Time Up Modal */}
+      {showTimeUpModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl p-6 md:p-8 max-w-md w-full shadow-2xl animate-scale-in">
+            <div className="text-center">
+              <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="material-symbols-outlined text-red-500 text-5xl">
+                  timer_off
+                </span>
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                Waktu Habis!
+              </h2>
+              <p className="text-gray-600 mb-4">
+                Kuis akan otomatis diselesaikan dengan jawaban yang sudah kamu isi.
+              </p>
+              <div className="flex items-center justify-center gap-2 text-sm text-gray-500">
+                <div className="w-5 h-5 border-2 border-[#336D82] border-t-transparent rounded-full animate-spin" />
+                <span>Mengarahkan ke hasil...</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Content Container - Responsive */}
       <div className="px-6 md:px-12 lg:px-16 pt-12 md:pt-16 pb-8 md:pb-12">
         <div className="max-w-4xl mx-auto">
-          {/* Material Title */}
-          <div className="text-center mb-4 md:mb-6">
-            <p className="text-white text-base md:text-xl font-medium">
-              Pecahan Biasa & Campuran
-            </p>
+          {/* Header Section */}
+          <div className="mb-6 md:mb-8">
+            {/* Material Title */}
+            <div className="text-center mb-4">
+              <p className="text-white text-base md:text-xl font-medium">
+                Pecahan Biasa & Campuran
+              </p>
+            </div>
+
+            {/* Timer */}
+            <div className="flex justify-center mb-4">
+              <QuizTimer
+                totalSeconds={quizTimeLimit}
+                onTimeUp={handleTimeUp}
+                isPaused={showTimeUpModal}
+              />
+            </div>
           </div>
 
           {/* Progress Bar */}
@@ -131,6 +187,23 @@ export default function KuisPage() {
         rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
       />
+
+      {/* Add animation styles */}
+      <style jsx>{`
+        @keyframes scale-in {
+          from {
+            opacity: 0;
+            transform: scale(0.9);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
+        .animate-scale-in {
+          animation: scale-in 0.3s ease-out;
+        }
+      `}</style>
     </div>
   );
 }

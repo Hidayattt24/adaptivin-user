@@ -1,8 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import MobileWarning from "@/components/siswa/layout/MobileWarning";
 import QuizResultCard from "@/components/siswa/kuis/QuizResultCard";
 import { quizData } from "@/data/quizData";
 
@@ -17,10 +15,11 @@ import { quizData } from "@/data/quizData";
  * Query params:
  * - questionIndex: index soal saat ini
  * - userAnswer: jawaban user
+ * 
+ * Responsive: Mobile & Desktop optimized
  */
 
 export default function HasilPage() {
-  const [isMobile, setIsMobile] = useState(true);
   const params = useParams();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -36,17 +35,6 @@ export default function HasilPage() {
   const currentQuestion = quizData[questionIndex];
   const isCorrect =
     parseInt(userAnswer) === currentQuestion?.correctAnswer;
-
-  useEffect(() => {
-    const checkScreenSize = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-
-    checkScreenSize();
-    window.addEventListener("resize", checkScreenSize);
-
-    return () => window.removeEventListener("resize", checkScreenSize);
-  }, []);
 
   const handleNext = () => {
     // If coming from review, go back to hasil-keseluruhan
@@ -72,10 +60,6 @@ export default function HasilPage() {
       );
     }
   };
-
-  if (!isMobile) {
-    return <MobileWarning />;
-  }
 
   if (!currentQuestion) {
     return (

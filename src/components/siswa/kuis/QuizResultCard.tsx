@@ -50,8 +50,10 @@ export default function QuizResultCard({
       className="relative w-full min-h-screen overflow-hidden flex flex-col"
       style={{ background: bgGradient }}
     >
-      {/* Top Section - Header & Dropdown */}
-      <div className="px-[25px] pt-[50px] pb-6 flex-shrink-0">
+      {/* Content Container - Desktop Centered */}
+      <div className="max-w-3xl mx-auto w-full">
+        {/* Top Section - Header & Dropdown */}
+        <div className="px-[25px] md:px-8 pt-[50px] md:pt-[70px] pb-6 flex-shrink-0">
         {/* Header Text */}
         <h1 className="text-white text-[24px] font-semibold text-center mb-6 drop-shadow-lg">
           {headerText}
@@ -121,10 +123,10 @@ export default function QuizResultCard({
         )}
       </div>
 
-      {/* White Bottom Container - Full Size with Scroll */}
-      <div className="bg-white rounded-t-[50px] shadow-2xl flex-1 flex flex-col relative overflow-hidden">
-        {/* Scrollable Content Area */}
-        <div className="flex-1 overflow-y-auto px-6 pt-8 pb-4">
+        {/* White Bottom Container - Full Size with Scroll */}
+        <div className="bg-white rounded-t-[50px] shadow-2xl flex-1 flex flex-col relative overflow-hidden">
+          {/* Scrollable Content Area */}
+          <div className="flex-1 overflow-y-auto px-6 md:px-8 pt-8 pb-4">
           {/* Handle for drag indicator */}
           <div className="w-[89px] h-[4px] bg-gray-300 rounded-full mx-auto mb-6" />
 
@@ -228,6 +230,7 @@ export default function QuizResultCard({
               Klik jika sudah paham
             </span>
           </button>
+        </div>
         </div>
       </div>
 

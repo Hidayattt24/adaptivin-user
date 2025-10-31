@@ -1,27 +1,27 @@
 "use client";
 
 import React, { useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 
 const LoginSiswaPage = () => {
-  const [formData, setFormData] = useState({
-    username: "",
-    password: "",
-  });
+  const router = useRouter();
+  const { login } = useAuth();
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Login siswa:", formData);
-    // Handle login logic here
+    try {
+      await login(email, password);
+      router.push("/siswa/beranda");
+    } catch (error) {
+      setError("Login failed: " + error);
+    }
   };
 
   return (
@@ -58,9 +58,9 @@ const LoginSiswaPage = () => {
                 type="text"
                 id="username"
                 name="username"
-                value={formData.username}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full px-4 py-3 text-black/60 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
                 placeholder="Masukkan username atau email"
                 required
               />
@@ -77,9 +77,9 @@ const LoginSiswaPage = () => {
                 type="password"
                 id="password"
                 name="password"
-                value={formData.password}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full px-4 py-3 text-black/60 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
                 placeholder="Masukkan password"
                 required
               />
@@ -109,17 +109,11 @@ const LoginSiswaPage = () => {
             </button>
           </form>
 
-          <div className="mt-6 text-center">
-            <p className="text-gray-600">
-              Belum punya akun?{" "}
-              <Link
-                href="/register/siswa"
-                className="text-blue-600 hover:text-blue-700 poppins-semibold"
-              >
-                Daftar di sini
-              </Link>
-            </p>
-          </div>
+          {error && (
+            <div className="mt-4 text-red-600 text-sm text-center">
+              {error}
+            </div>
+          )}
         </div>
 
         {/* Back to Role Selection */}

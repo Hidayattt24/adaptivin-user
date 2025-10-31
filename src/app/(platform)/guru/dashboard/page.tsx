@@ -1,17 +1,31 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { ClassCard, TeacherProfile, GridSkeleton, ErrorState } from "@/components/guru";
+import {
+  ClassCard,
+  TeacherProfile,
+  GridSkeleton,
+  ErrorState,
+} from "@/components/guru";
 import { getCardColor } from "@/constants/guru/cardColors";
 import { Highlighter } from "@/components/ui/highlighter";
 import { useClasses } from "@/hooks/guru/useClasses";
 import { useDebounce } from "@/hooks/guru/useDebounce";
 import { Search, ChevronLeft, ChevronRight } from "@mui/icons-material";
+import { useRouter } from "next/navigation";
 
 const DashboardGuruPage = () => {
+  const Router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 9; // 3x3 grid
+
+  // handle logout
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
+    Router.push("/");
+  };
 
   // Lazy load classes data
   const { data: classesData, isLoading, error, refetch } = useClasses();
@@ -70,18 +84,15 @@ const DashboardGuruPage = () => {
       </div>
 
       {/* Header Section */}
-      <div className="container mx-auto px-4 sm:px-6 md:px-12 lg:px-[135px] pt-8 sm:pt-12 md:pt-16 lg:pt-24 relative z-10">
-        <div className="flex flex-col items-center md:flex-row md:justify-between md:items-center mb-8 sm:mb-12 md:mb-16 lg:mb-20 gap-6 md:gap-8">
-          {/* Profile Image - Mobile/Tablet: Top Center, Desktop: Right */}
-          <div className="order-first md:order-last flex-shrink-0">
-            <TeacherProfile
-              profileImage="/guru/foto-profil/profil-guru.svg"
-              teacherName="Isabella"
-            />
-          </div>
-
-          {/* Greeting Text - Mobile/Tablet: Below Profile, Desktop: Left */}
-          <div className="flex-1 text-center md:text-left w-full md:w-auto">
+      <div className="container mx-auto px-6 md:px-12 lg:px-[135px] pt-16 md:pt-24 relative z-10">
+        <div>
+          <button onClick={handleLogout} className="p-4 bg-red-500 rounded-xl">
+            logout
+          </button>
+        </div>
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-16 md:mb-20 gap-6">
+          {/* Greeting Text */}
+          <div className="flex-1">
             <h1
               className="montserrat-medium text-white mb-2 sm:mb-3 md:mb-4"
               style={{
@@ -121,7 +132,9 @@ const DashboardGuruPage = () => {
             <div className="flex gap-2 sm:gap-3">
               <div className="relative flex-1">
                 <div className="absolute inset-y-0 left-0 pl-3 sm:pl-4 flex items-center pointer-events-none">
-                  <Search sx={{ fontSize: { xs: 20, sm: 24 }, color: "#336d82" }} />
+                  <Search
+                    sx={{ fontSize: { xs: 20, sm: 24 }, color: "#336d82" }}
+                  />
                 </div>
                 <input
                   type="text"
@@ -158,7 +171,11 @@ const DashboardGuruPage = () => {
                 onClick={() => {
                   // Search button - currently search is automatic via onChange
                   // This button provides visual feedback
-                  document.querySelector<HTMLInputElement>('input[aria-label="Cari kelas"]')?.blur();
+                  document
+                    .querySelector<HTMLInputElement>(
+                      'input[aria-label="Cari kelas"]'
+                    )
+                    ?.blur();
                 }}
                 className="px-4 sm:px-6 md:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl bg-white/95 backdrop-blur-sm border-2 border-white/50 shadow-lg hover:shadow-xl hover:bg-white transition-all duration-300 font-poppins font-semibold text-[#336d82] flex items-center gap-2"
                 aria-label="Cari"
@@ -168,7 +185,7 @@ const DashboardGuruPage = () => {
               </button>
             </div>
             {searchQuery && (
-              <p className="mt-2 sm:mt-3 text-white/90 text-xs sm:text-sm font-poppins text-center">
+              <p className="mt-3 text-white/90 text-sm font-poppins text-center">
                 Menampilkan {filteredClasses.length} hasil untuk "{searchQuery}"
               </p>
             )}
@@ -249,10 +266,17 @@ const DashboardGuruPage = () => {
 
             {/* Modern Pagination */}
             {totalPages > 1 && (
-              <div className="flex flex-col items-center gap-3 sm:gap-4 pb-12 sm:pb-16 md:pb-20 lg:pb-24" role="navigation" aria-label="Pagination">
+              <div
+                className="flex flex-col items-center gap-3 sm:gap-4 pb-12 sm:pb-16 md:pb-20 lg:pb-24"
+                role="navigation"
+                aria-label="Pagination"
+              >
                 {/* Page Info */}
                 <div className="bg-white/20 backdrop-blur-sm px-4 sm:px-6 py-1.5 sm:py-2 rounded-full">
-                  <span className="text-white font-semibold font-poppins text-xs sm:text-sm" aria-live="polite">
+                  <span
+                    className="text-white font-semibold font-poppins text-xs sm:text-sm"
+                    aria-live="polite"
+                  >
                     Halaman {currentPage} dari {totalPages}
                   </span>
                 </div>
@@ -260,7 +284,9 @@ const DashboardGuruPage = () => {
                 {/* Navigation Buttons */}
                 <div className="flex items-center gap-2 sm:gap-3">
                   <button
-                    onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                    onClick={() =>
+                      setCurrentPage((prev) => Math.max(1, prev - 1))
+                    }
                     disabled={currentPage === 1}
                     className="group flex items-center gap-1 sm:gap-2 px-3 sm:px-4 md:px-6 py-2 sm:py-3 rounded-lg sm:rounded-xl bg-white/95 backdrop-blur-sm shadow-lg hover:shadow-xl disabled:opacity-40 disabled:cursor-not-allowed hover:bg-white transition-all duration-300 font-poppins font-semibold text-[#336d82] text-xs sm:text-sm md:text-base"
                     aria-label="Halaman sebelumnya"
@@ -291,12 +317,15 @@ const DashboardGuruPage = () => {
                         <button
                           key={pageNum}
                           onClick={() => setCurrentPage(pageNum)}
-                          className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg font-semibold font-poppins transition-all duration-300 text-sm sm:text-base ${currentPage === pageNum
-                            ? "bg-white text-[#336d82] shadow-lg scale-110"
-                            : "bg-white/20 text-white hover:bg-white/30"
-                            }`}
+                          className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg font-semibold font-poppins transition-all duration-300 text-sm sm:text-base ${
+                            currentPage === pageNum
+                              ? "bg-white text-[#336d82] shadow-lg scale-110"
+                              : "bg-white/20 text-white hover:bg-white/30"
+                          }`}
                           aria-label={`Halaman ${pageNum}`}
-                          aria-current={currentPage === pageNum ? "page" : undefined}
+                          aria-current={
+                            currentPage === pageNum ? "page" : undefined
+                          }
                         >
                           {pageNum}
                         </button>
@@ -305,7 +334,9 @@ const DashboardGuruPage = () => {
                   </div>
 
                   <button
-                    onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+                    onClick={() =>
+                      setCurrentPage((prev) => Math.min(totalPages, prev + 1))
+                    }
                     disabled={currentPage === totalPages}
                     className="group flex items-center gap-1 sm:gap-2 px-3 sm:px-4 md:px-6 py-2 sm:py-3 rounded-lg sm:rounded-xl bg-white/95 backdrop-blur-sm shadow-lg hover:shadow-xl disabled:opacity-40 disabled:cursor-not-allowed hover:bg-white transition-all duration-300 font-poppins font-semibold text-[#336d82] text-xs sm:text-sm md:text-base"
                     aria-label="Halaman selanjutnya"
@@ -346,7 +377,7 @@ const styles = `
 `;
 
 // Inject styles
-if (typeof document !== 'undefined') {
+if (typeof document !== "undefined") {
   const styleSheet = document.createElement("style");
   styleSheet.textContent = styles;
   document.head.appendChild(styleSheet);

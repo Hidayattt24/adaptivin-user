@@ -11,6 +11,7 @@ export default function ProfilSiswaPage() {
   const handleLogout = () => {
     // TODO: Implement actual logout logic
     if (confirm("Apakah Anda yakin ingin keluar?")) {
+      localStorage.removeItem("user");
       // Clear session/token
       router.push("/");
     }

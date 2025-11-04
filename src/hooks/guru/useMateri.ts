@@ -1,155 +1,228 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { materiApi } from "@/services/guru/api";
-import { useRef, useEffect } from "react";
-import type { MateriCreateRequest, MateriUpdateRequest } from "@/types/guru/api";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  getMateriByKelas,
+  getMateriById,
+  createMateri,
+  updateMateri,
+  deleteMateri,
+  getSubMateriByMateri,
+  createSubMateri,
+  updateSubMateri,
+  deleteSubMateri,
+  uploadMedia,
+  deleteMedia,
+  type CreateMateriDto,
+  type UpdateMateriDto,
+  type CreateSubMateriDto,
+  type UpdateSubMateriDto,
+} from "@/lib/api/materi";
 
-// Dummy data untuk materi
-const dummyMateriData = {
-  items: [
-    {
-      id: "1",
-      judul: "Pecahan Dasar & Bilangan",
-      topik: "Bilangan",
-      status: "published" as const,
-      deskripsi: "Pengenalan konsep pecahan dan operasi dasar bilangan",
-      jumlahSiswaSelesai: 25,
-      totalSiswa: 30,
-      createdAt: "2024-10-20",
-    },
-    {
-      id: "2",
-      judul: "Perkalian & Pembagian",
-      topik: "Operasi Hitung",
-      status: "published" as const,
-      deskripsi: "Mempelajari operasi perkalian dan pembagian bilangan cacah",
-      jumlahSiswaSelesai: 28,
-      totalSiswa: 30,
-      createdAt: "2024-10-22",
-    },
-    {
-      id: "3",
-      judul: "Geometri Bangun Datar",
-      topik: "Geometri",
-      status: "published" as const,
-      deskripsi: "Mengenal berbagai bangun datar dan sifat-sifatnya",
-      jumlahSiswaSelesai: 20,
-      totalSiswa: 30,
-      createdAt: "2024-10-25",
-    },
-    {
-      id: "4",
-      judul: "Pengukuran Waktu",
-      topik: "Pengukuran",
-      status: "draft" as const,
-      deskripsi: "Memahami konsep waktu dan cara mengukurnya",
-      jumlahSiswaSelesai: 0,
-      totalSiswa: 30,
-      createdAt: "2024-10-26",
-    },
-    {
-      id: "5",
-      judul: "Statistika Sederhana",
-      topik: "Statistika",
-      status: "published" as const,
-      deskripsi: "Pengenalan diagram batang dan pengolahan data sederhana",
-      jumlahSiswaSelesai: 15,
-      totalSiswa: 30,
-      createdAt: "2024-10-27",
-    },
-  ],
-  totalPages: 1,
-  currentPage: 1,
-  totalItems: 5,
-};
+// ==================== MATERI HOOKS ====================
 
-export function useMateriList(kelasId: string, page: number = 1) {
-  const abortControllerRef = useRef<AbortController | undefined>(undefined);
-
-  useEffect(() => {
-    return () => {
-      abortControllerRef.current?.abort();
-    };
-  }, []);
-
+/**
+ * Hook untuk get all materi by kelas
+ */
+export function useMateriList(kelasId: string) {
   return useQuery({
-    queryKey: ["guru", "materi", kelasId, "list", page],
-    queryFn: async () => {
-      // Simulasi delay API
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
-      // Return dummy data (nanti ganti dengan API real)
-      // return materiApi.getList(kelasId, page, abortControllerRef.current.signal);
-      return dummyMateriData;
-    },
+    queryKey: ["materi", "kelas", kelasId],
+    queryFn: () => getMateriByKelas(kelasId),
     enabled: !!kelasId,
+    staleTime: 5 * 60 * 1000, // 5 minutes
   });
 }
 
-export function useMateriDetail(kelasId: string, materiId: string) {
-  const abortControllerRef = useRef<AbortController | undefined>(undefined);
-
-  useEffect(() => {
-    return () => {
-      abortControllerRef.current?.abort();
-    };
-  }, []);
-
+/**
+ * Hook untuk get single materi by ID
+ */
+export function useMateriDetail(materiId: string) {
   return useQuery({
-    queryKey: ["guru", "materi", kelasId, "detail", materiId],
-    queryFn: async () => {
-      // Simulasi delay API
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
-      // Cari materi berdasarkan ID dari dummy data
-      const materi = dummyMateriData.items.find((m) => m.id === materiId);
-
-      if (!materi) {
-        throw new Error("Materi tidak ditemukan");
-      }
-
-      // Return dummy data (nanti ganti dengan API real)
-      // return materiApi.getById(kelasId, materiId, abortControllerRef.current.signal);
-      return materi;
-    },
-    enabled: !!kelasId && !!materiId,
+    queryKey: ["materi", materiId],
+    queryFn: () => getMateriById(materiId),
+    enabled: !!materiId,
+    staleTime: 5 * 60 * 1000,
   });
 }
 
-export function useCreateMateri(kelasId: string) {
+/**
+ * Hook untuk create materi
+ */
+export function useCreateMateri() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: MateriCreateRequest) => materiApi.create(kelasId, data),
-    onSuccess: () => {
+    mutationFn: (data: CreateMateriDto) => createMateri(data),
+    onSuccess: (_, variables) => {
+      // Invalidate materi list for this kelas
       queryClient.invalidateQueries({
-        queryKey: ["guru", "materi", kelasId, "list"],
+        queryKey: ["materi", "kelas", variables.kelas_id],
       });
     },
   });
 }
 
-export function useUpdateMateri(kelasId: string, materiId: string) {
+/**
+ * Hook untuk update materi
+ */
+export function useUpdateMateri() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: MateriUpdateRequest) => materiApi.update(kelasId, materiId, data),
-    onSuccess: () => {
+    mutationFn: ({
+      materiId,
+      data,
+    }: {
+      materiId: string;
+      data: UpdateMateriDto;
+    }) => updateMateri(materiId, data),
+    onSuccess: (data) => {
+      // Invalidate specific materi and its list
+      queryClient.invalidateQueries({ queryKey: ["materi", data.id] });
       queryClient.invalidateQueries({
-        queryKey: ["guru", "materi", kelasId],
+        queryKey: ["materi", "kelas", data.kelas_id],
       });
     },
   });
 }
 
-export function useDeleteMateri(kelasId: string) {
+/**
+ * Hook untuk delete materi
+ */
+export function useDeleteMateri() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (materiId: string) => materiApi.delete(kelasId, materiId),
+    mutationFn: (materiId: string) => deleteMateri(materiId),
     onSuccess: () => {
+      // Invalidate all materi queries
+      queryClient.invalidateQueries({ queryKey: ["materi"] });
+    },
+  });
+}
+
+// ==================== SUB_MATERI HOOKS ====================
+
+/**
+ * Hook untuk get all sub_materi by materi
+ */
+export function useSubMateriList(materiId: string) {
+  return useQuery({
+    queryKey: ["sub-materi", "materi", materiId],
+    queryFn: () => getSubMateriByMateri(materiId),
+    enabled: !!materiId,
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
+/**
+ * Hook untuk create sub_materi
+ */
+export function useCreateSubMateri() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      data,
+      files,
+    }: {
+      data: CreateSubMateriDto;
+      files?: File[];
+    }) => createSubMateri(data, files),
+    onSuccess: (result) => {
+      // Invalidate sub_materi list and materi detail
       queryClient.invalidateQueries({
-        queryKey: ["guru", "materi", kelasId, "list"],
+        queryKey: ["sub-materi", "materi", result.materi_id],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["materi", result.materi_id],
+      });
+    },
+  });
+}
+
+/**
+ * Hook untuk update sub_materi
+ */
+export function useUpdateSubMateri() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      subMateriId,
+      data,
+    }: {
+      subMateriId: string;
+      data: UpdateSubMateriDto;
+    }) => updateSubMateri(subMateriId, data),
+    onSuccess: (result) => {
+      // Invalidate sub_materi list and materi detail
+      queryClient.invalidateQueries({
+        queryKey: ["sub-materi", "materi", result.materi_id],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["materi", result.materi_id],
+      });
+    },
+  });
+}
+
+/**
+ * Hook untuk delete sub_materi
+ */
+export function useDeleteSubMateri() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (subMateriId: string) => deleteSubMateri(subMateriId),
+    onSuccess: () => {
+      // Invalidate all sub_materi queries
+      queryClient.invalidateQueries({ queryKey: ["sub-materi"] });
+      queryClient.invalidateQueries({ queryKey: ["materi"] });
+    },
+  });
+}
+
+// ==================== MEDIA HOOKS ====================
+
+/**
+ * Hook untuk upload media
+ */
+export function useUploadMedia() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      subMateriId,
+      file,
+      tipeMedia,
+    }: {
+      subMateriId: string;
+      file: File;
+      tipeMedia: "pdf" | "video" | "gambar";
+    }) => uploadMedia(subMateriId, file, tipeMedia),
+    onSuccess: () => {
+      // Invalidate sub_materi to refresh media list
+      queryClient.invalidateQueries({
+        queryKey: ["sub-materi"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["materi"],
+      });
+    },
+  });
+}
+
+/**
+ * Hook untuk delete media
+ */
+export function useDeleteMedia() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (mediaId: string) => deleteMedia(mediaId),
+    onSuccess: () => {
+      // Invalidate sub_materi to refresh media list
+      queryClient.invalidateQueries({ queryKey: ["sub-materi"] });
+      queryClient.invalidateQueries({ queryKey: ["materi"] });
     },
   });
 }

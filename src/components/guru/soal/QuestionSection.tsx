@@ -24,6 +24,7 @@ export interface Question {
   answerFile: File | null;
   answerFilePreview: string | null;
   answerText: string;
+  explanation: string;
   timeValue: number;
   timeUnit: TimeUnit;
 }
@@ -173,7 +174,7 @@ export default function QuestionSection({
 
         {/* Answer Text Input */}
         {question.answerType !== "Foto" && (
-          <div className="relative mb-4">
+          <div className="relative mb-6">
             <div className="absolute left-4 top-4 pointer-events-none">
               {getAnswerIcon()}
             </div>
@@ -191,9 +192,23 @@ export default function QuestionSection({
           </div>
         )}
 
+        {/* Explanation Section */}
+        <div className="mb-6">
+          <h3 className="text-xl font-bold text-white">Penjelasan</h3>
+          <p className="text-gray-300">
+            <input
+              type="text"
+              value={question.explanation}
+              onChange={(e) => onUpdate(question.id, "explanation", e.target.value)}
+              placeholder="Berikan penjelasan untuk jawaban ini..."
+              className="w-full mt-2 px-4 py-3 rounded-xl border-2 border-white/30 bg-white/95 backdrop-blur-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-white shadow-md"
+            />
+          </p>
+        </div>
+
         {/* Optional Support Image for Text/Number */}
         {question.answerType !== "Foto" && (
-          <div className="mt-4">
+          <div className="mt-6">
             <p className="text-white/80 text-sm font-medium mb-2 flex items-center gap-2">
               <ImageIcon sx={{ fontSize: 18 }} />
               Gambar Pendukung Jawaban (Opsional)

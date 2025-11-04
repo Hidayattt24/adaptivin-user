@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useSiswaDetail } from "@/hooks/guru/useSiswa";
 import { CardSkeleton } from "@/components/guru/skeletons/CardSkeleton";
-import { ErrorState } from "@/components/guru/ErrorState";
+// import { ErrorState } from "@/components/guru/ErrorState";
 
 const DetailSiswaPage = () => {
   const params = useParams();
@@ -90,11 +90,11 @@ const DetailSiswaPage = () => {
   if (error) {
     return (
       <div className="p-6">
-        <ErrorState
+        {/* <ErrorState
           title="Gagal Memuat Detail Siswa"
           message="Terjadi kesalahan saat memuat detail siswa. Silakan coba lagi."
           onRetry={() => refetch()}
-        />
+        /> */}
       </div>
     );
   }

@@ -5,23 +5,21 @@ import { ClassCard, TeacherProfile, GridSkeleton, ErrorState } from "@/component
 import { getCardColor } from "@/constants/guru/cardColors";
 import { Highlighter } from "@/components/ui/highlighter";
 import { useClasses } from "@/hooks/guru/useClasses";
+import { useTeacherProfile } from "@/hooks/guru/useTeacherProfile";
 import { useDebounce } from "@/hooks/guru/useDebounce";
 import { Search, ChevronLeft, ChevronRight } from "@mui/icons-material";
-import { useRouter } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
 
 const DashboardGuruPage = () => {
-  const Router = useRouter();
+  const { logout } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 9; // 3x3 grid
 
-  // handle logout
-  const handleLogout = () => {
-    localStorage.removeItem("user");
-    Router.push("/");
-  };
+  // Fetch teacher profile
+  const { data: teacher } = useTeacherProfile();
 
-  // Lazy load classes data
+  // Fetch classes data (automatically filtered by backend based on kelas_users)
   const { data: classesData, isLoading, error, refetch } = useClasses();
 
   // Debounce search to avoid excessive filtering
@@ -54,6 +52,14 @@ const DashboardGuruPage = () => {
     "/siswa/foto-profil/sin-bunbun.svg",
   ];
 
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
+
   return (
     <div
       className="min-h-screen relative overflow-x-hidden"
@@ -79,11 +85,6 @@ const DashboardGuruPage = () => {
 
       {/* Header Section */}
       <div className="container mx-auto px-6 md:px-12 lg:px-[135px] pt-16 md:pt-24 relative z-10">
-        <div>
-          <button onClick={handleLogout} className="p-4 bg-red-500 rounded-xl">
-            logout
-          </button>
-        </div>
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-16 md:mb-20 gap-6">
           {/* Greeting Text */}
           <div className="flex-1">
@@ -94,7 +95,7 @@ const DashboardGuruPage = () => {
                 lineHeight: "1.3",
               }}
             >
-              Hi Isabella,
+              Hi {teacher?.nama_lengkap?.split(" ")[0] || "Guru"},
             </h1>
             <p
               className="montserrat-regular text-white/95 mb-8"
@@ -119,11 +120,13 @@ const DashboardGuruPage = () => {
             </h2>
           </div>
 
-          {/* Profile Image */}
-          <TeacherProfile
-            profileImage="/guru/foto-profil/profil-guru.svg"
-            teacherName="Isabella"
-          />
+          {/* Profile Image with Real Data */}
+          <div className="flex flex-col gap-5">
+            <TeacherProfile profileImage="/guru/foto-profil/profil-guru.svg" />
+            <button onClick={handleLogout} className="p-4 bg-red-500 rounded-xl">
+              Logout
+            </button>
+          </div>
         </div>
 
         {/* Modern Search Bar - Centered */}

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -20,7 +20,7 @@ const LoginGuruPage = () => {
       await login(email, password);
       router.push("/guru/dashboard");
     } catch (error) {
-      setError("Login failed");
+      setError("Login failed" + error);
     }
   };
 

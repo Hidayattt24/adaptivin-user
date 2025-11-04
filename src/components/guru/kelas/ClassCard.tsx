@@ -2,6 +2,7 @@
 
 import React, { useRef, useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 interface ClassCardProps {
   id: string;
@@ -108,21 +109,23 @@ export default function ClassCard({
 
         {/* Class Name with enhanced typography */}
         <div className="relative z-10">
-          <h3
-            className="montserrat-bold text-white mb-4 leading-tight"
-            style={{
-              fontSize: "clamp(28px, 3vw, 40px)",
-              letterSpacing: "-0.02em",
-            }}
-          >
-            {nama.split(" ").map((word, idx) => (
-              <React.Fragment key={idx}>
-                {word}
-                {idx === 0 && <br />}
-                {idx > 0 && idx < nama.split(" ").length - 1 && " "}
-              </React.Fragment>
-            ))}
-          </h3>
+          {(() => {
+            const [kelas, rombel] = nama.split(" ");
+            return (
+              <h3
+                className="montserrat-bold text-white mb-4 leading-tight"
+                style={{
+                  fontSize: "clamp(28px, 3vw, 40px)",
+                  letterSpacing: "-0.02em",
+                }}
+              >
+                Kelas {kelas}
+                <br />
+                <span className="text-white/90">Rombel {rombel}</span>
+              </h3>
+            );
+          })()}
+
 
           {/* Decorative badge */}
           <div className="inline-block px-4 py-1.5 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 mb-4">
@@ -156,9 +159,11 @@ export default function ClassCard({
                   e.currentTarget.style.zIndex = String(3 - index);
                 }}
               >
-                <img
+                <Image
                   src={profile}
                   alt={`Student ${index + 1}`}
+                  width={44}
+                  height={44}
                   className="w-[80%] h-[80%] object-contain"
                 />
               </div>

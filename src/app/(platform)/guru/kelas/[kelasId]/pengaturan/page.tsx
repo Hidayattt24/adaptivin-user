@@ -263,7 +263,7 @@ const PengaturanGuruPage = () => {
             <div className="hidden sm:block absolute bottom-0 left-0 w-36 h-36 bg-white/5 rounded-full blur-2xl -mb-12 -ml-12" />
 
             {/* Content */}
-            <div className="relative bg-white rounded-[25px] shadow-xl p-6 border-3 border-white/50">
+            <div className="relative flex flex-row gap-8 bg-white rounded-[25px] shadow-xl p-6 border-3 border-white/50">
               <div className="flex items-center justify-between flex-wrap gap-4">
                 <div className="flex items-center gap-6">
                   <div className="transform transition-transform duration-300 scale-75">
@@ -274,7 +274,7 @@ const PengaturanGuruPage = () => {
 
               {/* Desktop: Title & Edit Button */}
               <div className="hidden lg:flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
-                <div className="flex items-center gap-3 sm:gap-4 lg:gap-6 w-full sm:w-auto">
+                <div className="flex items-center gap-3 sm:gap-4 lg:gap-8 w-full sm:w-auto">
                   <div className="flex-1 min-w-0">
                     <h1 className="text-[#336d82] text-2xl sm:text-3xl lg:text-4xl poppins-bold mb-0.5 sm:mb-1 tracking-tight truncate">
                       Pengaturan
@@ -324,9 +324,8 @@ const PengaturanGuruPage = () => {
                   </div>
                   <ArrowDropDownIcon
                     sx={{ fontSize: 28 }}
-                    className={`transition-transform duration-300 ${
-                      isMenuOpen ? "rotate-180" : ""
-                    }`}
+                    className={`transition-transform duration-300 ${isMenuOpen ? "rotate-180" : ""
+                      }`}
                   />
                 </button>
               </div>
@@ -358,22 +357,20 @@ const PengaturanGuruPage = () => {
                               setIsMenuOpen(false);
                             }
                           }}
-                          className={`w-full flex items-center gap-3 px-4 py-3 transition-all duration-200 poppins-semibold text-sm ${
-                            isActive && !isBackButton
+                          className={`w-full flex items-center gap-3 px-4 py-3 transition-all duration-200 poppins-semibold text-sm ${isActive && !isBackButton
                               ? "bg-gradient-to-r from-[#336d82] to-[#5a96a8] text-white"
                               : isBackButton
-                              ? "bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700"
-                              : "text-[#336d82] hover:bg-[#336d82]/5"
-                          }`}
+                                ? "bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700"
+                                : "text-[#336d82] hover:bg-[#336d82]/5"
+                            }`}
                         >
                           <div
-                            className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                              isActive && !isBackButton
+                            className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${isActive && !isBackButton
                                 ? "bg-white/20"
                                 : isBackButton
-                                ? "bg-white/20"
-                                : "bg-[#336d82]/10"
-                            }`}
+                                  ? "bg-white/20"
+                                  : "bg-[#336d82]/10"
+                              }`}
                           >
                             <Icon sx={{ fontSize: 18 }} />
                           </div>
@@ -397,23 +394,20 @@ const PengaturanGuruPage = () => {
                 <nav className="flex flex-col gap-2">
                   {sections.map((section) => {
                     const Icon = section.icon;
-                    const isBackButton = section.id === "kembali";
                     return (
                       <button
                         key={section.id}
                         onClick={() => setActiveSection(section.id)}
-                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-[15px] transition-all duration-300 poppins-semibold text-sm ${
-                          activeSection === section.id
+                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-[15px] transition-all duration-300 poppins-semibold text-sm ${activeSection === section.id
                             ? "bg-gradient-to-r from-[#336d82] to-[#5a96a8] text-white shadow-lg transform scale-105"
                             : "text-[#336d82] bg-white/50 hover:bg-white hover:shadow-md hover:transform hover:scale-102"
-                        }`}
+                          }`}
                       >
                         <div
-                          className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                            activeSection === section.id
+                          className={`w-8 h-8 rounded-full flex items-center justify-center ${activeSection === section.id
                               ? "bg-white/20"
                               : "bg-[#336d82]/10"
-                          }`}
+                            }`}
                         >
                           <Icon sx={{ fontSize: 18 }} />
                         </div>
@@ -667,32 +661,30 @@ const PengaturanGuruPage = () => {
                               {[1, 2, 3, 4].map((level) => (
                                 <div
                                   key={level}
-                                  className={`h-1.5 flex-1 rounded-full transition-all duration-300 ${
-                                    formData.passwordBaru.length >= level * 2
+                                  className={`h-1.5 flex-1 rounded-full transition-all duration-300 ${formData.passwordBaru.length >= level * 2
                                       ? formData.passwordBaru.length < 6
                                         ? "bg-red-500"
                                         : formData.passwordBaru.length < 10
-                                        ? "bg-yellow-500"
-                                        : "bg-green-500"
+                                          ? "bg-yellow-500"
+                                          : "bg-green-500"
                                       : "bg-gray-200"
-                                  }`}
+                                    }`}
                                 />
                               ))}
                             </div>
                             <p
-                              className={`text-xs poppins-medium ${
-                                formData.passwordBaru.length < 6
+                              className={`text-xs poppins-medium ${formData.passwordBaru.length < 6
                                   ? "text-red-500"
                                   : formData.passwordBaru.length < 10
-                                  ? "text-yellow-600"
-                                  : "text-green-600"
-                              }`}
+                                    ? "text-yellow-600"
+                                    : "text-green-600"
+                                }`}
                             >
                               {formData.passwordBaru.length < 6
                                 ? "Password terlalu lemah"
                                 : formData.passwordBaru.length < 10
-                                ? "Password cukup kuat"
-                                : "Password sangat kuat"}
+                                  ? "Password cukup kuat"
+                                  : "Password sangat kuat"}
                             </p>
                           </div>
                         )}
@@ -742,7 +734,7 @@ const PengaturanGuruPage = () => {
                         {formData.konfirmasiPassword && (
                           <div className="flex items-center gap-2">
                             {formData.passwordBaru ===
-                            formData.konfirmasiPassword ? (
+                              formData.konfirmasiPassword ? (
                               <>
                                 <CheckCircleIcon
                                   sx={{ fontSize: 16, color: "#10b981" }}

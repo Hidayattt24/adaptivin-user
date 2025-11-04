@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Visibility, Delete } from "@mui/icons-material";
+import { Visibility, Delete, Edit } from "@mui/icons-material";
 
 interface QuizCardProps {
   id: string;
@@ -9,14 +9,17 @@ interface QuizCardProps {
   difficulty: "C1" | "C2" | "C3" | "C4" | "C5" | "C6";
   normalTime: number; // in minutes
   onPreview?: () => void;
+  onEdit?: () => void;
   onDelete?: () => void;
 }
 
 const QuizCard: React.FC<QuizCardProps> = ({
+  id,
   question,
   difficulty,
   normalTime,
   onPreview,
+  onEdit,
   onDelete,
 }) => {
   return (
@@ -62,6 +65,14 @@ const QuizCard: React.FC<QuizCardProps> = ({
             title="Preview Soal"
           >
             <Visibility className="text-[#336d82]" sx={{ fontSize: { xs: 18, sm: 20 } }} />
+          </button>
+          <button
+            onClick={onEdit}
+            className="w-9 h-9 sm:w-10 sm:h-10 md:w-[40px] md:h-[40px] bg-white rounded-full flex items-center justify-center hover:bg-blue-50 transition-all hover:shadow-lg shadow-md group"
+            aria-label="Edit soal"
+            title="Edit Soal"
+          >
+            <Edit className="text-[#336d82] group-hover:text-[#2563eb]" sx={{ fontSize: { xs: 18, sm: 20 } }} />
           </button>
           <button
             onClick={onDelete}

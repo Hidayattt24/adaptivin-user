@@ -3,17 +3,22 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useSiswaProfile } from "@/hooks/siswa/useSiswaProfile";
+import { getStudentAvatar } from "@/lib/api/user";
 
 interface MobileNavbarProps {
-  characterImage?: string;
+  characterImage?: string; // Optional: untuk override karakter (misal di halaman pilih karakter)
 }
 
-export default function MobileNavbar({
-  characterImage = "/siswa/foto-profil/kocheng-oren.svg",
-}: MobileNavbarProps) {
+export default function MobileNavbar({ characterImage: overrideCharacterImage }: MobileNavbarProps = {}) {
   const pathname = usePathname();
 
-  const isActive = (path: string) => pathname === path;
+  // Ambil data profil dari database
+  const { data: profile } = useSiswaProfile();
+
+  // Dapatkan gambar karakter dari database berdasarkan profil_siswa_index
+  // Jika ada override (misal di halaman pilih karakter), gunakan itu
+  const characterImage = overrideCharacterImage || getStudentAvatar(profile?.profil_siswa_index); const isActive = (path: string) => pathname === path;
 
   return (
     <>
@@ -35,11 +40,10 @@ export default function MobileNavbar({
                 <div className="absolute inset-0 bg-white/20 rounded-2xl"></div>
               )}
               <span
-                className={`material-symbols-outlined text-white transition-all duration-300 relative z-10 ${
-                  isActive("/siswa/beranda")
-                    ? "text-[32px] md:text-[28px] drop-shadow-lg"
-                    : "text-[28px] md:text-[24px] opacity-70 group-hover:opacity-100 group-hover:scale-110"
-                }`}
+                className={`material-symbols-outlined text-white transition-all duration-300 relative z-10 ${isActive("/siswa/beranda")
+                  ? "text-[32px] drop-shadow-lg"
+                  : "text-[28px] opacity-70 group-hover:opacity-100 group-hover:scale-110"
+                  }`}
                 style={{
                   fontVariationSettings: isActive("/siswa/beranda")
                     ? "'FILL' 1, 'wght' 700, 'GRAD' 0, 'opsz' 24"
@@ -49,11 +53,10 @@ export default function MobileNavbar({
                 home_app_logo
               </span>
               <span
-                className={`text-white text-[10px] md:text-[9px] font-medium transition-opacity duration-300 relative z-10 ${
-                  isActive("/siswa/beranda")
-                    ? "opacity-100 font-bold"
-                    : "opacity-70"
-                }`}
+                className={`text-white text-[10px] font-medium transition-opacity duration-300 relative z-10 ${isActive("/siswa/beranda")
+                  ? "opacity-100 font-bold"
+                  : "opacity-70"
+                  }`}
               >
                 Home
               </span>
@@ -87,11 +90,10 @@ export default function MobileNavbar({
                 <div className="absolute inset-0 bg-white/20 rounded-2xl"></div>
               )}
               <span
-                className={`material-symbols-outlined text-white transition-all duration-300 relative z-10 ${
-                  isActive("/siswa/profil")
-                    ? "text-[32px] md:text-[28px] drop-shadow-lg"
-                    : "text-[28px] md:text-[24px] opacity-70 group-hover:opacity-100 group-hover:scale-110"
-                }`}
+                className={`material-symbols-outlined text-white transition-all duration-300 relative z-10 ${isActive("/siswa/profil")
+                  ? "text-[32px] drop-shadow-lg"
+                  : "text-[28px] opacity-70 group-hover:opacity-100 group-hover:scale-110"
+                  }`}
                 style={{
                   fontVariationSettings: isActive("/siswa/profil")
                     ? "'FILL' 1, 'wght' 700, 'GRAD' 0, 'opsz' 24"
@@ -101,11 +103,10 @@ export default function MobileNavbar({
                 power_settings_circle
               </span>
               <span
-                className={`text-white text-[10px] md:text-[9px] font-medium transition-opacity duration-300 relative z-10 ${
-                  isActive("/siswa/profil")
-                    ? "opacity-100 font-bold"
-                    : "opacity-70"
-                }`}
+                className={`text-white text-[10px] font-medium transition-opacity duration-300 relative z-10 ${isActive("/siswa/profil")
+                  ? "opacity-100 font-bold"
+                  : "opacity-70"
+                  }`}
               >
                 Profile
               </span>

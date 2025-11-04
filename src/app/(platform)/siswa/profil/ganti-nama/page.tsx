@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Swal from "sweetalert2";
+import { updateMyProfile } from "@/lib/api/user";
 
 export default function GantiNamaPage() {
   const [nama, setNama] = useState("Farhan");
@@ -12,18 +14,37 @@ export default function GantiNamaPage() {
     e.preventDefault();
 
     if (!nama.trim()) {
-      alert("Nama tidak boleh kosong!");
+      Swal.fire({
+        icon: "warning",
+        title: "Peringatan",
+        text: "Nama tidak boleh kosong!",
+        confirmButtonColor: "#336d82",
+      });
       return;
     }
 
-    setIsLoading(true);
+    try {
+      setIsLoading(true);
+      await updateMyProfile({ nama_lengkap: nama.trim() });
 
-    // TODO: Implement actual API call
-    setTimeout(() => {
-      setIsLoading(false);
-      alert("Nama berhasil diubah!");
+      Swal.fire({
+        icon: "success",
+        title: "Berhasil!",
+        text: "Nama berhasil diubah!",
+        confirmButtonColor: "#336d82",
+        timer: 2000,
+      });
+
       router.push("/siswa/profil");
-    }, 1000);
+    } catch (error) {
+      setIsLoading(false);
+      Swal.fire({
+        icon: "error",
+        title: "Gagal!",
+        text: error instanceof Error ? error.message : "Gagal mengubah nama",
+        confirmButtonColor: "#336d82",
+      });
+    }
   };
 
   return (
@@ -83,11 +104,10 @@ export default function GantiNamaPage() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className={`w-full bg-gradient-to-r from-[#336d82] to-[#5b9db5] text-white text-[16px] md:text-lg font-semibold py-3 md:py-4 rounded-[20px] md:rounded-[24px] shadow-lg transition-all duration-300 ${
-                  isLoading
+                className={`w-full bg-gradient-to-r from-[#336d82] to-[#5b9db5] text-white text-[16px] md:text-lg font-semibold py-3 md:py-4 rounded-[20px] md:rounded-[24px] shadow-lg transition-all duration-300 ${isLoading
                     ? "opacity-50 cursor-not-allowed"
                     : "hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]"
-                }`}
+                  }`}
               >
                 {isLoading ? "Menyimpan..." : "Simpan Perubahan"}
               </button>
@@ -99,7 +119,7 @@ export default function GantiNamaPage() {
       {/* Add Google Material Symbols */}
       <link
         rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=optional"
       />
     </div>
   );

@@ -7,6 +7,7 @@ import { useState, useRef, useEffect } from "react";
 interface CardItem {
   id: string;
   title: string;
+  subtitle?: string;
   imagePath: string;
   link: string;
   displayTitle?: string; // Optional custom display title for overlay

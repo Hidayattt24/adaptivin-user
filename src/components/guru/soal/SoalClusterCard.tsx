@@ -2,7 +2,8 @@
 
 import React from "react";
 import { Visibility, Edit, Delete } from "@mui/icons-material";
-// import { Question } from "./QuestionSection";
+import { Question } from "./QuestionSection";
+import Image from "next/image";
 
 interface SoalClusterCardProps {
   question: Question;
@@ -45,9 +46,11 @@ export function SoalClusterCard({
       <div className="mb-3 flex-1">
         {question.questionFilePreview && (
           <div className="mb-2 rounded-lg overflow-hidden">
-            <img
+            <Image
               src={question.questionFilePreview}
               alt="Question preview"
+              width={400}
+              height={96}
               className="w-full h-24 object-cover"
             />
           </div>

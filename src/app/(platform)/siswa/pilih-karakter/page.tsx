@@ -5,6 +5,7 @@ import confetti from "canvas-confetti";
 import MobileNavbar from "@/components/siswa/navigation/MobileNavbar";
 import InfiniteCarousel from "@/components/siswa/carousel/InfiniteCarousel";
 import EmojiText from "@/components/common/EmojiText";
+import { useSiswaProfile, useUpdateSiswaProfile } from "@/hooks/siswa/useSiswaProfile";
 
 // Character color mapping for borders
 const characterColors: Record<string, string> = {
@@ -17,6 +18,29 @@ const characterColors: Record<string, string> = {
   "sin-bunbun": "#F564A9",
 };
 
+// Character ID to index mapping (hanya 5 karakter yang tersedia di STUDENT_AVATARS)
+const characterIdToIndex: Record<string, number> = {
+  "kocheng-oren": 0,
+  "bro-kerbuz": 1,
+  "sin-bunbun": 2,
+  "mas-gwebek": 3,
+  "pak-bubu": 4,
+  "mas-pace": 5,
+  "mas-piggy": 6,
+};
+
+// Index to character ID mapping
+const indexToCharacterId: Record<number, string> = {
+  0: "kocheng-oren",
+  1: "bro-kerbuz",
+  2: "sin-bunbun",
+  3: "mas-gwebek",
+  4: "pak-bubu",
+  5: "mas-pace",
+  6: "mas-piggy",
+};
+
+// Hanya tampilkan 5 karakter yang sesuai dengan database
 const characters = [
   {
     id: "kocheng-oren",
@@ -35,19 +59,35 @@ const characters = [
     color: characterColors["bro-kerbuz"],
   },
   {
+    id: "sin-bunbun",
+    name: "SIN BUNBUN",
+    path: "/siswa/pilih-karakter/sin-bunbun.svg",
+    description:
+      "Kelinci cepat yang lompat dari soal ke soal! �⚡ Spesialis dalam mengerjakan soal dengan cepat!",
+    color: characterColors["sin-bunbun"],
+  },
+  {
     id: "mas-gwebek",
     name: "MAS GWEBEK",
     path: "/siswa/pilih-karakter/mas-gwebek.svg",
     description:
-      "Kodok hijau yang lincah dan ceria! 🐸💚 Expert dalam menjelaskan konsep rumit dengan mudah!",
+      "Bebek cerdas yang suka berpetualang! 🦆🌟 Ahli dalam memecahkan teka-teki matematika!",
     color: characterColors["mas-gwebek"],
+  },
+  {
+    id: "pak-bubu",
+    name: "PAK BUBU",
+    path: "/siswa/pilih-karakter/pak-bubu.svg",
+    description:
+      "Teman setia yang selalu ceria! 🐻✨ Siap menemani perjalanan belajarmu dengan penuh semangat!",
+    color: characterColors["pak-bubu"],
   },
   {
     id: "mas-pace",
     name: "MAS PACE",
     path: "/siswa/pilih-karakter/mas-pace.svg",
     description:
-      "Kuda pekerja keras yang nggak pernah menyerah! 🐴💪 Motivator terbaik buat kamu tetap semangat!",
+      "Pace yang bijak dan sabar! 🐢📚 Siap membantu kamu memahami konsep matematika dengan tenang.",
     color: characterColors["mas-pace"],
   },
   {
@@ -55,30 +95,17 @@ const characters = [
     name: "MAS PIGGY",
     path: "/siswa/pilih-karakter/mas-piggy.svg",
     description:
-      "Babi pintar yang suka ngitung duit... eh, maksudnya angka! 🐷💰 Ahli dalam soal-soal logika!",
+      "Babi yang lucu dan menggemaskan! 🐷✨ Siap menemani kamu belajar dengan penuh keceriaan.",
     color: characterColors["mas-piggy"],
-  },
-  {
-    id: "pak-bubu",
-    name: "PAK BUBU",
-    path: "/siswa/pilih-karakter/pak-bubu.svg",
-    description:
-      "Burung hantu bijaksana yang tahu segalanya! 🦉📚 Guru sabar yang selalu ada buat kamu!",
-    color: characterColors["pak-bubu"],
-  },
-  {
-    id: "sin-bunbun",
-    name: "SIN BUNBUN",
-    path: "/siswa/pilih-karakter/sin-bunbun.svg",
-    description:
-      "Kelinci cepat yang lompat dari soal ke soal! 🐰⚡ Spesialis dalam mengerjakan soal dengan cepat!",
-    color: characterColors["sin-bunbun"],
-  },
+  }
 ];
 
 export default function PilihKarakterPage() {
   const [selectedCharacter, setSelectedCharacter] = useState("kocheng-oren");
   const [centerCharacter, setCenterCharacter] = useState("kocheng-oren");
+
+  const { data: profile } = useSiswaProfile();
+  const { mutateAsync: updateProfile } = useUpdateSiswaProfile();
 
   useEffect(() => {
     // Disable scroll restoration for this page
@@ -93,6 +120,15 @@ export default function PilihKarakterPage() {
       }
     };
   }, []);
+
+  // Load current character from profile
+  useEffect(() => {
+    if (profile?.profil_siswa_index !== undefined && profile.profil_siswa_index !== null) {
+      const characterId = indexToCharacterId[profile.profil_siswa_index] || "kocheng-oren";
+      setSelectedCharacter(characterId);
+      setCenterCharacter(characterId);
+    }
+  }, [profile]);
 
   // Confetti effect with stars
   const triggerConfetti = () => {
@@ -126,9 +162,19 @@ export default function PilihKarakterPage() {
     setTimeout(shoot, 200);
   };
 
-  const handleSelectCharacter = (characterId: string) => {
+  const handleSelectCharacter = async (characterId: string) => {
     setSelectedCharacter(characterId);
     triggerConfetti();
+
+    // Simpan langsung ke database ketika card di-klik
+    const characterIndex = characterIdToIndex[characterId];
+    if (characterIndex !== undefined) {
+      try {
+        await updateProfile({ profil_siswa_index: characterIndex });
+      } catch (error) {
+        console.error("Gagal menyimpan karakter:", error);
+      }
+    }
   };
 
   return (

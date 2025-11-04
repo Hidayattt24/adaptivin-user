@@ -4,7 +4,8 @@ import { useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useClassTheme } from "@/contexts/ClassThemeContext";
-import { getMaterialById } from "@/data/mockMaterials";
+import { useMateriById } from "@/hooks/siswa/useMateri";
+import Image from "next/image";
 
 export default function MateriDetailPage() {
   const params = useParams();
@@ -13,17 +14,22 @@ export default function MateriDetailPage() {
 
   const classId = params?.classId as string;
   const materiId = params?.materiId as string;
-  const material = getMaterialById(materiId);
+
+  // Fetch materi data dari database (bukan mock)
+  const { data: materi, isLoading, error } = useMateriById(materiId);
 
   useEffect(() => {
-    if (!material || material.classId !== classId) {
+    if (!materi || materi.kelas_id !== classId) {
       router.push(`/siswa/materi/${classId}`);
     }
-  }, [material, classId, router]);
+  }, [materi, error, isLoading, classId, router]);
 
-  if (!material || material.classId !== classId) {
+  if (!materi || materi.kelas_id !== classId) {
     return null;
   }
+
+  // Sort sub_materi by urutan
+  const sortedSubMateri = materi.sub_materi ? [...materi.sub_materi].sort((a, b) => a.urutan - b.urutan) : [];
 
   return (
     <div className="relative w-full min-h-screen overflow-x-hidden bg-white">
@@ -82,12 +88,12 @@ export default function MateriDetailPage() {
 
           {/* Title */}
           <h1 className="text-2xl md:text-4xl font-bold text-white text-center leading-tight">
-            {material.title}
+            {materi.judul_materi}
           </h1>
 
           {/* Description */}
           <p className="text-white/90 text-sm md:text-base text-center mt-3 md:mt-4 max-w-2xl mx-auto">
-            {material.description}
+            {materi.deskripsi}
           </p>
         </div>
       </div>
@@ -95,137 +101,167 @@ export default function MateriDetailPage() {
       {/* Content Section */}
       <div className="px-6 md:px-12 lg:px-16 py-8 md:py-12">
         <div className="max-w-4xl mx-auto">
-        {/* Introduction */}
-        {material.content?.introduction && (
-          <div
-            className="mb-6 p-5 rounded-2xl border-l-4"
-            style={{
-              background: `${theme.colors.primary}10`,
-              borderColor: theme.colors.primary,
-            }}
-          >
-            <p
-              className="text-sm font-medium"
-              style={{ color: theme.colors.text.primary }}
+          {/* Introduction */}
+          {materi.judul_materi && (
+            <div
+              className="mb-6 p-5 rounded-2xl border-l-4"
+              style={{
+                background: `${theme.colors.primary}10`,
+                borderColor: theme.colors.primary,
+              }}
             >
-              {material.content.introduction}
-            </p>
-          </div>
-        )}
-
-        {/* Sections */}
-        {material.content?.sections && material.content.sections.length > 0 && (
-          <div className="space-y-6">
-            {material.content.sections.map((section, index) => (
-              <div
-                key={index}
-                className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100"
+              <p
+                className="text-sm font-medium"
+                style={{ color: theme.colors.text.primary }}
               >
-                {/* Section Title */}
-                <h2
-                  className="text-lg font-bold mb-3 flex items-center gap-2"
-                  style={{ color: theme.colors.text.primary }}
+                {materi.judul_materi}
+              </p>
+            </div>
+          )}
+
+          {/* Sections */}
+          {materi.sub_materi && materi.sub_materi.length > 0 ? (
+            <div className="space-y-6">
+              {sortedSubMateri.map((subMateri, index) => (
+                <div
+                  key={subMateri.id}
+                  className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100"
                 >
-                  <span
-                    className="flex items-center justify-center w-7 h-7 rounded-full text-white text-sm font-bold"
-                    style={{ background: theme.colors.primary }}
+                  {/* Sub Materi Title */}
+                  <h2
+                    className="text-lg font-bold mb-3 flex items-center gap-2"
+                    style={{ color: theme.colors.text.primary }}
                   >
-                    {index + 1}
-                  </span>
-                  {section.title}
-                </h2>
+                    <span
+                      className="flex items-center justify-center w-7 h-7 rounded-full text-white text-sm font-bold"
+                      style={{ background: theme.colors.primary }}
+                    >
+                      {index + 1}
+                    </span>
+                    {subMateri.judul_sub_materi}
+                  </h2>
 
-                {/* Section Content */}
-                <p
-                  className="text-sm leading-relaxed mb-4"
-                  style={{ color: theme.colors.text.secondary }}
-                >
-                  {section.content}
-                </p>
+                  {/* Sub Materi Content */}
+                  {subMateri.isi_materi && (
+                    <div
+                      className="text-sm leading-relaxed mb-4 prose prose-sm max-w-none"
+                      style={{ color: theme.colors.text.secondary }}
+                      dangerouslySetInnerHTML={{ __html: subMateri.isi_materi }}
+                    />
+                  )}
 
-                {/* Examples */}
-                {section.examples && section.examples.length > 0 && (
-                  <div className="space-y-2">
-                    <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
-                      Contoh:
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                      {section.examples.map((example, i) => (
-                        <div
-                          key={i}
-                          className="px-4 py-2 rounded-lg font-mono text-sm"
-                          style={{
-                            background: `${theme.colors.secondary}20`,
-                            color: theme.colors.text.primary,
-                          }}
-                        >
-                          {example}
+                  {/* Media (PDF, Video, Gambar) */}
+                  {subMateri.sub_materi_media && subMateri.sub_materi_media.length > 0 && (
+                    <div className="mt-4 space-y-3">
+                      {subMateri.sub_materi_media.map((media) => (
+                        <div key={media.id}>
+                          {/* Gambar */}
+                          {media.tipe_media === "gambar" && (
+                            <div className="rounded-lg overflow-hidden relative w-full min-h-[200px]">
+                              <Image
+                                src={media.url}
+                                alt="Materi gambar"
+                                width={800}
+                                height={600}
+                                className="w-full h-auto object-contain"
+                                unoptimized // Karena dari external URL (Supabase Storage)
+                              />
+                            </div>
+                          )}
+
+                          {/* Video */}
+                          {media.tipe_media === "video" && (
+                            <div className="rounded-lg overflow-hidden">
+                              <video
+                                src={media.url}
+                                controls
+                                className="w-full h-auto"
+                              >
+                                Browser Anda tidak mendukung video.
+                              </video>
+                            </div>
+                          )}
+
+                          {/* PDF */}
+                          {media.tipe_media === "pdf" && (
+                            <a
+                              href={media.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center gap-3 p-4 rounded-lg border-2 hover:scale-[1.02] transition-all"
+                              style={{
+                                borderColor: theme.colors.primary,
+                                color: theme.colors.primary,
+                              }}
+                            >
+                              <span className="material-symbols-outlined text-2xl">
+                                picture_as_pdf
+                              </span>
+                              <span className="font-medium">Lihat PDF</span>
+                            </a>
+                          )}
                         </div>
                       ))}
                     </div>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* No Content Message */}
-        {(!material.content?.sections || material.content.sections.length === 0) && (
-          <div className="text-center py-12">
-            <div
-              className="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center"
-              style={{ background: `${theme.colors.primary}20` }}
-            >
-              <span
-                className="material-symbols-outlined text-4xl"
-                style={{ color: theme.colors.primary }}
-              >
-                construction
-              </span>
+                  )}
+                </div>
+              ))}
             </div>
-            <p className="text-slate-600 text-sm">
-              Konten materi sedang dalam pengembangan
-            </p>
+          ) : (
+            <div className="text-center py-12">
+              <div
+                className="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center"
+                style={{ background: `${theme.colors.primary}20` }}
+              >
+                <span
+                  className="material-symbols-outlined text-4xl"
+                  style={{ color: theme.colors.primary }}
+                >
+                  construction
+                </span>
+              </div>
+              <p className="text-slate-600 text-sm">
+                Belum ada isi materi. Guru sedang menyiapkan konten pembelajaran.
+              </p>
+            </div>
+          )}
+
+          {/* Action Buttons */}
+          <div className="mt-8 md:mt-12 grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
+            {/* Baca Isi Materi Button */}
+            <Link
+              href={`/siswa/materi/${classId}/${materiId}/1`}
+              className="block w-full py-4 md:py-5 rounded-2xl font-semibold text-white text-center text-sm md:text-base shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all"
+              style={{
+                background: theme.colors.primary,
+              }}
+            >
+              📚 Baca Isi Materi
+            </Link>
+
+            {/* Start Quiz Button */}
+            <Link
+              href={`/siswa/materi/${classId}/${materiId}/1/kuis`}
+              className="block w-full py-4 md:py-5 rounded-2xl font-semibold text-center text-sm md:text-base border-2 hover:scale-[1.02] active:scale-[0.98] transition-all"
+              style={{
+                borderColor: theme.colors.primary,
+                color: theme.colors.primary,
+              }}
+            >
+              Mulai Kuis 🎯
+            </Link>
+
+            {/* Practice Button */}
+            <button
+              className="block w-full py-4 md:py-5 rounded-2xl font-semibold text-center text-sm md:text-base border-2 hover:scale-[1.02] active:scale-[0.98] transition-all"
+              style={{
+                borderColor: theme.colors.primary,
+                color: theme.colors.primary,
+              }}
+            >
+              Latihan Soal 📝
+            </button>
           </div>
-        )}
-
-        {/* Action Buttons */}
-        <div className="mt-8 md:mt-12 grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
-          {/* Baca Isi Materi Button */}
-          <Link
-            href={`/siswa/materi/${classId}/${materiId}/1`}
-            className="block w-full py-4 md:py-5 rounded-2xl font-semibold text-white text-center text-sm md:text-base shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all"
-            style={{
-              background: theme.colors.primary,
-            }}
-          >
-            📚 Baca Isi Materi
-          </Link>
-
-          {/* Start Quiz Button */}
-          <Link
-            href={`/siswa/materi/${classId}/${materiId}/1/kuis`}
-            className="block w-full py-4 md:py-5 rounded-2xl font-semibold text-center text-sm md:text-base border-2 hover:scale-[1.02] active:scale-[0.98] transition-all"
-            style={{
-              borderColor: theme.colors.primary,
-              color: theme.colors.primary,
-            }}
-          >
-            Mulai Kuis 🎯
-          </Link>
-
-          {/* Practice Button */}
-          <button
-            className="block w-full py-4 md:py-5 rounded-2xl font-semibold text-center text-sm md:text-base border-2 hover:scale-[1.02] active:scale-[0.98] transition-all"
-            style={{
-              borderColor: theme.colors.primary,
-              color: theme.colors.primary,
-            }}
-          >
-            Latihan Soal 📝
-          </button>
-        </div>
         </div>
       </div>
 
@@ -235,7 +271,7 @@ export default function MateriDetailPage() {
       {/* Add Google Material Symbols */}
       <link
         rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=optional"
       />
     </div>
   );

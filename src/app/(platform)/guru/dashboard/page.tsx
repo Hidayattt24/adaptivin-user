@@ -197,7 +197,7 @@ const DashboardGuruPage = () => {
             </div>
             {searchQuery && (
               <p className="mt-3 text-white/90 text-sm font-poppins text-center">
-                Menampilkan {filteredClasses.length} hasil untuk "{searchQuery}"
+                Menampilkan {filteredClasses.length} hasil untuk &quot;{searchQuery}&quot;
               </p>
             )}
           </div>

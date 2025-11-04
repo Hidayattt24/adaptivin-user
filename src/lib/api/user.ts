@@ -10,6 +10,23 @@ function getTokenFromCookie() {
   return getCookie(StorageKeys.TOKEN);
 }
 
+// Interface untuk Kelas
+export interface KelasInfo {
+  id: string;
+  nama_kelas: string;
+  tingkat_kelas: string;
+  rombel: string | null;
+  mata_pelajaran: string | null;
+  tahun_ajaran: string | null;
+  sekolah_id: string | null;
+}
+
+// Interface untuk Sekolah
+export interface SekolahInfo {
+  id: string;
+  nama_sekolah: string;
+}
+
 // Interface untuk User (Guru/Siswa)
 export interface UserResponse {
   id: string;
@@ -25,6 +42,8 @@ export interface UserResponse {
   profil_siswa_index?: number | null;
   created_at?: string;
   updated_at?: string;
+  kelas?: KelasInfo | null;
+  sekolah?: SekolahInfo | null;
 }
 
 // Avatar options for siswa (5 avatars available)
@@ -32,8 +51,10 @@ export const STUDENT_AVATARS = [
   "/siswa/foto-profil/kocheng-oren.svg",
   "/siswa/foto-profil/bro-kerbuz.svg",
   "/siswa/foto-profil/sin-bunbun.svg",
-  "/siswa/foto-profil/sis-monyet.svg",
-  "/siswa/foto-profil/sis-nyanyuk.svg",
+  "/siswa/foto-profil/mas-gwebek.svg",
+  "/siswa/foto-profil/pak-bubu.svg",
+  "/siswa/foto-profil/mas-pace.svg",
+  "/siswa/foto-profil/mas-piggy.svg",
 ];
 
 // Get avatar path by index

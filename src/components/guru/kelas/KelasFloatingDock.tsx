@@ -1,6 +1,8 @@
 "use client";
 
 import { useRouter, usePathname } from "next/navigation";
+import type { ComponentType } from "react";
+import type { SvgIconProps } from "@mui/material/SvgIcon";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
 import PeopleIcon from "@mui/icons-material/People";
 import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
@@ -58,7 +60,7 @@ export const KelasFloatingDock = ({ kelasId }: KelasFloatingDockProps) => {
 
 interface NavItem {
   name: string;
-  icon: any;
+  icon: ComponentType<SvgIconProps>;
   href: string;
 }
 

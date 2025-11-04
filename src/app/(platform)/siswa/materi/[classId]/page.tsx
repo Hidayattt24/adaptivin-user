@@ -1,20 +1,26 @@
 "use client";
 
-import { useParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useClassTheme } from "@/contexts/ClassThemeContext";
 import MateriHeaderNew from "@/components/siswa/materi/MateriHeaderNew";
 import MateriCardNew from "@/components/siswa/materi/MateriCardNew";
-import { getMaterialsByClass } from "@/data/mockMaterials";
+import { useSiswaProfile } from "@/hooks/siswa/useSiswaProfile";
+import { useMateriByKelas } from "@/hooks/siswa/useMateri";
 
 
 
 export default function MateriClassListPage() {
-  const params = useParams();
   const router = useRouter();
   const { theme } = useClassTheme();
 
-  const classId = params?.classId as string;
-  const materials = getMaterialsByClass(classId);
+  // Get siswa profile untuk ambil kelas_id yang sebenarnya
+  const { data: profile } = useSiswaProfile();
+
+  // Gunakan kelas_id dari profile
+  const kelasId = profile?.kelas?.id || null;
+
+  // Get materi by kelas
+  const { data: materiList, isLoading } = useMateriByKelas(kelasId);
 
   return (
     <div className="relative w-full min-h-screen overflow-x-hidden bg-white">
@@ -36,16 +42,20 @@ export default function MateriClassListPage() {
       {/* Materials List - Responsive */}
       <div className="px-6 md:px-12 lg:px-16 py-8 pb-12 md:pb-16">
         <div className="max-w-7xl mx-auto">
-          {materials.length > 0 ? (
+          {isLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="w-16 h-16 border-4 border-[#33A1E0] border-t-transparent rounded-full animate-spin"></div>
+            </div>
+          ) : materiList && materiList.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-              {materials.map((material) => (
+              {materiList.map((material) => (
                 <MateriCardNew
                   key={material.id}
                   id={material.id}
-                  title={material.title}
-                  description={material.description}
-                  icon={material.icon}
-                  isLocked={material.isLocked}
+                  title={material.judul_materi}
+                  description={material.deskripsi || ""}
+                  icon="📚"
+                  isLocked={false}
                 />
               ))}
             </div>
@@ -73,7 +83,7 @@ export default function MateriClassListPage() {
       {/* Add Google Material Symbols */}
       <link
         rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=optional"
       />
     </div>
   );

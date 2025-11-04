@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Swal from "sweetalert2";
+import { updateMyPassword } from "@/lib/api/user";
 
 export default function GantiPasswordPage() {
   const [passwordLama, setPasswordLama] = useState("");
@@ -18,28 +20,60 @@ export default function GantiPasswordPage() {
 
     // Validation
     if (!passwordLama || !passwordBaru || !konfirmasiPassword) {
-      alert("Semua field harus diisi!");
+      Swal.fire({
+        icon: "warning",
+        title: "Peringatan",
+        text: "Semua field harus diisi!",
+        confirmButtonColor: "#336d82",
+      });
       return;
     }
 
-    if (passwordBaru.length < 6) {
-      alert("Password baru minimal 6 karakter!");
+    if (passwordBaru.length < 8) {
+      Swal.fire({
+        icon: "warning",
+        title: "Peringatan",
+        text: "Password baru minimal 8 karakter!",
+        confirmButtonColor: "#336d82",
+      });
       return;
     }
 
     if (passwordBaru !== konfirmasiPassword) {
-      alert("Password baru dan konfirmasi password tidak cocok!");
+      Swal.fire({
+        icon: "warning",
+        title: "Peringatan",
+        text: "Password baru dan konfirmasi password tidak cocok!",
+        confirmButtonColor: "#336d82",
+      });
       return;
     }
 
-    setIsLoading(true);
+    try {
+      setIsLoading(true);
+      await updateMyPassword({
+        currentPassword: passwordLama,
+        newPassword: passwordBaru,
+      });
 
-    // TODO: Implement actual API call
-    setTimeout(() => {
-      setIsLoading(false);
-      alert("Password berhasil diubah!");
+      Swal.fire({
+        icon: "success",
+        title: "Berhasil!",
+        text: "Password berhasil diubah!",
+        confirmButtonColor: "#336d82",
+        timer: 2000,
+      });
+
       router.push("/siswa/profil");
-    }, 1000);
+    } catch (error) {
+      setIsLoading(false);
+      Swal.fire({
+        icon: "error",
+        title: "Gagal!",
+        text: error instanceof Error ? error.message : "Gagal mengubah password",
+        confirmButtonColor: "#336d82",
+      });
+    }
   };
 
   return (
@@ -176,11 +210,10 @@ export default function GantiPasswordPage() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className={`w-full bg-gradient-to-r from-[#336d82] to-[#5b9db5] text-white text-[16px] md:text-lg font-semibold py-3 md:py-4 rounded-[20px] md:rounded-[24px] shadow-lg transition-all duration-300 ${
-                  isLoading
-                    ? "opacity-50 cursor-not-allowed"
-                    : "hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]"
-                }`}
+                className={`w-full bg-gradient-to-r from-[#336d82] to-[#5b9db5] text-white text-[16px] md:text-lg font-semibold py-3 md:py-4 rounded-[20px] md:rounded-[24px] shadow-lg transition-all duration-300 ${isLoading
+                  ? "opacity-50 cursor-not-allowed"
+                  : "hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]"
+                  }`}
               >
                 {isLoading ? "Menyimpan..." : "Simpan Password Baru"}
               </button>
@@ -192,7 +225,7 @@ export default function GantiPasswordPage() {
       {/* Add Google Material Symbols */}
       <link
         rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=optional"
       />
     </div>
   );

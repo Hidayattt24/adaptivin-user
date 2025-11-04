@@ -11,8 +11,8 @@ import {
 import { CustomDropdown, FileUploadArea } from "@/components/guru";
 
 export type QuestionType = "C1" | "C2" | "C3" | "C4" | "C5" | "C6";
-export type AnswerType = "Tulisan" | "Angka" | "Foto";
-export type TimeUnit = "Menit" | "Detik";
+export type AnswerType = "pilihan_ganda" | "isian_singkat" | "angka";
+export type TimeUnit = "Menit";
 
 export interface Question {
   id: string;
@@ -32,7 +32,7 @@ export interface Question {
 interface QuestionSectionProps {
   question: Question;
   index: number;
-  onUpdate: (id: string, field: keyof Question, value: any) => void;
+  onUpdate: <K extends keyof Question>(id: string, field: K, value: Question[K]) => void;
   onRemove: (id: string) => void;
   onQuestionFileUpload: (
     id: string,
@@ -57,9 +57,9 @@ const questionTypeOptions = [
 ];
 
 const answerTypeOptions = [
-  { value: "Tulisan", label: "Tulisan" },
-  { value: "Angka", label: "Angka" },
-  { value: "Foto", label: "Foto" },
+  { value: "pilihan_ganda", label: "Pilihan Ganda" },
+  { value: "isian_singkat", label: "Isian Singkat" },
+  { value: "angka", label: "Angka" },
 ];
 
 const timeUnitOptions = [
@@ -80,12 +80,13 @@ export default function QuestionSection({
 }: QuestionSectionProps) {
   const getAnswerIcon = () => {
     switch (question.answerType) {
-      case "Tulisan":
+      case "pilihan_ganda":
         return <TextFields sx={{ fontSize: 24, color: "#336d82" }} />;
-      case "Angka":
+      case "isian_singkat":
+        return <TextFields sx={{ fontSize: 24, color: "#336d82" }} />;
+      case "angka":
         return <Numbers sx={{ fontSize: 24, color: "#336d82" }} />;
-      case "Foto":
-        return <ImageIcon sx={{ fontSize: 24, color: "#336d82" }} />;
+
     }
   };
 
@@ -97,12 +98,12 @@ export default function QuestionSection({
           Isi Soal Nomor {index + 1}
         </h2>
 
-        {/* Question Type Dropdown */}
+        {/* Question Type Dropdown - Commented out */}
         <div className="mb-3 sm:mb-4">
           <CustomDropdown
             value={question.questionType}
             options={questionTypeOptions}
-            onChange={(value) => onUpdate(question.id, "questionType", value)}
+            onChange={(value) => onUpdate(question.id, "questionType", value as QuestionType)}
             leftIcon={
               <div className="w-8 h-8 sm:w-10 sm:h-10 bg-[#336d82] rounded-lg sm:rounded-xl flex items-center justify-center shadow-md">
                 <span className="text-white font-bold text-sm sm:text-base">
@@ -112,6 +113,7 @@ export default function QuestionSection({
             }
           />
         </div>
+
 
         {/* Question File Upload */}
         <div className="mb-3 sm:mb-4">
@@ -155,53 +157,66 @@ export default function QuestionSection({
           <CustomDropdown
             value={question.answerType}
             options={answerTypeOptions}
-            onChange={(value) => onUpdate(question.id, "answerType", value)}
+            onChange={(value) => onUpdate(question.id, "answerType", value as AnswerType)}
             leftIcon={getAnswerIcon()}
           />
         </div>
 
-        {/* Answer File Upload (if Foto selected) */}
-        {question.answerType === "Foto" && (
-          <div className="mb-3 sm:mb-4">
-            <FileUploadArea
-              file={question.answerFile}
-              filePreview={question.answerFilePreview}
-              onFileSelect={(e) => onAnswerFileUpload(question.id, e)}
-              onRemove={() => onRemoveFile(question.id, "answer")}
-              onPreview={() =>
-                onPreviewFile(
-                  question.answerFilePreview!,
-                  question.answerFile?.name || "preview"
-                )
-              }
-              label="Upload Gambar Jawaban"
-              variant="primary"
-            />
-          </div>
-        )}
-
         {/* Answer Text Input */}
-        {question.answerType !== "Foto" && (
-          <div className="relative mb-6">
+        <div className="mb-6">
+          {/* Info untuk pilihan ganda */}
+          {question.answerType === "pilihan_ganda" && (
+            <div className="mb-3 bg-blue-50 border-l-4 border-blue-400 p-3 rounded-lg">
+              <p className="text-blue-800 text-xs sm:text-sm font-medium flex items-center gap-2">
+                <span className="text-lg">ℹ️</span>
+                <span>
+                  <strong>Untuk Pilihan Ganda:</strong> Pisahkan setiap pilihan dengan enter atau koma.
+                  Pilihan pertama akan menjadi jawaban yang benar.
+                </span>
+              </p>
+              <p className="text-blue-700 text-xs mt-1 ml-7">
+                Contoh: <code className="bg-blue-100 px-1 rounded">A. Jakarta, B. Bandung, C. Surabaya</code>
+              </p>
+            </div>
+          )}
+
+          <div className="relative">
             <div className="absolute left-4 top-4 pointer-events-none">
               {getAnswerIcon()}
             </div>
-            <input
-              type={question.answerType === "Angka" ? "number" : "text"}
-              value={question.answerText}
-              onChange={(e) =>
-                onUpdate(question.id, "answerText", e.target.value)
-              }
-              placeholder={
-                question.answerType === "Angka"
-                  ? "Masukkan jawaban dalam angka..."
-                  : "Masukkan jawaban dalam teks..."
-              }
-              className="w-full pl-11 sm:pl-14 pr-3 sm:pr-4 py-3 sm:py-4 rounded-xl sm:rounded-2xl border-2 border-white/30 bg-white/95 backdrop-blur-sm text-gray-800 text-sm sm:text-base font-medium focus:outline-none focus:ring-2 focus:ring-white focus:border-white shadow-lg hover:shadow-xl transition-all placeholder:text-gray-400"
-            />
+            {question.answerType === "pilihan_ganda" ? (
+              <textarea
+                value={question.answerText}
+                onChange={(e) =>
+                  onUpdate(question.id, "answerText", e.target.value)
+                }
+                placeholder="Masukkan jawaban pilihan ganda...&#10;&#10;Pisahkan dengan enter atau koma:&#10;A. Pilihan 1&#10;B. Pilihan 2&#10;C. Pilihan 3&#10;&#10;Pilihan pertama akan menjadi jawaban yang benar."
+                className="w-full pl-11 sm:pl-14 pr-3 sm:pr-4 py-3 sm:py-4 rounded-xl sm:rounded-2xl border-2 border-white/30 bg-white/95 backdrop-blur-sm text-gray-800 text-sm sm:text-base font-medium focus:outline-none focus:ring-2 focus:ring-white focus:border-white shadow-lg hover:shadow-xl transition-all placeholder:text-gray-400 resize-none"
+                rows={5}
+              />
+            ) : question.answerType === "isian_singkat" ? (
+              <input
+                type="text"
+                value={question.answerText}
+                onChange={(e) =>
+                  onUpdate(question.id, "answerText", e.target.value)
+                }
+                placeholder="Masukkan jawaban isian singkat..."
+                className="w-full pl-11 sm:pl-14 pr-3 sm:pr-4 py-3 sm:py-4 rounded-xl sm:rounded-2xl border-2 border-white/30 bg-white/95 backdrop-blur-sm text-gray-800 text-sm sm:text-base font-medium focus:outline-none focus:ring-2 focus:ring-white focus:border-white shadow-lg hover:shadow-xl transition-all placeholder:text-gray-400"
+              />
+            ) : (
+              <input
+                type="number"
+                value={question.answerText}
+                onChange={(e) =>
+                  onUpdate(question.id, "answerText", e.target.value)
+                }
+                placeholder="Masukkan jawaban dalam angka..."
+                className="w-full pl-11 sm:pl-14 pr-3 sm:pr-4 py-3 sm:py-4 rounded-xl sm:rounded-2xl border-2 border-white/30 bg-white/95 backdrop-blur-sm text-gray-800 text-sm sm:text-base font-medium focus:outline-none focus:ring-2 focus:ring-white focus:border-white shadow-lg hover:shadow-xl transition-all placeholder:text-gray-400"
+              />
+            )}
           </div>
-        )}
-
+        </div>
         {/* Explanation Section */}
         <div className="mb-6">
           <h3 className="text-xl font-bold text-white">Penjelasan</h3>
@@ -218,30 +233,28 @@ export default function QuestionSection({
           </p>
         </div>
 
-        {/* Optional Support Image for Text/Number */}
-        {question.answerType !== "Foto" && (
-          <div className="mt-6">
-            <p className="text-white/80 text-sm font-medium mb-2 flex items-center gap-2">
-              <ImageIcon sx={{ fontSize: 18 }} />
-              Gambar Pendukung Jawaban (Opsional)
-            </p>
-            <FileUploadArea
-              file={question.answerFile}
-              filePreview={question.answerFilePreview}
-              onFileSelect={(e) => onAnswerFileUpload(question.id, e)}
-              onRemove={() => onRemoveFile(question.id, "answer")}
-              onPreview={() =>
-                onPreviewFile(
-                  question.answerFilePreview!,
-                  question.answerFile?.name || "preview"
-                )
-              }
-              label="Upload gambar pendukung"
-              optional
-              variant="secondary"
-            />
-          </div>
-        )}
+        {/* Optional Support Image for Answer Explanation */}
+        <div className="mt-6">
+          <p className="text-white/80 text-sm font-medium mb-2 flex items-center gap-2">
+            <ImageIcon sx={{ fontSize: 18 }} />
+            Gambar Pendukung Penjelasan Jawaban (Opsional)
+          </p>
+          <FileUploadArea
+            file={question.answerFile}
+            filePreview={question.answerFilePreview}
+            onFileSelect={(e) => onAnswerFileUpload(question.id, e)}
+            onRemove={() => onRemoveFile(question.id, "answer")}
+            onPreview={() =>
+              onPreviewFile(
+                question.answerFilePreview!,
+                question.answerFile?.name || "preview"
+              )
+            }
+            label="Upload gambar pendukung penjelasan"
+            optional
+            variant="secondary"
+          />
+        </div>
       </div>
 
       {/* Time Section */}
@@ -270,7 +283,7 @@ export default function QuestionSection({
             <CustomDropdown
               value={question.timeUnit}
               options={timeUnitOptions}
-              onChange={(value) => onUpdate(question.id, "timeUnit", value)}
+              onChange={(value) => onUpdate(question.id, "timeUnit", value as TimeUnit)}
               leftIcon={
                 <AccessTime
                   sx={{ fontSize: 20, color: "#336d82" }}

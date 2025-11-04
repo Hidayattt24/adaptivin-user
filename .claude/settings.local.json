@@ -3,7 +3,12 @@
     "allow": [
       "Bash(npx next lint:*)",
       "Bash(git commit:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git push)",
+      "Bash(gh pr create:*)",
+      "Bash(git remote:*)",
+      "Bash(find:*)",
+      "Bash(npx tsx:*)"
     ],
     "deny": [],
     "ask": []

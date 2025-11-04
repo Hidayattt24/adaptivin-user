@@ -270,50 +270,50 @@ const EditKuisPage = () => {
 
   return (
     <>
-      <div className="min-h-screen bg-gradient-to-br from-[#e8f4f8] via-white to-[#f0f9fc] py-8 px-4">
+      <div className="min-h-screen bg-gradient-to-br from-[#e8f4f8] via-white to-[#f0f9fc] py-4 sm:py-6 md:py-8 px-3 sm:px-4">
         {/* Header */}
-        <div className="max-w-6xl mx-auto mb-6">
-          <div className="bg-gradient-to-r from-[#336d82] to-[#2a5a6d] rounded-2xl px-6 py-4 flex items-center gap-4 shadow-xl">
+        <div className="max-w-6xl mx-auto mb-4 sm:mb-5 md:mb-6">
+          <div className="bg-gradient-to-r from-[#336d82] to-[#2a5a6d] rounded-xl sm:rounded-2xl px-3 sm:px-4 md:px-6 py-3 sm:py-4 flex items-center gap-2 sm:gap-3 md:gap-4 shadow-xl">
             <button
               onClick={() => router.push(`/guru/kelas/${kelasId}/materi`)}
-              className="w-12 h-12 bg-white rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-md"
+              className="w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-md flex-shrink-0"
             >
-              <ArrowBackIos sx={{ fontSize: 18, color: "#336d82", ml: 0.5 }} />
+              <ArrowBackIos sx={{ fontSize: { xs: 16, sm: 18 }, color: "#336d82", ml: 0.5 }} />
             </button>
-            <h1 className="text-2xl font-bold text-white font-poppins flex-1 text-center">
+            <h1 className="text-base sm:text-lg md:text-2xl font-bold text-white font-poppins flex-1 text-center leading-tight">
               Edit Kuis Materi
             </h1>
           </div>
         </div>
 
-        <div className="max-w-6xl mx-auto space-y-6">
+        <div className="max-w-6xl mx-auto space-y-4 sm:space-y-5 md:space-y-6">
           {/* Preview Kuis Section */}
           <div
-            className={`bg-gradient-to-br from-[#336d82] to-[#4a8a9e] rounded-3xl p-6 shadow-2xl transition-all duration-300 ${
+            className={`bg-gradient-to-br from-[#336d82] to-[#4a8a9e] rounded-2xl sm:rounded-3xl p-4 sm:p-5 md:p-6 shadow-2xl transition-all duration-300 ${
               isDraggingOver ? "ring-4 ring-white/50 scale-[1.02]" : ""
             }`}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
           >
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-white font-poppins">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-5 md:mb-6 gap-3">
+              <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-white font-poppins">
                 Soal Terpilih untuk Kuis
               </h2>
-              <div className="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full">
-                <span className="text-white font-semibold text-sm">
+              <div className="bg-white/20 backdrop-blur-sm px-3 sm:px-4 py-1.5 sm:py-2 rounded-full">
+                <span className="text-white font-semibold text-xs sm:text-sm">
                   {quizQuestions.length} Soal
                 </span>
               </div>
             </div>
 
-            <div className="space-y-3 mb-6 min-h-[200px]">
+            <div className="space-y-2 sm:space-y-3 mb-4 sm:mb-5 md:mb-6 min-h-[150px] sm:min-h-[200px]">
               {quizQuestions.length === 0 ? (
-                <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-12 text-center border-2 border-dashed border-white/30">
+                <div className="bg-white/10 backdrop-blur-sm rounded-xl sm:rounded-2xl p-6 sm:p-8 md:p-12 text-center border-2 border-dashed border-white/30">
                   <PlaylistAddCheck
-                    sx={{ fontSize: 64, color: "white", opacity: 0.5 }}
+                    sx={{ fontSize: { xs: 48, sm: 56, md: 64 }, color: "white", opacity: 0.5 }}
                   />
-                  <p className="text-white/70 mt-4 font-poppins text-lg">
+                  <p className="text-white/70 mt-3 sm:mt-4 font-poppins text-sm sm:text-base md:text-lg">
                     {isDraggingOver
                       ? "Lepaskan soal di sini"
                       : "Drag soal ke sini atau klik 'Tambah ke Kuis'"}
@@ -323,41 +323,45 @@ const EditKuisPage = () => {
                 quizQuestions.map((q, index) => (
                   <div
                     key={q.id}
-                    className="bg-white rounded-2xl p-4 flex items-center gap-4 shadow-lg hover:shadow-xl transition-all animate-fade-in"
+                    className="bg-white rounded-xl sm:rounded-2xl p-3 sm:p-4 flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 shadow-lg hover:shadow-xl transition-all animate-fade-in"
                     style={{ animationDelay: `${index * 100}ms` }}
                   >
-                    <div className="w-16 h-16 bg-[#336d82] rounded-xl flex items-center justify-center text-white font-bold text-lg flex-shrink-0 shadow-md">
+                    <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-[#336d82] rounded-lg sm:rounded-xl flex items-center justify-center text-white font-bold text-base sm:text-lg flex-shrink-0 shadow-md">
                       {q.type}
                     </div>
-                    <div className="flex-1">
-                      <p className="text-gray-800 font-poppins line-clamp-2 font-semibold">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-gray-800 font-poppins line-clamp-2 font-semibold text-sm sm:text-base">
                         {q.question}
                       </p>
-                      <p className="text-gray-500 text-sm mt-1">
+                      <p className="text-gray-500 text-xs sm:text-sm mt-1">
                         {typeDescriptions[q.type]}
                       </p>
                     </div>
-                    <button
-                      onClick={() => setPreviewQuestion(q)}
-                      className="px-4 py-2 bg-[#336d82] text-white rounded-full hover:bg-[#2a5a6d] transition-colors flex items-center gap-2 font-poppins text-sm shadow-md hover:shadow-lg whitespace-nowrap"
-                    >
-                      <Visibility sx={{ fontSize: 18 }} />
-                      Preview
-                    </button>
-                    <button
-                      onClick={() => setEditingQuestion(q)}
-                      className="px-4 py-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors flex items-center gap-2 font-poppins text-sm shadow-md hover:shadow-lg whitespace-nowrap"
-                    >
-                      <Edit sx={{ fontSize: 18 }} />
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => removeFromQuiz(q.id)}
-                      className="px-4 py-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors flex items-center gap-2 font-poppins text-sm shadow-md hover:shadow-lg whitespace-nowrap"
-                    >
-                      <Delete sx={{ fontSize: 18 }} />
-                      Hapus
-                    </button>
+                    {/* Buttons - Stack on mobile, row on desktop */}
+                    <div className="flex flex-wrap sm:flex-nowrap gap-2 w-full sm:w-auto">
+                      <button
+                        onClick={() => setPreviewQuestion(q)}
+                        className="flex-1 sm:flex-initial px-3 sm:px-4 py-2 bg-[#336d82] text-white rounded-lg sm:rounded-full hover:bg-[#2a5a6d] transition-colors flex items-center justify-center gap-1.5 sm:gap-2 font-poppins text-xs sm:text-sm shadow-md hover:shadow-lg"
+                      >
+                        <Visibility sx={{ fontSize: { xs: 16, sm: 18 } }} />
+                        <span className="hidden sm:inline">Preview</span>
+                        <span className="sm:hidden">Lihat</span>
+                      </button>
+                      <button
+                        onClick={() => setEditingQuestion(q)}
+                        className="flex-1 sm:flex-initial px-3 sm:px-4 py-2 bg-blue-500 text-white rounded-lg sm:rounded-full hover:bg-blue-600 transition-colors flex items-center justify-center gap-1.5 sm:gap-2 font-poppins text-xs sm:text-sm shadow-md hover:shadow-lg"
+                      >
+                        <Edit sx={{ fontSize: { xs: 16, sm: 18 } }} />
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => removeFromQuiz(q.id)}
+                        className="flex-1 sm:flex-initial px-3 sm:px-4 py-2 bg-red-500 text-white rounded-lg sm:rounded-full hover:bg-red-600 transition-colors flex items-center justify-center gap-1.5 sm:gap-2 font-poppins text-xs sm:text-sm shadow-md hover:shadow-lg"
+                      >
+                        <Delete sx={{ fontSize: { xs: 16, sm: 18 } }} />
+                        Hapus
+                      </button>
+                    </div>
                   </div>
                 ))
               )}
@@ -367,16 +371,16 @@ const EditKuisPage = () => {
               <button
                 onClick={handleSubmit}
                 disabled={isSubmitting || quizQuestions.length === 0}
-                className="bg-[#336d82] text-white px-8 py-3 rounded-full font-bold hover:bg-[#2a5a6d] transition-all disabled:opacity-50 disabled:cursor-not-allowed font-poppins shadow-lg flex items-center gap-2 hover:shadow-xl"
+                className="w-full sm:w-auto bg-[#336d82] text-white px-6 sm:px-8 py-2.5 sm:py-3 rounded-full font-bold hover:bg-[#2a5a6d] transition-all disabled:opacity-50 disabled:cursor-not-allowed font-poppins shadow-lg flex items-center justify-center gap-2 hover:shadow-xl text-sm sm:text-base"
               >
                 {isSubmitting ? (
                   <>
-                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                     Menyimpan...
                   </>
                 ) : (
                   <>
-                    <CheckCircle sx={{ fontSize: 20 }} />
+                    <CheckCircle sx={{ fontSize: { xs: 18, sm: 20 } }} />
                     Simpan Kuis ({quizQuestions.length})
                   </>
                 )}
@@ -385,12 +389,12 @@ const EditKuisPage = () => {
           </div>
 
           {/* Kumpulan Soal Section */}
-          <div className="bg-gradient-to-br from-[#336d82] to-[#4a8a9e] rounded-3xl p-6 shadow-2xl">
-            <h2 className="text-2xl font-bold text-white font-poppins mb-6 text-center">
+          <div className="bg-gradient-to-br from-[#336d82] to-[#4a8a9e] rounded-2xl sm:rounded-3xl p-4 sm:p-5 md:p-6 shadow-2xl">
+            <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-white font-poppins mb-4 sm:mb-5 md:mb-6 text-center">
               Bank Soal (C1 - C6)
             </h2>
 
-            <div className="space-y-6">
+            <div className="space-y-4 sm:space-y-5 md:space-y-6">
               {Object.entries(groupedQuestions).map(([type, questions]) => {
                 const visibleQuestions = questions.slice(
                   0,
@@ -402,19 +406,19 @@ const EditKuisPage = () => {
                 return (
                   <div
                     key={type}
-                    className="bg-white rounded-2xl p-6 shadow-lg"
+                    className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-5 md:p-6 shadow-lg"
                   >
-                    <div className="flex items-center justify-between mb-4">
-                      <div>
-                        <h3 className="text-xl font-bold text-[#336d82] font-poppins">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-3 sm:mb-4 gap-3">
+                      <div className="flex-1">
+                        <h3 className="text-base sm:text-lg md:text-xl font-bold text-[#336d82] font-poppins">
                           Tipe {type}
                         </h3>
-                        <p className="text-gray-600 text-sm mt-1">
+                        <p className="text-gray-600 text-xs sm:text-sm mt-0.5 sm:mt-1">
                           {typeDescriptions[type as QuestionType]}
                         </p>
                       </div>
-                      <div className="flex gap-2 items-center">
-                        <span className="bg-[#336d82]/10 text-[#336d82] px-3 py-1 rounded-full text-sm font-semibold">
+                      <div className="flex gap-2 items-center flex-wrap">
+                        <span className="bg-[#336d82]/10 text-[#336d82] px-2.5 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-semibold">
                           {questions.length} soal
                         </span>
                         <button
@@ -429,14 +433,14 @@ const EditKuisPage = () => {
                             });
                             setSelectedQuestions(newSelected);
                           }}
-                          className="bg-[#336d82] text-white px-4 py-2 rounded-full text-sm font-semibold hover:bg-[#2a5a6d] transition-colors shadow-md"
+                          className="bg-[#336d82] text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-semibold hover:bg-[#2a5a6d] transition-colors shadow-md"
                         >
                           Pilih Semua
                         </button>
                       </div>
                     </div>
 
-                    <div className="space-y-3">
+                    <div className="space-y-2 sm:space-y-3">
                       {visibleQuestions.map((q) => {
                         const isSelected = selectedQuestions.has(q.id);
                         const isInQuiz = quizQuestions.find(
@@ -448,7 +452,7 @@ const EditKuisPage = () => {
                             key={q.id}
                             draggable={!isInQuiz}
                             onDragStart={() => handleDragStart(q)}
-                            className={`flex items-center gap-4 p-4 rounded-xl transition-all ${
+                            className={`flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 md:gap-4 p-3 sm:p-4 rounded-lg sm:rounded-xl transition-all ${
                               isInQuiz
                                 ? "bg-[#336d82] text-white"
                                 : "bg-[#336d82]/10 hover:bg-[#336d82]/20 hover:shadow-md cursor-grab active:cursor-grabbing"
@@ -459,10 +463,10 @@ const EditKuisPage = () => {
                               checked={isSelected || !!isInQuiz}
                               onChange={() => !isInQuiz && toggleCheckbox(q.id)}
                               disabled={!!isInQuiz}
-                              className="w-6 h-6 rounded border-2 border-[#336d82] cursor-pointer disabled:opacity-50 accent-[#336d82]"
+                              className="w-5 h-5 sm:w-6 sm:h-6 rounded border-2 border-[#336d82] cursor-pointer disabled:opacity-50 accent-[#336d82] flex-shrink-0"
                             />
                             <p
-                              className={`flex-1 font-poppins line-clamp-2 ${
+                              className={`flex-1 font-poppins line-clamp-2 text-sm sm:text-base ${
                                 isInQuiz ? "text-white" : "text-gray-800"
                               }`}
                             >
@@ -471,7 +475,7 @@ const EditKuisPage = () => {
                             <button
                               onClick={() => !isInQuiz && addToQuiz(q)}
                               disabled={!!isInQuiz}
-                              className={`px-4 py-2 rounded-full font-semibold transition-all flex items-center gap-2 font-poppins text-sm shadow-md whitespace-nowrap ${
+                              className={`w-full sm:w-auto px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-full font-semibold transition-all flex items-center justify-center gap-1.5 sm:gap-2 font-poppins text-xs sm:text-sm shadow-md ${
                                 isInQuiz
                                   ? "bg-white/20 text-white cursor-not-allowed"
                                   : "bg-[#336d82] text-white hover:bg-[#2a5a6d] hover:shadow-lg"
@@ -479,13 +483,15 @@ const EditKuisPage = () => {
                             >
                               {isInQuiz ? (
                                 <>
-                                  <CheckCircle sx={{ fontSize: 18 }} />
-                                  Sudah Dipilih
+                                  <CheckCircle sx={{ fontSize: { xs: 16, sm: 18 } }} />
+                                  <span className="hidden sm:inline">Sudah Dipilih</span>
+                                  <span className="sm:hidden">Dipilih</span>
                                 </>
                               ) : (
                                 <>
-                                  <PlaylistAddCheck sx={{ fontSize: 18 }} />
-                                  Tambah ke Kuis
+                                  <PlaylistAddCheck sx={{ fontSize: { xs: 16, sm: 18 } }} />
+                                  <span className="hidden sm:inline">Tambah ke Kuis</span>
+                                  <span className="sm:hidden">Tambah</span>
                                 </>
                               )}
                             </button>
@@ -497,7 +503,7 @@ const EditKuisPage = () => {
                     {hasMore && (
                       <button
                         onClick={() => loadMore(type as QuestionType)}
-                        className="w-full mt-4 bg-[#336d82] text-white py-3 rounded-full font-semibold hover:bg-[#2a5a6d] transition-colors font-poppins shadow-md hover:shadow-lg"
+                        className="w-full mt-3 sm:mt-4 bg-[#336d82] text-white py-2.5 sm:py-3 rounded-full font-semibold hover:bg-[#2a5a6d] transition-colors font-poppins shadow-md hover:shadow-lg text-xs sm:text-sm md:text-base"
                       >
                         Tampilkan lebih Banyak (
                         {questions.length - visibleCounts[type as QuestionType]}{" "}
@@ -509,7 +515,7 @@ const EditKuisPage = () => {
               })}
             </div>
 
-            <div className="mt-6 flex justify-center">
+            <div className="mt-4 sm:mt-5 md:mt-6 flex justify-center">
               <button
                 onClick={() => {
                   const selected = allQuestions.filter((q) =>
@@ -518,7 +524,7 @@ const EditKuisPage = () => {
                   selected.forEach((q) => addToQuiz(q));
                 }}
                 disabled={selectedQuestions.size === 0}
-                className="bg-[#336d82] text-white px-8 py-3 rounded-full font-bold hover:bg-[#2a5a6d] transition-all font-poppins shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full sm:w-auto bg-[#336d82] text-white px-6 sm:px-8 py-2.5 sm:py-3 rounded-full font-bold hover:bg-[#2a5a6d] transition-all font-poppins shadow-lg disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
               >
                 Tambah {selectedQuestions.size} Soal Terpilih ke Kuis
               </button>
@@ -529,49 +535,49 @@ const EditKuisPage = () => {
         {/* Preview Modal */}
         {previewQuestion && (
           <div
-            className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
+            className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4"
             onClick={() => setPreviewQuestion(null)}
           >
             <div
-              className="bg-white rounded-3xl max-w-2xl w-full max-h-[80vh] overflow-auto shadow-2xl"
+              className="bg-white rounded-2xl sm:rounded-3xl max-w-2xl w-full max-h-[85vh] sm:max-h-[80vh] overflow-auto shadow-2xl"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="p-6 border-b border-gray-200">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-[#336d82] rounded-xl flex items-center justify-center text-white font-bold">
+              <div className="p-4 sm:p-5 md:p-6 border-b border-gray-200">
+                <div className="flex items-start sm:items-center justify-between gap-3">
+                  <div className="flex items-start sm:items-center gap-2 sm:gap-3 flex-1 min-w-0">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-[#336d82] rounded-lg sm:rounded-xl flex items-center justify-center text-white font-bold text-sm sm:text-base flex-shrink-0">
                       {previewQuestion.type}
                     </div>
-                    <div>
-                      <h3 className="text-xl font-bold text-[#336d82] font-poppins">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-base sm:text-lg md:text-xl font-bold text-[#336d82] font-poppins">
                         Preview Soal
                       </h3>
-                      <p className="text-gray-600 text-sm">
+                      <p className="text-gray-600 text-xs sm:text-sm truncate">
                         {typeDescriptions[previewQuestion.type]}
                       </p>
                     </div>
                   </div>
                   <button
                     onClick={() => setPreviewQuestion(null)}
-                    className="w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center transition-colors"
+                    className="w-8 h-8 sm:w-10 sm:h-10 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center transition-colors flex-shrink-0"
                   >
-                    <span className="text-gray-600 text-2xl leading-none">
+                    <span className="text-gray-600 text-xl sm:text-2xl leading-none">
                       ×
                     </span>
                   </button>
                 </div>
               </div>
-              <div className="p-6">
-                <p className="text-gray-800 font-poppins text-lg leading-relaxed mb-4">
+              <div className="p-4 sm:p-5 md:p-6">
+                <p className="text-gray-800 font-poppins text-sm sm:text-base md:text-lg leading-relaxed mb-4">
                   {previewQuestion.fullQuestion || previewQuestion.question}
                 </p>
                 {previewQuestion.options && (
                   <div className="space-y-2 mt-4">
-                    <p className="font-semibold text-gray-700">Pilihan Jawaban:</p>
+                    <p className="font-semibold text-gray-700 text-sm sm:text-base">Pilihan Jawaban:</p>
                     {previewQuestion.options.map((option, idx) => (
                       <div
                         key={idx}
-                        className={`p-3 rounded-lg ${
+                        className={`p-2.5 sm:p-3 rounded-lg text-sm sm:text-base ${
                           option === previewQuestion.correctAnswer
                             ? "bg-green-100 border-2 border-green-500"
                             : "bg-gray-100"
@@ -579,7 +585,7 @@ const EditKuisPage = () => {
                       >
                         {String.fromCharCode(65 + idx)}. {option}
                         {option === previewQuestion.correctAnswer && (
-                          <span className="ml-2 text-green-600 font-semibold">
+                          <span className="ml-2 text-green-600 font-semibold text-xs sm:text-sm">
                             ✓ Jawaban Benar
                           </span>
                         )}
@@ -587,10 +593,10 @@ const EditKuisPage = () => {
                     ))}
                   </div>
                 )}
-                <div className="mt-6 flex justify-end gap-3">
+                <div className="mt-4 sm:mt-5 md:mt-6 flex flex-col sm:flex-row justify-end gap-2 sm:gap-3">
                   <button
                     onClick={() => setPreviewQuestion(null)}
-                    className="px-6 py-2 bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 transition-colors font-poppins font-semibold"
+                    className="w-full sm:w-auto px-4 sm:px-6 py-2 bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 transition-colors font-poppins font-semibold text-sm sm:text-base order-2 sm:order-1"
                   >
                     Tutup
                   </button>
@@ -606,9 +612,9 @@ const EditKuisPage = () => {
                     disabled={
                       !!quizQuestions.find((q) => q.id === previewQuestion.id)
                     }
-                    className="px-6 py-2 bg-[#336d82] text-white rounded-full hover:bg-[#2a5a6d] transition-colors font-poppins font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                    className="w-full sm:w-auto px-4 sm:px-6 py-2 bg-[#336d82] text-white rounded-full hover:bg-[#2a5a6d] transition-colors font-poppins font-semibold disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm sm:text-base order-1 sm:order-2"
                   >
-                    <PlaylistAddCheck sx={{ fontSize: 18 }} />
+                    <PlaylistAddCheck sx={{ fontSize: { xs: 16, sm: 18 } }} />
                     {quizQuestions.find((q) => q.id === previewQuestion.id)
                       ? "Sudah di Kuis"
                       : "Tambah ke Kuis"}

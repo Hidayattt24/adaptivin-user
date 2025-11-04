@@ -1,7 +1,12 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { ClassCard, TeacherProfile, GridSkeleton, ErrorState } from "@/components/guru";
+import {
+  ClassCard,
+  TeacherProfile,
+  GridSkeleton,
+  ErrorState,
+} from "@/components/guru";
 import { getCardColor } from "@/constants/guru/cardColors";
 import { Highlighter } from "@/components/ui/highlighter";
 import { useClasses } from "@/hooks/guru/useClasses";
@@ -89,18 +94,18 @@ const DashboardGuruPage = () => {
           {/* Greeting Text */}
           <div className="flex-1">
             <h1
-              className="montserrat-medium text-white mb-4"
+              className="montserrat-medium text-white mb-2 sm:mb-3 md:mb-4"
               style={{
-                fontSize: "clamp(32px, 5vw, 50px)",
+                fontSize: "clamp(28px, 6vw, 50px)",
                 lineHeight: "1.3",
               }}
             >
               Hi {teacher?.nama_lengkap?.split(" ")[0] || "Guru"},
             </h1>
             <p
-              className="montserrat-regular text-white/95 mb-8"
+              className="montserrat-regular text-white/95 mb-4 sm:mb-6 md:mb-8"
               style={{
-                fontSize: "clamp(18px, 2.5vw, 24px)",
+                fontSize: "clamp(16px, 3vw, 24px)",
                 lineHeight: "1.5",
               }}
             >
@@ -109,7 +114,7 @@ const DashboardGuruPage = () => {
             <h2
               className="montserrat-bold text-white tracking-wide"
               style={{
-                fontSize: "clamp(28px, 4vw, 48px)",
+                fontSize: "clamp(24px, 5vw, 48px)",
                 lineHeight: "1.2",
                 letterSpacing: "0.05em",
               }}
@@ -123,19 +128,24 @@ const DashboardGuruPage = () => {
           {/* Profile Image with Real Data */}
           <div className="flex flex-col gap-5">
             <TeacherProfile profileImage="/guru/foto-profil/profil-guru.svg" />
-            <button onClick={handleLogout} className="p-4 bg-red-500 rounded-xl">
+            <button
+              onClick={handleLogout}
+              className="p-4 bg-red-500 rounded-xl"
+            >
               Logout
             </button>
           </div>
         </div>
 
-        {/* Modern Search Bar - Centered */}
-        <div className="mb-12 flex justify-center">
+        {/* Modern Search Bar - Responsive */}
+        <div className="mb-8 sm:mb-10 md:mb-12 flex justify-center">
           <div className="relative w-full max-w-3xl">
-            <div className="flex gap-3">
+            <div className="flex gap-2 sm:gap-3">
               <div className="relative flex-1">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <Search sx={{ fontSize: 24, color: "#336d82" }} />
+                <div className="absolute inset-y-0 left-0 pl-3 sm:pl-4 flex items-center pointer-events-none">
+                  <Search
+                    sx={{ fontSize: { xs: 20, sm: 24 }, color: "#336d82" }}
+                  />
                 </div>
                 <input
                   type="text"
@@ -151,7 +161,7 @@ const DashboardGuruPage = () => {
                       e.currentTarget.blur();
                     }
                   }}
-                  className="w-full pl-12 pr-4 py-4 rounded-2xl bg-white/95 backdrop-blur-sm border-2 border-white/50 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-white focus:border-white transition-all duration-300 text-gray-800 placeholder-gray-500 font-poppins"
+                  className="w-full pl-10 sm:pl-12 pr-10 sm:pr-12 py-3 sm:py-4 text-sm sm:text-base rounded-xl sm:rounded-2xl bg-white/95 backdrop-blur-sm border-2 border-white/50 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-white focus:border-white transition-all duration-300 text-gray-800 placeholder-gray-500 font-poppins"
                   aria-label="Cari kelas"
                 />
                 {searchQuery && (
@@ -160,29 +170,34 @@ const DashboardGuruPage = () => {
                       setSearchQuery("");
                       setCurrentPage(1);
                     }}
-                    className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
+                    className="absolute inset-y-0 right-0 pr-3 sm:pr-4 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
                     aria-label="Hapus pencarian"
                   >
-                    <span className="text-xl">×</span>
+                    <span className="text-xl sm:text-2xl">×</span>
                   </button>
                 )}
               </div>
+              {/* Search Button - Icon only on mobile, with text on desktop */}
               <button
                 onClick={() => {
                   // Search button - currently search is automatic via onChange
                   // This button provides visual feedback
-                  document.querySelector<HTMLInputElement>('input[aria-label="Cari kelas"]')?.blur();
+                  document
+                    .querySelector<HTMLInputElement>(
+                      'input[aria-label="Cari kelas"]'
+                    )
+                    ?.blur();
                 }}
-                className="px-8 py-4 rounded-2xl bg-white/95 backdrop-blur-sm border-2 border-white/50 shadow-lg hover:shadow-xl hover:bg-white transition-all duration-300 font-poppins font-semibold text-[#336d82] flex items-center gap-2"
+                className="px-4 sm:px-6 md:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl bg-white/95 backdrop-blur-sm border-2 border-white/50 shadow-lg hover:shadow-xl hover:bg-white transition-all duration-300 font-poppins font-semibold text-[#336d82] flex items-center gap-2"
                 aria-label="Cari"
               >
-                <Search sx={{ fontSize: 20 }} />
-                Cari
+                <Search sx={{ fontSize: { xs: 20, sm: 22 } }} />
+                <span className="hidden sm:inline">Cari</span>
               </button>
             </div>
             {searchQuery && (
               <p className="mt-3 text-white/90 text-sm font-poppins text-center">
-                Menampilkan {filteredClasses.length} hasil untuk `{searchQuery}`
+                Menampilkan {filteredClasses.length} hasil untuk &quot;{searchQuery}&quot;
               </p>
             )}
           </div>
@@ -190,11 +205,11 @@ const DashboardGuruPage = () => {
 
         {/* Class Cards - With Lazy Loading */}
         {isLoading ? (
-          <div className="pb-24">
+          <div className="pb-12 sm:pb-16 md:pb-20 lg:pb-24">
             <GridSkeleton count={9} />
           </div>
         ) : error ? (
-          <div className="pb-24">
+          <div className="pb-12 sm:pb-16 md:pb-20 lg:pb-24">
             <ErrorState
               title="Gagal Memuat Kelas"
               message="Terjadi kesalahan saat memuat daftar kelas. Silakan coba lagi."
@@ -202,11 +217,11 @@ const DashboardGuruPage = () => {
             />
           </div>
         ) : paginatedClasses.length === 0 ? (
-          <div className="pb-24 flex justify-center items-center min-h-[400px]">
-            <div className="bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl border-2 border-white/50 p-16 text-center max-w-2xl animate-bounce-slow">
-              <div className="mb-6">
+          <div className="pb-12 sm:pb-16 md:pb-20 lg:pb-24 flex justify-center items-center min-h-[300px] sm:min-h-[400px]">
+            <div className="bg-white/95 backdrop-blur-sm rounded-2xl sm:rounded-3xl shadow-2xl border-2 border-white/50 p-8 sm:p-12 md:p-16 text-center max-w-2xl animate-bounce-slow">
+              <div className="mb-4 sm:mb-6">
                 <svg
-                  className="w-24 h-24 mx-auto text-[#336d82] animate-pulse"
+                  className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 mx-auto text-[#336d82] animate-pulse"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -219,10 +234,10 @@ const DashboardGuruPage = () => {
                   />
                 </svg>
               </div>
-              <h3 className="text-2xl font-bold text-[#336d82] mb-3 font-poppins">
+              <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-[#336d82] mb-2 sm:mb-3 font-poppins">
                 {searchQuery ? "Tidak Ditemukan" : "Belum Ada Kelas"}
               </h3>
-              <p className="text-gray-600 text-lg font-poppins">
+              <p className="text-gray-600 text-sm sm:text-base md:text-lg font-poppins">
                 {searchQuery
                   ? `Tidak ada kelas yang sesuai dengan pencarian "${searchQuery}"`
                   : "Belum ada kelas yang tersedia saat ini"}
@@ -233,7 +248,7 @@ const DashboardGuruPage = () => {
                     setSearchQuery("");
                     setCurrentPage(1);
                   }}
-                  className="mt-6 px-6 py-3 bg-[#336d82] text-white rounded-xl hover:bg-[#2a5a6d] transition-colors font-poppins font-semibold shadow-lg hover:shadow-xl"
+                  className="mt-4 sm:mt-6 px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base bg-[#336d82] text-white rounded-lg sm:rounded-xl hover:bg-[#2a5a6d] transition-colors font-poppins font-semibold shadow-lg hover:shadow-xl"
                 >
                   Hapus Pencarian
                 </button>
@@ -243,7 +258,7 @@ const DashboardGuruPage = () => {
         ) : (
           <>
             <div
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pb-8"
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8 pb-6 sm:pb-8"
               role="list"
               aria-label="Daftar kelas"
             >
@@ -262,27 +277,37 @@ const DashboardGuruPage = () => {
 
             {/* Modern Pagination */}
             {totalPages > 1 && (
-              <div className="flex flex-col items-center gap-4 pb-24" role="navigation" aria-label="Pagination">
+              <div
+                className="flex flex-col items-center gap-3 sm:gap-4 pb-12 sm:pb-16 md:pb-20 lg:pb-24"
+                role="navigation"
+                aria-label="Pagination"
+              >
                 {/* Page Info */}
-                <div className="bg-white/20 backdrop-blur-sm px-6 py-2 rounded-full">
-                  <span className="text-white font-semibold font-poppins text-sm" aria-live="polite">
+                <div className="bg-white/20 backdrop-blur-sm px-4 sm:px-6 py-1.5 sm:py-2 rounded-full">
+                  <span
+                    className="text-white font-semibold font-poppins text-xs sm:text-sm"
+                    aria-live="polite"
+                  >
                     Halaman {currentPage} dari {totalPages}
                   </span>
                 </div>
 
                 {/* Navigation Buttons */}
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 sm:gap-3">
                   <button
-                    onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                    onClick={() =>
+                      setCurrentPage((prev) => Math.max(1, prev - 1))
+                    }
                     disabled={currentPage === 1}
-                    className="group flex items-center gap-2 px-6 py-3 rounded-xl bg-white/95 backdrop-blur-sm shadow-lg hover:shadow-xl disabled:opacity-40 disabled:cursor-not-allowed hover:bg-white transition-all duration-300 font-poppins font-semibold text-[#336d82]"
+                    className="group flex items-center gap-1 sm:gap-2 px-3 sm:px-4 md:px-6 py-2 sm:py-3 rounded-lg sm:rounded-xl bg-white/95 backdrop-blur-sm shadow-lg hover:shadow-xl disabled:opacity-40 disabled:cursor-not-allowed hover:bg-white transition-all duration-300 font-poppins font-semibold text-[#336d82] text-xs sm:text-sm md:text-base"
                     aria-label="Halaman sebelumnya"
                   >
                     <ChevronLeft
-                      sx={{ fontSize: 20 }}
+                      sx={{ fontSize: { xs: 18, sm: 20 } }}
                       className="transition-transform group-hover:-translate-x-1"
                     />
-                    Sebelumnya
+                    <span className="hidden xs:inline">Sebelumnya</span>
+                    <span className="xs:hidden">Prev</span>
                   </button>
 
                   {/* Page Numbers */}
@@ -303,12 +328,15 @@ const DashboardGuruPage = () => {
                         <button
                           key={pageNum}
                           onClick={() => setCurrentPage(pageNum)}
-                          className={`w-10 h-10 rounded-lg font-semibold font-poppins transition-all duration-300 ${currentPage === pageNum
-                            ? "bg-white text-[#336d82] shadow-lg scale-110"
-                            : "bg-white/20 text-white hover:bg-white/30"
-                            }`}
+                          className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg font-semibold font-poppins transition-all duration-300 text-sm sm:text-base ${
+                            currentPage === pageNum
+                              ? "bg-white text-[#336d82] shadow-lg scale-110"
+                              : "bg-white/20 text-white hover:bg-white/30"
+                          }`}
                           aria-label={`Halaman ${pageNum}`}
-                          aria-current={currentPage === pageNum ? "page" : undefined}
+                          aria-current={
+                            currentPage === pageNum ? "page" : undefined
+                          }
                         >
                           {pageNum}
                         </button>
@@ -317,14 +345,17 @@ const DashboardGuruPage = () => {
                   </div>
 
                   <button
-                    onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+                    onClick={() =>
+                      setCurrentPage((prev) => Math.min(totalPages, prev + 1))
+                    }
                     disabled={currentPage === totalPages}
-                    className="group flex items-center gap-2 px-6 py-3 rounded-xl bg-white/95 backdrop-blur-sm shadow-lg hover:shadow-xl disabled:opacity-40 disabled:cursor-not-allowed hover:bg-white transition-all duration-300 font-poppins font-semibold text-[#336d82]"
+                    className="group flex items-center gap-1 sm:gap-2 px-3 sm:px-4 md:px-6 py-2 sm:py-3 rounded-lg sm:rounded-xl bg-white/95 backdrop-blur-sm shadow-lg hover:shadow-xl disabled:opacity-40 disabled:cursor-not-allowed hover:bg-white transition-all duration-300 font-poppins font-semibold text-[#336d82] text-xs sm:text-sm md:text-base"
                     aria-label="Halaman selanjutnya"
                   >
-                    Selanjutnya
+                    <span className="hidden xs:inline">Selanjutnya</span>
+                    <span className="xs:hidden">Next</span>
                     <ChevronRight
-                      sx={{ fontSize: 20 }}
+                      sx={{ fontSize: { xs: 18, sm: 20 } }}
                       className="transition-transform group-hover:translate-x-1"
                     />
                   </button>
@@ -357,7 +388,7 @@ const styles = `
 `;
 
 // Inject styles
-if (typeof document !== 'undefined') {
+if (typeof document !== "undefined") {
   const styleSheet = document.createElement("style");
   styleSheet.textContent = styles;
   document.head.appendChild(styleSheet);

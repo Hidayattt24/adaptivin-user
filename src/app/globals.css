@@ -1,10 +1,14 @@
 @import "tailwindcss";
 
+/* Import Press Start 2P Font from Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
   --font-poppins: "Poppins", sans-serif;
   --font-montserrat: "Montserrat", sans-serif;
+  --font-press-start: "Press Start 2P", system-ui;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -268,7 +272,8 @@ body {
 
 /* Override Tailwind defaults to use Poppins Medium */
 .font-normal {
-  font-weight: 500 !important; /* Override normal (400) to medium (500) */
+  font-weight: 500 !important;
+  /* Override normal (400) to medium (500) */
 }
 
 /* Utility classes for consistent font usage */
@@ -290,11 +295,9 @@ body {
 }
 
 .role-card-overlay {
-  background: linear-gradient(
-    135deg,
-    rgba(40, 135, 194, 0.1) 0%,
-    rgba(255, 255, 255, 0.05) 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(40, 135, 194, 0.1) 0%,
+      rgba(255, 255, 255, 0.05) 100%);
   transition: opacity 0.3s ease;
 }
 
@@ -308,6 +311,35 @@ body {
 
 .role-card:hover .role-card-image {
   transform: scale(1.08);
+}
+
+/* Custom Scrollbar Styles - White Theme */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #ffffff;
+  border-radius: 10px;
+  border: 2px solid #f1f1f1;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #fafafa;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Firefox Scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #ffffff #f1f1f1;
 }
 
 /* Mobile Scrollbar Styles */
@@ -364,14 +396,17 @@ body {
     opacity: 0;
     transform: scale(0.9);
   }
+
   20% {
     opacity: 1;
     transform: scale(1);
   }
+
   80% {
     opacity: 1;
     transform: scale(1);
   }
+
   100% {
     opacity: 1;
     transform: scale(1);
@@ -409,10 +444,12 @@ body {
     opacity: 0;
     transform: scale(0.8);
   }
+
   50% {
     opacity: 1;
     transform: scale(1);
   }
+
   100% {
     opacity: 1;
     transform: scale(1);
@@ -433,5 +470,42 @@ img[src^="data:image/png;base64"] {
   max-width: none !important;
 }
 
+/* Press Start 2P Font Class - Override global * selector */
+.press-start-2p-regular,
+.press-start-2p-regular * {
+  font-family: "Press Start 2P", system-ui !important;
+  font-weight: 400 !important;
+  font-style: normal !important;
+}
+
 /* Pixelarticons Font Icons */
 @import "pixelarticons/fonts/pixelart-icons-font.css";
+/* Cust
+om Animations for Siswa Beranda - Enhanced Hover Effects */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bounce-slow {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.6s ease-out;
+}
+
+.animate-bounce-slow {
+  animation: bounce-slow 3s ease-in-out infinite;
+}

@@ -10,8 +10,11 @@ import { useSiswaProfile } from "@/hooks/siswa/useSiswaProfile";
 
 export default function BerandaSiswaPage() {
   const [isMobile, setIsMobile] = useState(true);
+
+  // ✅ Fetch data profil siswa dari database via API
   const { data: profile, isLoading } = useSiswaProfile();
 
+  // Check screen size
   useEffect(() => {
     const checkScreenSize = () => {
       setIsMobile(window.innerWidth < 768);
@@ -40,7 +43,7 @@ export default function BerandaSiswaPage() {
     );
   }
 
-  // Get kelas info from profile
+  // ✅ Get kelas info from DATABASE (bukan mock!)
   const kelas = profile?.kelas;
   const tingkatKelas = kelas?.tingkat_kelas || "4";
   const namaKelas = kelas?.nama_kelas || `Kelas ${tingkatKelas}`;
@@ -53,6 +56,9 @@ export default function BerandaSiswaPage() {
   const formatKelasForImage = (tingkat: string): string => {
     // Convert Roman numerals to Arabic if needed
     const romanToArabic: Record<string, string> = {
+      "I": "4",
+      "II": "5",
+      "III": "6",
       "IV": "4",
       "V": "5",
       "VI": "6"
@@ -70,6 +76,7 @@ export default function BerandaSiswaPage() {
     return "kelas-4";
   };
 
+  // ✅ Card data - SEMUA DARI DATABASE (bukan mock!)
   const cards = [
     {
       id: kelas?.id || `kelas-${tingkatKelas}`,
@@ -93,10 +100,13 @@ export default function BerandaSiswaPage() {
         <div className="absolute top-[450px] right-[50px] w-10 h-10 bg-[#FF6B9D]/10 rounded-lg rotate-45 animate-float"></div>
 
         {/* Subtle Grid Pattern */}
-        <div className="absolute inset-0 opacity-[0.02]" style={{
-          backgroundImage: `linear-gradient(#33A1E0 1px, transparent 1px), linear-gradient(90deg, #33A1E0 1px, transparent 1px)`,
-          backgroundSize: '50px 50px'
-        }}></div>
+        <div
+          className="absolute inset-0 opacity-[0.02]"
+          style={{
+            backgroundImage: `linear-gradient(#33A1E0 1px, transparent 1px), linear-gradient(90deg, #33A1E0 1px, transparent 1px)`,
+            backgroundSize: "50px 50px",
+          }}
+        ></div>
 
         {/* Decorative Corner Elements */}
         <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-[#33A1E0]/5 to-transparent rounded-bl-[100px]"></div>
@@ -106,12 +116,22 @@ export default function BerandaSiswaPage() {
       {/* CSS Animations */}
       <style jsx>{`
         @keyframes float {
-          0%, 100% { transform: translateY(0px) rotate(12deg); }
-          50% { transform: translateY(-20px) rotate(12deg); }
+          0%,
+          100% {
+            transform: translateY(0px) rotate(12deg);
+          }
+          50% {
+            transform: translateY(-20px) rotate(12deg);
+          }
         }
         @keyframes float-delayed {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-15px); }
+          0%,
+          100% {
+            transform: translateY(0px);
+          }
+          50% {
+            transform: translateY(-15px);
+          }
         }
         .animate-float {
           animation: float 6s ease-in-out infinite;
@@ -124,13 +144,13 @@ export default function BerandaSiswaPage() {
 
       {/* Content */}
       <div className="relative z-10">
-        {/* Header with greeting and profile - Gambar dari database otomatis */}
+        {/* Header with greeting and profile - Data dari database otomatis */}
         <Header username={namaLengkap} />
 
         {/* Section Title */}
         <SectionTitle>Ayo Tentukan Level Petualanganmu</SectionTitle>
 
-        {/* Card Carousel */}
+        {/* Card Carousel - Data dari database */}
         <CardCarousel cards={cards} />
 
         {/* Mobile Navigation Bar - Karakter dari database otomatis */}

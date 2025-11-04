@@ -1,14 +1,27 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { TeacherProfile } from "@/components/guru";
-import { getMyProfile, updateMyProfile, updateMyPassword } from "@/lib/api/user";
+import {
+  getMyProfile,
+  updateMyProfile,
+  updateMyPassword,
+} from "@/lib/api/user";
 import PersonIcon from "@mui/icons-material/Person";
 import LockIcon from "@mui/icons-material/Lock";
 import SaveIcon from "@mui/icons-material/Save";
+import EditIcon from "@mui/icons-material/Edit";
+import KeyboardReturnIcon from "@mui/icons-material/KeyboardReturn";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import Swal from "sweetalert2";
 
 const PengaturanGuruPage = () => {
+  const router = useRouter();
+
   const [formData, setFormData] = useState({
     nama: "",
     email: "",
@@ -27,6 +40,10 @@ const PengaturanGuruPage = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [showPasswordLama, setShowPasswordLama] = useState(false);
+  const [showPasswordBaru, setShowPasswordBaru] = useState(false);
+  const [showKonfirmasiPassword, setShowKonfirmasiPassword] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   // Fetch user profile on mount
   useEffect(() => {
@@ -65,7 +82,9 @@ const PengaturanGuruPage = () => {
   }, []);
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -79,7 +98,11 @@ const PengaturanGuruPage = () => {
 
       // Validasi jika section keamanan (password)
       if (activeSection === "keamanan") {
-        if (!formData.passwordLama || !formData.passwordBaru || !formData.konfirmasiPassword) {
+        if (
+          !formData.passwordLama ||
+          !formData.passwordBaru ||
+          !formData.konfirmasiPassword
+        ) {
           setError("Semua field password harus diisi");
           return;
         }
@@ -158,9 +181,42 @@ const PengaturanGuruPage = () => {
     }
   };
 
+  const handleBackClick = async () => {
+    const result = await Swal.fire({
+      title: "Kembali ke Dashboard?",
+      text: "Apakah Anda yakin ingin kembali ke halaman dashboard?",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonColor: "#336d82",
+      cancelButtonColor: "#94a3b8",
+      confirmButtonText: "Ya, Kembali",
+      cancelButtonText: "Batal",
+      background: "#ffffff",
+      customClass: {
+        popup: "rounded-[20px] shadow-2xl",
+        title: "text-[#336d82] text-xl sm:text-2xl poppins-bold",
+        htmlContainer: "text-gray-600 text-sm sm:text-base poppins-medium",
+        confirmButton:
+          "poppins-semibold px-4 sm:px-6 py-2 sm:py-3 rounded-[12px]",
+        cancelButton:
+          "poppins-semibold px-4 sm:px-6 py-2 sm:py-3 rounded-[12px]",
+      },
+    });
+
+    if (result.isConfirmed) {
+      router.push("/guru/dashboard");
+    }
+  };
+
   const sections = [
     { id: "profil", label: "Profil", icon: PersonIcon },
     { id: "keamanan", label: "Keamanan", icon: LockIcon },
+    {
+      id: "kembali",
+      label: "Kembali",
+      icon: KeyboardReturnIcon,
+      action: handleBackClick,
+    },
   ];
 
   return (
@@ -171,7 +227,9 @@ const PengaturanGuruPage = () => {
           <div className="bg-white rounded-[25px] p-8 shadow-2xl">
             <div className="flex flex-col items-center gap-4">
               <div className="w-16 h-16 border-4 border-[#336d82]/30 border-t-[#336d82] rounded-full animate-spin"></div>
-              <p className="text-[#336d82] poppins-semibold">Memuat data profil...</p>
+              <p className="text-[#336d82] poppins-semibold">
+                Memuat data profil...
+              </p>
             </div>
           </div>
         </div>
@@ -199,41 +257,141 @@ const PengaturanGuruPage = () => {
           )}
 
           {/* Header Card with Enhanced Design */}
-          <div className="relative mb-6 overflow-hidden">
-            {/* Decorative Elements */}
-            <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full blur-3xl -mt-12 -mr-12" />
-            <div className="absolute bottom-0 left-0 w-36 h-36 bg-white/5 rounded-full blur-2xl -mb-12 -ml-12" />
+          <div className="relative mb-4 sm:mb-5 lg:mb-6 overflow-hidden">
+            {/* Decorative Elements - Hidden on mobile */}
+            <div className="hidden sm:block absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full blur-3xl -mt-12 -mr-12" />
+            <div className="hidden sm:block absolute bottom-0 left-0 w-36 h-36 bg-white/5 rounded-full blur-2xl -mb-12 -ml-12" />
 
             {/* Content */}
-            <div className="relative bg-white rounded-[25px] shadow-xl p-6 border-3 border-white/50">
+            <div className="relative flex flex-row gap-8 bg-white rounded-[25px] shadow-xl p-6 border-3 border-white/50">
               <div className="flex items-center justify-between flex-wrap gap-4">
                 <div className="flex items-center gap-6">
                   <div className="transform transition-transform duration-300 scale-75">
-                    <TeacherProfile profileImage="/guru/foto-profil/profil-guru.svg"
-                    />
+                    <TeacherProfile profileImage="/guru/foto-profil/profil-guru.svg" />
                   </div>
-                  <div>
-                    <h1 className="text-[#336d82] text-4xl poppins-bold mb-1 tracking-tight">
+                </div>
+              </div>
+
+              {/* Desktop: Title & Edit Button */}
+              <div className="hidden lg:flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
+                <div className="flex items-center gap-3 sm:gap-4 lg:gap-8 w-full sm:w-auto">
+                  <div className="flex-1 min-w-0">
+                    <h1 className="text-[#336d82] text-2xl sm:text-3xl lg:text-4xl poppins-bold mb-0.5 sm:mb-1 tracking-tight truncate">
                       Pengaturan
                     </h1>
-                    <p className="text-gray-600 text-base poppins-medium">
+                    <p className="text-gray-600 text-xs sm:text-sm lg:text-base poppins-medium truncate">
                       Kelola informasi akun Anda
                     </p>
                   </div>
                 </div>
               </div>
+
+              {/* Mobile: Edit Button */}
+              <button
+                onClick={() => setIsEditing(!isEditing)}
+                className="lg:hidden w-full bg-gradient-to-r from-[#336d82] to-[#5a96a8] hover:from-[#2a5a6a] hover:to-[#4a8199] active:scale-95 text-white px-4 py-3 rounded-xl flex items-center justify-center gap-2 transition-all duration-300 shadow-lg poppins-semibold text-sm"
+              >
+                <EditIcon sx={{ fontSize: 18 }} />
+                <span>{isEditing ? "Batal Edit" : "Edit Profil"}</span>
+              </button>
             </div>
           </div>
 
           {/* Main Content Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-            {/* Sidebar Navigation with Modern Design */}
-            <div className="lg:col-span-1">
-              <div className="bg-white/95 backdrop-blur-lg rounded-[25px] shadow-xl p-4 sticky top-6 border-2 border-white/40">
-                <div className="mb-3 pb-3 border-b-2 border-[#336d82]/20">
-                  <h3 className="text-[#336d82] text-base poppins-bold">Menu</h3>
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 sm:gap-5 lg:gap-6">
+            {/* Mobile: Dropdown Menu */}
+            <div className="lg:hidden relative z-10">
+              <div className="bg-white/95 backdrop-blur-lg rounded-xl shadow-xl border-2 border-white/40">
+                <button
+                  onClick={() => setIsMenuOpen(!isMenuOpen)}
+                  className="w-full flex items-center justify-between px-4 py-3 text-[#336d82] poppins-bold text-base"
+                >
+                  <div className="flex items-center gap-3">
+                    {(() => {
+                      const activeItem = sections.find(
+                        (s) => s.id === activeSection
+                      );
+                      const Icon = activeItem?.icon || PersonIcon;
+                      return (
+                        <>
+                          <div className="w-9 h-9 bg-gradient-to-br from-[#336d82] to-[#5a96a8] rounded-xl flex items-center justify-center shadow-md">
+                            <Icon sx={{ fontSize: 18, color: "white" }} />
+                          </div>
+                          <span>{activeItem?.label || "Menu"}</span>
+                        </>
+                      );
+                    })()}
+                  </div>
+                  <ArrowDropDownIcon
+                    sx={{ fontSize: 28 }}
+                    className={`transition-transform duration-300 ${isMenuOpen ? "rotate-180" : ""
+                      }`}
+                  />
+                </button>
+              </div>
+
+              {/* Dropdown Content - Outside parent to avoid overflow issues */}
+              {isMenuOpen && (
+                <>
+                  {/* Backdrop to close dropdown */}
+                  <div
+                    className="fixed inset-0 z-40"
+                    onClick={() => setIsMenuOpen(false)}
+                  />
+
+                  {/* Dropdown Menu */}
+                  <div className="absolute left-0 right-0 mt-2 bg-white rounded-xl shadow-2xl border-2 border-[#336d82]/20 overflow-hidden z-50 animate-in slide-in-from-top-2 duration-200">
+                    {sections.map((section) => {
+                      const Icon = section.icon;
+                      const isBackButton = section.id === "kembali";
+                      const isActive = activeSection === section.id;
+
+                      return (
+                        <button
+                          key={section.id}
+                          onClick={() => {
+                            if (isBackButton && section.action) {
+                              section.action();
+                            } else {
+                              setActiveSection(section.id);
+                              setIsMenuOpen(false);
+                            }
+                          }}
+                          className={`w-full flex items-center gap-3 px-4 py-3 transition-all duration-200 poppins-semibold text-sm ${isActive && !isBackButton
+                              ? "bg-gradient-to-r from-[#336d82] to-[#5a96a8] text-white"
+                              : isBackButton
+                                ? "bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700"
+                                : "text-[#336d82] hover:bg-[#336d82]/5"
+                            }`}
+                        >
+                          <div
+                            className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${isActive && !isBackButton
+                                ? "bg-white/20"
+                                : isBackButton
+                                  ? "bg-white/20"
+                                  : "bg-[#336d82]/10"
+                              }`}
+                          >
+                            <Icon sx={{ fontSize: 18 }} />
+                          </div>
+                          <span>{section.label}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* Desktop: Sidebar Navigation */}
+            <div className="hidden lg:block lg:col-span-1">
+              <div className="bg-white/95 backdrop-blur-lg rounded-xl sm:rounded-2xl lg:rounded-[25px] shadow-xl p-3 sm:p-4 lg:sticky lg:top-6 border-2 border-white/40">
+                <div className="mb-2 sm:mb-3 pb-2 sm:pb-3 border-b-2 border-[#336d82]/20">
+                  <h3 className="text-[#336d82] text-sm sm:text-base poppins-bold">
+                    Menu
+                  </h3>
                 </div>
-                <nav className="space-y-2">
+                <nav className="flex flex-col gap-2">
                   {sections.map((section) => {
                     const Icon = section.icon;
                     return (
@@ -241,12 +399,16 @@ const PengaturanGuruPage = () => {
                         key={section.id}
                         onClick={() => setActiveSection(section.id)}
                         className={`w-full flex items-center gap-3 px-4 py-3 rounded-[15px] transition-all duration-300 poppins-semibold text-sm ${activeSection === section.id
-                          ? "bg-gradient-to-r from-[#336d82] to-[#5a96a8] text-white shadow-lg transform scale-105"
-                          : "text-[#336d82] bg-white/50 hover:bg-white hover:shadow-md hover:transform hover:scale-102"
+                            ? "bg-gradient-to-r from-[#336d82] to-[#5a96a8] text-white shadow-lg transform scale-105"
+                            : "text-[#336d82] bg-white/50 hover:bg-white hover:shadow-md hover:transform hover:scale-102"
                           }`}
                       >
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center ${activeSection === section.id ? "bg-white/20" : "bg-[#336d82]/10"
-                          }`}>
+                        <div
+                          className={`w-8 h-8 rounded-full flex items-center justify-center ${activeSection === section.id
+                              ? "bg-white/20"
+                              : "bg-[#336d82]/10"
+                            }`}
+                        >
                           <Icon sx={{ fontSize: 18 }} />
                         </div>
                         <span>{section.label}</span>
@@ -259,19 +421,21 @@ const PengaturanGuruPage = () => {
 
             {/* Content Area with Enhanced Design */}
             <div className="lg:col-span-4">
-              <div className="bg-white rounded-[25px] shadow-xl p-6 border-2 border-white/40">
+              <div className="bg-white rounded-xl sm:rounded-2xl lg:rounded-[25px] shadow-xl p-4 sm:p-5 lg:p-6 border-2 border-white/40">
                 {/* Profil Section */}
                 {activeSection === "profil" && (
-                  <div className="space-y-6">
-                    <div className="flex items-center gap-3 pb-4 border-b-2 border-[#336d82]/10">
-                      <div className="w-12 h-12 bg-gradient-to-br from-[#336d82] to-[#7bb3c4] rounded-[18px] flex items-center justify-center shadow-lg">
-                        <PersonIcon sx={{ color: "white", fontSize: 24 }} />
+                  <div className="space-y-4 sm:space-y-5 lg:space-y-6">
+                    <div className="flex items-start sm:items-center gap-2 sm:gap-3 pb-3 sm:pb-4 border-b-2 border-[#336d82]/10">
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-[#336d82] to-[#7bb3c4] rounded-xl sm:rounded-[18px] flex items-center justify-center shadow-lg flex-shrink-0">
+                        <PersonIcon
+                          sx={{ color: "white", fontSize: { xs: 20, sm: 24 } }}
+                        />
                       </div>
-                      <div>
-                        <h2 className="text-[#336d82] text-3xl poppins-bold">
+                      <div className="flex-1 min-w-0">
+                        <h2 className="text-[#336d82] text-xl sm:text-2xl lg:text-3xl poppins-bold truncate">
                           Informasi Profil
                         </h2>
-                        <p className="text-gray-500 text-sm poppins-medium">
+                        <p className="text-gray-500 text-xs sm:text-sm poppins-medium truncate">
                           Data pribadi dan informasi kontak
                         </p>
                       </div>
@@ -364,46 +528,53 @@ const PengaturanGuruPage = () => {
 
                 {/* Keamanan Section */}
                 {activeSection === "keamanan" && (
-                  <div className="space-y-6">
-                    <div className="flex items-center gap-3 pb-4 border-b-2 border-[#336d82]/10">
-                      <div className="w-12 h-12 bg-gradient-to-br from-[#336d82] to-[#7bb3c4] rounded-[18px] flex items-center justify-center shadow-lg">
-                        <LockIcon sx={{ color: "white", fontSize: 24 }} />
+                  <div className="space-y-4 sm:space-y-5 lg:space-y-6">
+                    <div className="flex items-start sm:items-center gap-2 sm:gap-3 pb-3 sm:pb-4 border-b-2 border-[#336d82]/10">
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-[#336d82] to-[#7bb3c4] rounded-xl sm:rounded-[18px] flex items-center justify-center shadow-lg flex-shrink-0">
+                        <LockIcon
+                          sx={{ color: "white", fontSize: { xs: 20, sm: 24 } }}
+                        />
                       </div>
-                      <div>
-                        <h2 className="text-[#336d82] text-3xl poppins-bold">
+                      <div className="flex-1 min-w-0">
+                        <h2 className="text-[#336d82] text-xl sm:text-2xl lg:text-3xl poppins-bold truncate">
                           Keamanan Akun
                         </h2>
-                        <p className="text-gray-500 text-sm poppins-medium">
+                        <p className="text-gray-500 text-xs sm:text-sm poppins-medium truncate">
                           Kelola password dan keamanan akun
                         </p>
                       </div>
                     </div>
 
-                    <div className="bg-gradient-to-r from-[#336d82]/10 via-[#5a96a8]/10 to-[#7bb3c4]/10 border-2 border-[#336d82]/20 rounded-[18px] p-4">
-                      <div className="flex items-start gap-3">
-                        <div className="w-10 h-10 bg-gradient-to-br from-[#336d82] to-[#5a96a8] rounded-[15px] flex items-center justify-center flex-shrink-0 shadow-md">
-                          <LockIcon sx={{ color: "white", fontSize: 20 }} />
+                    <div className="bg-gradient-to-r from-[#336d82]/10 via-[#5a96a8]/10 to-[#7bb3c4]/10 border-2 border-[#336d82]/20 rounded-xl sm:rounded-[18px] p-3 sm:p-4">
+                      <div className="flex items-start gap-2 sm:gap-3">
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-[#336d82] to-[#5a96a8] rounded-xl sm:rounded-[15px] flex items-center justify-center flex-shrink-0 shadow-md">
+                          <LockIcon
+                            sx={{
+                              color: "white",
+                              fontSize: { xs: 18, sm: 20 },
+                            }}
+                          />
                         </div>
-                        <div>
-                          <h3 className="text-[#336d82] text-base poppins-bold mb-2">
+                        <div className="flex-1 min-w-0">
+                          <h3 className="text-[#336d82] text-sm sm:text-base poppins-bold mb-1.5 sm:mb-2">
                             Tips Keamanan Password
                           </h3>
-                          <ul className="text-[#336d82] text-sm poppins-medium space-y-1">
-                            <li className="flex items-center gap-2">
-                              <span className="w-1.5 h-1.5 bg-[#336d82] rounded-full"></span>
-                              Minimal 8 karakter
+                          <ul className="text-[#336d82] text-xs sm:text-sm poppins-medium space-y-0.5 sm:space-y-1">
+                            <li className="flex items-center gap-1.5 sm:gap-2">
+                              <span className="w-1 h-1 sm:w-1.5 sm:h-1.5 bg-[#336d82] rounded-full flex-shrink-0"></span>
+                              <span>Minimal 8 karakter</span>
                             </li>
-                            <li className="flex items-center gap-2">
-                              <span className="w-1.5 h-1.5 bg-[#336d82] rounded-full"></span>
-                              Kombinasi huruf besar dan kecil
+                            <li className="flex items-center gap-1.5 sm:gap-2">
+                              <span className="w-1 h-1 sm:w-1.5 sm:h-1.5 bg-[#336d82] rounded-full flex-shrink-0"></span>
+                              <span>Kombinasi huruf besar dan kecil</span>
                             </li>
-                            <li className="flex items-center gap-2">
-                              <span className="w-1.5 h-1.5 bg-[#336d82] rounded-full"></span>
-                              Gunakan angka dan simbol
+                            <li className="flex items-center gap-1.5 sm:gap-2">
+                              <span className="w-1 h-1 sm:w-1.5 sm:h-1.5 bg-[#336d82] rounded-full flex-shrink-0"></span>
+                              <span>Gunakan angka dan simbol</span>
                             </li>
-                            <li className="flex items-center gap-2">
-                              <span className="w-1.5 h-1.5 bg-[#336d82] rounded-full"></span>
-                              Hindari kata-kata umum
+                            <li className="flex items-center gap-1.5 sm:gap-2">
+                              <span className="w-1 h-1 sm:w-1.5 sm:h-1.5 bg-[#336d82] rounded-full flex-shrink-0"></span>
+                              <span>Hindari kata-kata umum</span>
                             </li>
                           </ul>
                         </div>
@@ -415,42 +586,175 @@ const PengaturanGuruPage = () => {
                         <label className="text-[#336d82] text-sm poppins-semibold">
                           Password Lama
                         </label>
-                        <input
-                          type="password"
-                          name="passwordLama"
-                          value={formData.passwordLama}
-                          onChange={handleInputChange}
-                          placeholder="Masukkan password lama"
-                          className="w-full px-4 py-3 border-2 border-[#336d82]/20 rounded-[15px] focus:outline-none focus:ring-2 focus:ring-[#336d82]/30 focus:border-[#336d82] poppins-medium text-base transition-all duration-200 hover:border-[#336d82]/40"
-                        />
+                        <div className="relative group">
+                          <div className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-[#336d82]/60 group-hover:text-[#336d82] transition-colors">
+                            <LockIcon sx={{ fontSize: { xs: 18, sm: 20 } }} />
+                          </div>
+                          <input
+                            type={showPasswordLama ? "text" : "password"}
+                            name="passwordLama"
+                            value={formData.passwordLama}
+                            onChange={handleInputChange}
+                            placeholder="Masukkan password lama"
+                            className="w-full pl-10 sm:pl-12 pr-10 sm:pr-12 py-2.5 sm:py-3 border-2 border-[#336d82]/20 rounded-xl sm:rounded-[15px] focus:outline-none focus:ring-2 focus:ring-[#336d82]/30 focus:border-[#336d82] poppins-medium text-sm sm:text-base text-gray-900 placeholder:text-gray-400 transition-all duration-200 hover:border-[#336d82]/40 hover:shadow-sm"
+                          />
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setShowPasswordLama(!showPasswordLama)
+                            }
+                            className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 text-[#336d82]/60 hover:text-[#336d82] transition-colors active:scale-95"
+                          >
+                            {showPasswordLama ? (
+                              <VisibilityOffIcon
+                                sx={{ fontSize: { xs: 18, sm: 20 } }}
+                              />
+                            ) : (
+                              <VisibilityIcon
+                                sx={{ fontSize: { xs: 18, sm: 20 } }}
+                              />
+                            )}
+                          </button>
+                        </div>
                       </div>
 
-                      <div className="space-y-2">
-                        <label className="text-[#336d82] text-sm poppins-semibold">
-                          Password Baru
+                      {/* Password Baru */}
+                      <div className="space-y-1.5 sm:space-y-2">
+                        <label className="flex items-center gap-2 text-[#336d82] text-xs sm:text-sm poppins-semibold">
+                          <LockIcon sx={{ fontSize: { xs: 16, sm: 18 } }} />
+                          <span>Password Baru</span>
                         </label>
-                        <input
-                          type="password"
-                          name="passwordBaru"
-                          value={formData.passwordBaru}
-                          onChange={handleInputChange}
-                          placeholder="Masukkan password baru"
-                          className="w-full px-4 py-3 border-2 border-[#336d82]/20 rounded-[15px] focus:outline-none focus:ring-2 focus:ring-[#336d82]/30 focus:border-[#336d82] poppins-medium text-base transition-all duration-200 hover:border-[#336d82]/40"
-                        />
+                        <div className="relative group">
+                          <div className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-[#336d82]/60 group-hover:text-[#336d82] transition-colors">
+                            <LockIcon sx={{ fontSize: { xs: 18, sm: 20 } }} />
+                          </div>
+                          <input
+                            type={showPasswordBaru ? "text" : "password"}
+                            name="passwordBaru"
+                            value={formData.passwordBaru}
+                            onChange={handleInputChange}
+                            placeholder="Masukkan password baru"
+                            className="w-full pl-10 sm:pl-12 pr-10 sm:pr-12 py-2.5 sm:py-3 border-2 border-[#336d82]/20 rounded-xl sm:rounded-[15px] focus:outline-none focus:ring-2 focus:ring-[#336d82]/30 focus:border-[#336d82] poppins-medium text-sm sm:text-base text-gray-900 placeholder:text-gray-400 transition-all duration-200 hover:border-[#336d82]/40 hover:shadow-sm"
+                          />
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setShowPasswordBaru(!showPasswordBaru)
+                            }
+                            className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 text-[#336d82]/60 hover:text-[#336d82] transition-colors active:scale-95"
+                          >
+                            {showPasswordBaru ? (
+                              <VisibilityOffIcon
+                                sx={{ fontSize: { xs: 18, sm: 20 } }}
+                              />
+                            ) : (
+                              <VisibilityIcon
+                                sx={{ fontSize: { xs: 18, sm: 20 } }}
+                              />
+                            )}
+                          </button>
+                        </div>
+                        {/* Password Strength Indicator */}
+                        {formData.passwordBaru && (
+                          <div className="space-y-1.5">
+                            <div className="flex gap-1">
+                              {[1, 2, 3, 4].map((level) => (
+                                <div
+                                  key={level}
+                                  className={`h-1.5 flex-1 rounded-full transition-all duration-300 ${formData.passwordBaru.length >= level * 2
+                                      ? formData.passwordBaru.length < 6
+                                        ? "bg-red-500"
+                                        : formData.passwordBaru.length < 10
+                                          ? "bg-yellow-500"
+                                          : "bg-green-500"
+                                      : "bg-gray-200"
+                                    }`}
+                                />
+                              ))}
+                            </div>
+                            <p
+                              className={`text-xs poppins-medium ${formData.passwordBaru.length < 6
+                                  ? "text-red-500"
+                                  : formData.passwordBaru.length < 10
+                                    ? "text-yellow-600"
+                                    : "text-green-600"
+                                }`}
+                            >
+                              {formData.passwordBaru.length < 6
+                                ? "Password terlalu lemah"
+                                : formData.passwordBaru.length < 10
+                                  ? "Password cukup kuat"
+                                  : "Password sangat kuat"}
+                            </p>
+                          </div>
+                        )}
                       </div>
 
-                      <div className="space-y-2">
-                        <label className="text-[#336d82] text-sm poppins-semibold">
-                          Konfirmasi Password Baru
+                      {/* Konfirmasi Password */}
+                      <div className="space-y-1.5 sm:space-y-2">
+                        <label className="flex items-center gap-2 text-[#336d82] text-xs sm:text-sm poppins-semibold">
+                          <CheckCircleIcon
+                            sx={{ fontSize: { xs: 16, sm: 18 } }}
+                          />
+                          <span>Konfirmasi Password Baru</span>
                         </label>
-                        <input
-                          type="password"
-                          name="konfirmasiPassword"
-                          value={formData.konfirmasiPassword}
-                          onChange={handleInputChange}
-                          placeholder="Konfirmasi password baru"
-                          className="w-full px-4 py-3 border-2 border-[#336d82]/20 rounded-[15px] focus:outline-none focus:ring-2 focus:ring-[#336d82]/30 focus:border-[#336d82] poppins-medium text-base transition-all duration-200 hover:border-[#336d82]/40"
-                        />
+                        <div className="relative group">
+                          <div className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-[#336d82]/60 group-hover:text-[#336d82] transition-colors">
+                            <CheckCircleIcon
+                              sx={{ fontSize: { xs: 18, sm: 20 } }}
+                            />
+                          </div>
+                          <input
+                            type={showKonfirmasiPassword ? "text" : "password"}
+                            name="konfirmasiPassword"
+                            value={formData.konfirmasiPassword}
+                            onChange={handleInputChange}
+                            placeholder="Konfirmasi password baru"
+                            className="w-full pl-10 sm:pl-12 pr-10 sm:pr-12 py-2.5 sm:py-3 border-2 border-[#336d82]/20 rounded-xl sm:rounded-[15px] focus:outline-none focus:ring-2 focus:ring-[#336d82]/30 focus:border-[#336d82] poppins-medium text-sm sm:text-base text-gray-900 placeholder:text-gray-400 transition-all duration-200 hover:border-[#336d82]/40 hover:shadow-sm"
+                          />
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setShowKonfirmasiPassword(!showKonfirmasiPassword)
+                            }
+                            className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 text-[#336d82]/60 hover:text-[#336d82] transition-colors active:scale-95"
+                          >
+                            {showKonfirmasiPassword ? (
+                              <VisibilityOffIcon
+                                sx={{ fontSize: { xs: 18, sm: 20 } }}
+                              />
+                            ) : (
+                              <VisibilityIcon
+                                sx={{ fontSize: { xs: 18, sm: 20 } }}
+                              />
+                            )}
+                          </button>
+                        </div>
+                        {/* Password Match Indicator */}
+                        {formData.konfirmasiPassword && (
+                          <div className="flex items-center gap-2">
+                            {formData.passwordBaru ===
+                              formData.konfirmasiPassword ? (
+                              <>
+                                <CheckCircleIcon
+                                  sx={{ fontSize: 16, color: "#10b981" }}
+                                />
+                                <p className="text-xs text-green-600 poppins-medium">
+                                  Password cocok
+                                </p>
+                              </>
+                            ) : (
+                              <>
+                                <CheckCircleIcon
+                                  sx={{ fontSize: 16, color: "#ef4444" }}
+                                />
+                                <p className="text-xs text-red-500 poppins-medium">
+                                  Password tidak cocok
+                                </p>
+                              </>
+                            )}
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>

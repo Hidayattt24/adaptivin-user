@@ -7,6 +7,7 @@ export { default as TeacherProfile } from "./dashboard/TeacherProfile";
 // Kelas Components
 export { default as ClassCard } from "./kelas/ClassCard";
 export { default as KelasNavigationSidebar } from "./kelas/KelasNavigationSidebar";
+export { KelasFloatingDock } from "./kelas/KelasFloatingDock";
 
 // Materi Components
 export { default as MateriCard } from "./materi/MateriCard";

@@ -54,15 +54,15 @@ const MateriProgressCard: React.FC<MateriProgressCardProps> = ({
   const isCompleted = selectedMateri.status === "completed";
 
   return (
-    <div className="bg-gradient-to-br from-white to-gray-50 rounded-3xl p-8 shadow-md border border-gray-100 transition-all duration-300 hover:shadow-lg">
+    <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 shadow-md border border-gray-100 transition-all duration-300 hover:shadow-lg">
       {/* Material Title and Status */}
-      <div className="flex items-start justify-between mb-6">
-        <h3 className="text-[#336d82] text-3xl poppins-semibold leading-tight flex-1">
+      <div className="flex flex-col sm:flex-row items-start sm:items-start justify-between gap-3 sm:gap-4 mb-4 sm:mb-5 lg:mb-6">
+        <h3 className="text-[#336d82] text-xl sm:text-2xl lg:text-3xl poppins-semibold leading-tight flex-1 min-w-0">
           {selectedMateri.judul}
         </h3>
         
         {/* Status Indicator */}
-        <div className={`px-4 py-2 rounded-xl poppins-semibold text-sm whitespace-nowrap ml-4 ${
+        <div className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl poppins-semibold text-xs sm:text-sm whitespace-nowrap flex-shrink-0 ${
           isCompleted 
             ? "bg-gradient-to-r from-[#2ea062] to-[#3bc97a] text-white shadow-sm" 
             : "bg-gray-100 text-gray-600"
@@ -73,34 +73,34 @@ const MateriProgressCard: React.FC<MateriProgressCardProps> = ({
 
       {/* Dropdown to select materi */}
       {allMaterials.length > 0 && (
-        <div className="mb-6" ref={dropdownRef}>
+        <div className="mb-4 sm:mb-5 lg:mb-6" ref={dropdownRef}>
           <div className="relative">
             <button
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              className="w-full bg-white border-2 border-[#336d82]/30 rounded-2xl h-[52px] flex items-center justify-between px-5 hover:border-[#336d82] hover:bg-[#336d82]/5 transition-all duration-200"
+              className="w-full bg-white border-2 border-[#336d82]/30 rounded-xl sm:rounded-2xl h-[48px] sm:h-[52px] flex items-center justify-between px-4 sm:px-5 hover:border-[#336d82] hover:bg-[#336d82]/5 active:bg-[#336d82]/10 transition-all duration-200"
             >
-              <span className="text-[#336d82] text-base poppins-medium">
+              <span className="text-[#336d82] text-sm sm:text-base poppins-medium truncate pr-2">
                 {selectedMateri.judul}
               </span>
-              <ArrowDropDownIcon className="text-[#336d82]" sx={{ fontSize: 28 }} />
+              <ArrowDropDownIcon className="text-[#336d82] flex-shrink-0" sx={{ fontSize: { xs: 24, sm: 28 } }} />
             </button>
 
             {/* Dropdown Menu */}
             {isDropdownOpen && (
-              <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl border-2 border-[#336d82]/20 max-h-[240px] overflow-y-auto z-50">
+              <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl sm:rounded-2xl shadow-2xl border-2 border-[#336d82]/20 max-h-[200px] sm:max-h-[240px] overflow-y-auto z-50">
                 {allMaterials.map((mat) => (
                   <button
                     key={mat.materiId}
                     onClick={() => handleMateriSelect(mat)}
-                    className={`w-full px-5 py-4 text-left hover:bg-[#336d82]/5 transition-all duration-150 first:rounded-t-2xl last:rounded-b-2xl border-b border-gray-100 last:border-b-0 ${
+                    className={`w-full px-4 sm:px-5 py-3 sm:py-4 text-left hover:bg-[#336d82]/5 active:bg-[#336d82]/10 transition-all duration-150 first:rounded-t-xl first:sm:rounded-t-2xl last:rounded-b-xl last:sm:rounded-b-2xl border-b border-gray-100 last:border-b-0 ${
                       selectedMateri.materiId === mat.materiId
                         ? "bg-[#336d82]/10 text-[#336d82] poppins-semibold"
                         : "text-gray-700 poppins-medium"
                     }`}
                   >
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm">{mat.judul}</span>
-                      <span className={`text-xs px-2 py-1 rounded-lg poppins-semibold ${
+                    <div className="flex justify-between items-center gap-2">
+                      <span className="text-xs sm:text-sm truncate flex-1">{mat.judul}</span>
+                      <span className={`text-[10px] sm:text-xs px-2 py-1 rounded-lg poppins-semibold flex-shrink-0 ${
                         mat.status === "completed" 
                           ? "bg-green-100 text-green-700" 
                           : "bg-red-100 text-red-700"
@@ -118,37 +118,38 @@ const MateriProgressCard: React.FC<MateriProgressCardProps> = ({
 
       {/* Conditional Content Based on Completion Status */}
       {isCompleted ? (
-        /* Analytics Cards - Enhanced Design */
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          {/* Grafik Perkembangan Card */}
+        <>
+          {/* Analytics Cards - Enhanced Design */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-5">
+            {/* Grafik Perkembangan Card */}
           <button
             onClick={onViewGrafik}
-            className="group bg-gradient-to-br from-white to-blue-50 rounded-2xl p-6 border-2 border-[#336d82]/30 hover:border-[#336d82] hover:shadow-2xl transition-all duration-300 text-left relative overflow-hidden"
+            className="group bg-gradient-to-br from-white to-blue-50 rounded-xl sm:rounded-2xl p-3 sm:p-5 lg:p-6 border-2 border-[#336d82]/30 hover:border-[#336d82] active:border-[#336d82] active:scale-[0.98] hover:shadow-2xl transition-all duration-300 text-left relative overflow-hidden min-h-[140px] sm:min-h-auto"
           >
             {/* Decorative Circle */}
             <div className="absolute -top-8 -right-8 w-24 h-24 bg-[#336d82]/5 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
 
-            <div className="relative z-10">
-              <div className="flex items-center justify-between mb-4">
-                <div className="bg-gradient-to-br from-[#336d82] to-[#5a96a8] rounded-xl p-3 shadow-lg group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
-                  <Insights sx={{ fontSize: 32, color: "white" }} />
+            <div className="relative z-10 flex flex-col h-full">
+              <div className="flex items-center justify-between mb-2 sm:mb-3">
+                <div className="bg-gradient-to-br from-[#336d82] to-[#5a96a8] rounded-lg sm:rounded-xl p-2 sm:p-2.5 lg:p-3 shadow-lg group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+                  <Insights sx={{ fontSize: { xs: 22, sm: 28, lg: 32 }, color: "white" }} />
                 </div>
-                <div className="bg-[#336d82]/10 text-[#336d82] px-3 py-1 rounded-full text-xs poppins-bold">
+                <div className="bg-[#336d82]/10 text-[#336d82] px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-[9px] sm:text-xs poppins-bold">
                   GRAFIK
                 </div>
               </div>
 
-              <h4 className="text-[#336d82] text-xl poppins-bold mb-2 group-hover:text-[#2a5a6d] transition-colors">
+              <h4 className="text-[#336d82] text-sm sm:text-lg lg:text-xl poppins-bold mb-1 sm:mb-2 group-hover:text-[#2a5a6d] transition-colors leading-tight">
                 Grafik Perkembangan
               </h4>
 
-              <p className="text-gray-600 text-sm poppins-regular mb-4 leading-relaxed">
-                Lihat perkembangan pembelajaran siswa berdasarkan tingkat kesulitan C1-C6
+              <p className="text-gray-600 text-[11px] sm:text-sm poppins-regular mb-2 sm:mb-4 leading-snug flex-1">
+                Lihat perkembangan pembelajaran siswa C1-C6
               </p>
 
-              <div className="flex items-center gap-2 text-[#336d82] poppins-semibold text-sm group-hover:gap-3 transition-all">
+              <div className="flex items-center gap-1.5 sm:gap-2 text-[#336d82] poppins-semibold text-[11px] sm:text-sm group-hover:gap-3 transition-all mt-auto">
                 <span>Buka Detail</span>
-                <span className="group-hover:translate-x-1 transition-transform">→</span>
+                <span className="group-hover:translate-x-1 transition-transform text-sm sm:text-base">→</span>
               </div>
             </div>
           </button>
@@ -156,32 +157,32 @@ const MateriProgressCard: React.FC<MateriProgressCardProps> = ({
           {/* Hasil Kuis Card */}
           <button
             onClick={onViewHasilKuis}
-            className="group bg-gradient-to-br from-white to-emerald-50 rounded-2xl p-6 border-2 border-[#2ea062]/30 hover:border-[#2ea062] hover:shadow-2xl transition-all duration-300 text-left relative overflow-hidden"
+            className="group bg-gradient-to-br from-white to-emerald-50 rounded-xl sm:rounded-2xl p-3 sm:p-5 lg:p-6 border-2 border-[#2ea062]/30 hover:border-[#2ea062] active:border-[#2ea062] active:scale-[0.98] hover:shadow-2xl transition-all duration-300 text-left relative overflow-hidden min-h-[140px] sm:min-h-auto"
           >
             {/* Decorative Circle */}
             <div className="absolute -top-8 -right-8 w-24 h-24 bg-[#2ea062]/5 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
 
-            <div className="relative z-10">
-              <div className="flex items-center justify-between mb-4">
-                <div className="bg-gradient-to-br from-[#2ea062] to-[#3bc97a] rounded-xl p-3 shadow-lg group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
-                  <Quiz sx={{ fontSize: 32, color: "white" }} />
+            <div className="relative z-10 flex flex-col h-full">
+              <div className="flex items-center justify-between mb-2 sm:mb-3">
+                <div className="bg-gradient-to-br from-[#2ea062] to-[#3bc97a] rounded-lg sm:rounded-xl p-2 sm:p-2.5 lg:p-3 shadow-lg group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+                  <Quiz sx={{ fontSize: { xs: 22, sm: 28, lg: 32 }, color: "white" }} />
                 </div>
-                <div className="bg-[#2ea062]/10 text-[#2ea062] px-3 py-1 rounded-full text-xs poppins-bold">
+                <div className="bg-[#2ea062]/10 text-[#2ea062] px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-[9px] sm:text-xs poppins-bold">
                   KUIS
                 </div>
               </div>
 
-              <h4 className="text-[#336d82] text-xl poppins-bold mb-2 group-hover:text-[#2ea062] transition-colors">
+              <h4 className="text-[#336d82] text-sm sm:text-lg lg:text-xl poppins-bold mb-1 sm:mb-2 group-hover:text-[#2ea062] transition-colors leading-tight">
                 Hasil Kuis
               </h4>
 
-              <p className="text-gray-600 text-sm poppins-regular mb-4 leading-relaxed">
-                Lihat hasil kuis lengkap dengan detail jawaban dan skor per tingkat
+              <p className="text-gray-600 text-[11px] sm:text-sm poppins-regular mb-2 sm:mb-4 leading-snug flex-1">
+                Lihat hasil kuis lengkap dengan detail jawaban
               </p>
 
-              <div className="flex items-center gap-2 text-[#2ea062] poppins-semibold text-sm group-hover:gap-3 transition-all">
+              <div className="flex items-center gap-1.5 sm:gap-2 text-[#2ea062] poppins-semibold text-[11px] sm:text-sm group-hover:gap-3 transition-all mt-auto">
                 <span>Buka Detail</span>
-                <span className="group-hover:translate-x-1 transition-transform">→</span>
+                <span className="group-hover:translate-x-1 transition-transform text-sm sm:text-base">→</span>
               </div>
             </div>
           </button>
@@ -189,40 +190,42 @@ const MateriProgressCard: React.FC<MateriProgressCardProps> = ({
           {/* Analisa AI Card */}
           <button
             onClick={onViewAnalisa}
-            className="group bg-gradient-to-br from-white to-yellow-50 rounded-2xl p-6 border-2 border-[#fcc61d]/30 hover:border-[#fcc61d] hover:shadow-2xl transition-all duration-300 text-left relative overflow-hidden"
+            className="group bg-gradient-to-br from-white to-yellow-50 rounded-xl sm:rounded-2xl p-3 sm:p-5 lg:p-6 border-2 border-[#fcc61d]/30 hover:border-[#fcc61d] active:border-[#fcc61d] active:scale-[0.98] hover:shadow-2xl transition-all duration-300 text-left relative overflow-hidden sm:col-span-2 lg:col-span-1 min-h-[140px] sm:min-h-auto"
           >
             {/* Decorative Circle */}
             <div className="absolute -top-8 -right-8 w-24 h-24 bg-[#fcc61d]/5 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
 
-            <div className="relative z-10">
-              <div className="flex items-center justify-between mb-4">
-                <div className="bg-gradient-to-br from-[#fcc61d] to-[#ffd84d] rounded-xl p-3 shadow-lg group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
-                  <SmartToy sx={{ fontSize: 32, color: "white" }} />
+            <div className="relative z-10 flex flex-col h-full">
+              <div className="flex items-center justify-between mb-2 sm:mb-3">
+                <div className="bg-gradient-to-br from-[#fcc61d] to-[#ffd84d] rounded-lg sm:rounded-xl p-2 sm:p-2.5 lg:p-3 shadow-lg group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+                  <SmartToy sx={{ fontSize: { xs: 22, sm: 28, lg: 32 }, color: "white" }} />
                 </div>
-                <div className="bg-[#fcc61d]/10 text-[#fcc61d] px-3 py-1 rounded-full text-xs poppins-bold flex items-center gap-1">
-                  <span className="text-xl">✨</span>
+                <div className="bg-[#fcc61d]/10 text-[#fcc61d] px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-[9px] sm:text-xs poppins-bold flex items-center gap-0.5 sm:gap-1">
+                  <span className="text-sm sm:text-xl">✨</span>
                   <span>AI</span>
                 </div>
               </div>
 
-              <h4 className="text-[#336d82] text-xl poppins-bold mb-2 group-hover:text-[#d4a817] transition-colors">
+              <h4 className="text-[#336d82] text-sm sm:text-lg lg:text-xl poppins-bold mb-1 sm:mb-2 group-hover:text-[#d4a817] transition-colors leading-tight">
                 Analisa AI
               </h4>
 
-              <p className="text-gray-600 text-sm poppins-regular mb-4 leading-relaxed">
-                Dapatkan insight mendalam dan rekomendasi pembelajaran dari Mbah AI
+              <p className="text-gray-600 text-[11px] sm:text-sm poppins-regular mb-2 sm:mb-4 leading-snug flex-1">
+                Dapatkan insight dan rekomendasi dari Mbah AI
               </p>
 
-              <div className="flex items-center gap-2 text-[#fcc61d] poppins-semibold text-sm group-hover:gap-3 transition-all">
+              <div className="flex items-center gap-1.5 sm:gap-2 text-[#fcc61d] poppins-semibold text-[11px] sm:text-sm group-hover:gap-3 transition-all mt-auto">
                 <span>Buka Detail</span>
-                <span className="group-hover:translate-x-1 transition-transform">→</span>
+                <span className="group-hover:translate-x-1 transition-transform text-sm sm:text-base">→</span>
               </div>
             </div>
           </button>
-        </div>
+          </div>
+        </>
       ) : (
-        /* Analytics Cards - Disabled state when not completed */
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <>
+          {/* Analytics Cards - Disabled state when not completed */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           {/* Grafik Perkembangan Card - Disabled */}
           <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 border-2 border-gray-200 text-left opacity-50 cursor-not-allowed relative overflow-hidden">
             <div className="relative z-10">
@@ -288,7 +291,8 @@ const MateriProgressCard: React.FC<MateriProgressCardProps> = ({
               </p>
             </div>
           </div>
-        </div>
+          </div>
+        </>
       )}
 
       {/* Additional message for not completed */}

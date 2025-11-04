@@ -23,7 +23,8 @@ const MateriCard: React.FC<MateriCardProps> = ({
   deskripsi,
   jumlah_sub_materi,
 }) => {
-  const { mutateAsync: deleteMateri, isPending: isDeleting } = useDeleteMateri();
+  const { mutateAsync: deleteMateri, isPending: isDeleting } =
+    useDeleteMateri();
 
   const handleDelete = async () => {
     const result = await Swal.fire({
@@ -37,7 +38,7 @@ const MateriCard: React.FC<MateriCardProps> = ({
       cancelButtonText: "Batal",
     });
 
-    if (!result.isConfirmed) return; 
+    if (!result.isConfirmed) return;
 
     try {
       await deleteMateri(id);
@@ -63,7 +64,7 @@ const MateriCard: React.FC<MateriCardProps> = ({
   };
 
   return (
-    <div className="relative bg-gradient-to-r from-[#336D82] to-[#ECF3F6] rounded-[18px] min-h-[160px] flex flex-col justify-between p-5 shadow-lg hover:shadow-xl transition-shadow">
+    <div className="relative bg-gradient-to-r from-[#336D82] to-[#ECF3F6] rounded-[12px] sm:rounded-[16px] md:rounded-[18px] min-h-[140px] sm:min-h-[160px] flex flex-col justify-between p-4 sm:p-5 shadow-lg hover:shadow-xl transition-shadow">
       {/* Judul Materi */}
       <div className="mb-3">
         <h2 className="text-white text-3xl poppins-semibold mb-1.5 leading-tight">
@@ -84,7 +85,7 @@ const MateriCard: React.FC<MateriCardProps> = ({
             <div className="w-7 h-7 bg-white/20 rounded-full flex items-center justify-center">
               <EditIcon className="text-white" sx={{ fontSize: 16 }} />
             </div>
-            <span className="text-sm poppins-semibold">
+            <span className="text-xs sm:text-sm poppins-semibold">
               Kelola materi pembelajaran
             </span>
           </button>
@@ -94,7 +95,9 @@ const MateriCard: React.FC<MateriCardProps> = ({
             <div className="w-7 h-7 bg-white/20 rounded-full flex items-center justify-center">
               <EditIcon className="text-white" sx={{ fontSize: 16 }} />
             </div>
-            <span className="text-sm poppins-semibold">Kelola Kuis</span>
+            <span className="text-xs sm:text-sm poppins-semibold">
+              Kelola Kuis
+            </span>
           </button>
         </Link>
         <button

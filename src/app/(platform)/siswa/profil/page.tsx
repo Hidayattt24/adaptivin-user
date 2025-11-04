@@ -28,6 +28,7 @@ export default function ProfilSiswaPage() {
 
   const handleLogout = () => {
     if (confirm("Apakah Anda yakin ingin keluar?")) {
+      // Clear all auth data
       clearAuth();
       router.push("/splash");
     }
@@ -49,10 +50,12 @@ export default function ProfilSiswaPage() {
     );
   }
 
+  // Get profile data
   const namaLengkap = profile?.nama_lengkap || "Siswa";
   const tingkatKelas = profile?.kelas?.tingkat_kelas || "IV";
   const namaSekolah = profile?.sekolah?.nama_sekolah || "";
 
+  // Dapatkan gambar profil dari database untuk ditampilkan di card profil
   const profileImage = getStudentAvatar(profile?.profil_siswa_index);
 
   return (
@@ -95,14 +98,12 @@ export default function ProfilSiswaPage() {
 
             {/* Class Badge */}
             <div className="flex flex-col items-center gap-2">
-              {namaSekolah && (
-                <div className="bg-white/20 backdrop-blur-sm px-6 py-2 rounded-full border border-white/30">
-                  <p className="text-white/80 text-lg font-medium">{namaSekolah}</p>  
-                </div>
-              )}
               <div className="bg-white/20 backdrop-blur-sm px-6 py-2 rounded-full border border-white/30">
                 <p className="text-white text-sm font-semibold tracking-wide">Kelas {tingkatKelas}</p>
               </div>
+              {namaSekolah && (
+                <p className="text-white/80 text-xs font-medium">{namaSekolah}</p>
+              )}
             </div>
           </div>
         </div>

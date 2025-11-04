@@ -1,8 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import MobileWarning from "@/components/siswa/layout/MobileWarning";
 import { useClassTheme } from "@/contexts/ClassThemeContext";
 import IsiMateriCard from "@/components/siswa/materi/IsiMateriCard";
 import MateriDropdown from "@/components/siswa/materi/MateriDropdown";
@@ -14,10 +13,11 @@ import MateriDropdown from "@/components/siswa/materi/MateriDropdown";
  * - Materi Upload (PDF & Video)
  * - Materi Bacaan
  * - Button untuk Kuis
+ * 
+ * Responsive: Mobile & Desktop optimized
  */
 
 export default function IsiMateriPage() {
-  const [isMobile, setIsMobile] = useState(true);
   const [uploadSectionOpen, setUploadSectionOpen] = useState(true);
   const [bacaanSectionOpen, setBacaanSectionOpen] = useState(true);
 
@@ -29,21 +29,6 @@ export default function IsiMateriPage() {
   const materiId = params?.materiId as string;
   const isiMateriId = params?.isiMateriId as string;
 
-  useEffect(() => {
-    const checkScreenSize = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-
-    checkScreenSize();
-    window.addEventListener("resize", checkScreenSize);
-
-    return () => window.removeEventListener("resize", checkScreenSize);
-  }, []);
-
-  if (!isMobile) {
-    return <MobileWarning />;
-  }
-
   return (
     <div
       className="relative w-full min-h-screen overflow-x-hidden"
@@ -54,197 +39,177 @@ export default function IsiMateriPage() {
       {/* Back Button */}
       <button
         onClick={() => router.push(`/siswa/materi/${classId}`)}
-        className="absolute top-4 left-4 w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center hover:bg-white/30 transition-all z-10"
+        className="absolute top-4 md:top-5 left-4 md:left-6 w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center hover:bg-white/30 transition-all z-10"
       >
         <span className="material-symbols-outlined text-white text-xl">
           arrow_back
         </span>
       </button>
 
-      {/* Content Container */}
-      <div className="px-[25px] pt-[41px] pb-8">
-        {/* MATERI UPLOAD SECTION */}
-        <div className="mb-8">
-          {/* Section Header */}
-          <div className="flex items-center justify-center gap-3 mb-6">
-            {/* Title Badge */}
-            <div
-              className="px-6 py-2 rounded-[20px] h-[34px] flex items-center justify-center shadow-lg"
-              style={{
-                background: theme.gradients.badge || theme.colors.badge,
-              }}
-            >
-              <p className="text-white text-[13px] font-semibold">
-                📚 Materi Upload
-              </p>
-            </div>
-
-            {/* Dropdown Button */}
-            <MateriDropdown
-              isOpen={uploadSectionOpen}
-              onToggle={() => setUploadSectionOpen(!uploadSectionOpen)}
-              gradientColor={theme.gradients.badge || theme.colors.badge}
-            />
-          </div>
-
-          {/* Upload Cards */}
-          {uploadSectionOpen && (
-            <div className="space-y-4">
-              {/* PDF Card */}
-              <IsiMateriCard
-                type="pdf"
-                title="File Pecahan Biasa & Campuran"
-                classColor={theme.colors.primary}
-                onClick={() => {
-                  console.log("Open PDF");
+      {/* Content Container - Desktop Centered & Compact */}
+      <div className="px-[25px] md:px-8 lg:px-12 pt-[41px] md:pt-16 pb-8">
+        <div className="max-w-4xl mx-auto">
+          {/* MATERI UPLOAD SECTION */}
+          <div className="mb-6 md:mb-7">
+            {/* Section Header */}
+            <div className="flex items-center justify-center gap-3 mb-4 md:mb-5">
+              {/* Title Badge */}
+              <div
+                className="px-6 md:px-7 py-2 rounded-[20px] h-[34px] md:h-[36px] flex items-center justify-center shadow-lg"
+                style={{
+                  background: theme.gradients.badge || theme.colors.badge,
                 }}
-              />
+              >
+                <p className="text-white text-[13px] md:text-sm font-semibold">
+                  📚 Materi Upload
+                </p>
+              </div>
 
-              {/* Video Card */}
-              <IsiMateriCard
-                type="video"
-                title="Video Pecahan Biasa & Campuran"
-                classColor={theme.colors.primary}
-                onClick={() => {
-                  console.log("Open Video");
-                }}
+              {/* Dropdown Button */}
+              <MateriDropdown
+                isOpen={uploadSectionOpen}
+                onToggle={() => setUploadSectionOpen(!uploadSectionOpen)}
+                gradientColor={theme.gradients.badge || theme.colors.badge}
               />
             </div>
-          )}
-        </div>
 
-        {/* MATERI BACAAN SECTION */}
-        <div className="mb-8">
-          {/* Section Header */}
-          <div className="flex items-center justify-center gap-3 mb-6">
-            {/* Title Badge */}
-            <div
-              className="px-6 py-2 rounded-[20px] h-[34px] flex items-center justify-center shadow-lg"
-              style={{
-                background: theme.gradients.badge || theme.colors.badge,
-              }}
-            >
-              <p className="text-white text-[13px] font-semibold">
-                📖 Materi Bacaan
-              </p>
-            </div>
+            {/* Upload Cards - Desktop Grid */}
+            {uploadSectionOpen && (
+              <div className="space-y-4 md:grid md:grid-cols-2 md:gap-4 md:space-y-0">
+                {/* PDF Card */}
+                <IsiMateriCard
+                  type="pdf"
+                  title="File Pecahan Biasa & Campuran"
+                  classColor={theme.colors.primary}
+                  onClick={() => {
+                    console.log("Open PDF");
+                  }}
+                />
 
-            {/* Dropdown Button */}
-            <MateriDropdown
-              isOpen={bacaanSectionOpen}
-              onToggle={() => setBacaanSectionOpen(!bacaanSectionOpen)}
-              gradientColor={theme.gradients.badge || theme.colors.badge}
-            />
+                {/* Video Card */}
+                <IsiMateriCard
+                  type="video"
+                  title="Video Pecahan Biasa & Campuran"
+                  classColor={theme.colors.primary}
+                  onClick={() => {
+                    console.log("Open Video");
+                  }}
+                />
+              </div>
+            )}
           </div>
 
-          {/* Reading Card - Designed for long content from admin */}
-          {bacaanSectionOpen && (
-            <div className="bg-white rounded-[10px] w-full shadow-xl overflow-hidden">
-              {/* Card Content - Scrollable for long text */}
-              <div className="p-6 max-h-[600px] overflow-y-auto">
-                {/* Title */}
-                <h2
-                  className="text-[16px] font-bold text-center mb-4 leading-tight"
-                  style={{ color: theme.colors.text.primary }}
-                >
-                  Cara Membagi Kue Agar Semua Kebagian!
-                </h2>
+          {/* MATERI BACAAN SECTION */}
+          <div className="mb-6 md:mb-7">
+            {/* Section Header */}
+            <div className="flex items-center justify-center gap-3 mb-4 md:mb-5">
+              {/* Title Badge */}
+              <div
+                className="px-6 md:px-7 py-2 rounded-[20px] h-[34px] md:h-[36px] flex items-center justify-center shadow-lg"
+                style={{
+                  background: theme.gradients.badge || theme.colors.badge,
+                }}
+              >
+                <p className="text-white text-[13px] md:text-sm font-semibold">
+                  📖 Materi Bacaan
+                </p>
+              </div>
 
-                {/* Content - Will be from admin (MVP hardcoded) */}
-                <div className="space-y-4 text-[#666] text-[12px] leading-relaxed">
-                  <p>
-                    Bayangkan kamu punya satu kue ulang tahun yang lezat.
-                    Kalau kamu ingin membaginya dengan 3 temanmu, kamu harus
-                    memotongnya jadi 4 bagian yang sama besar, kan?
-                  </p>
+              {/* Dropdown Button */}
+              <MateriDropdown
+                isOpen={bacaanSectionOpen}
+                onToggle={() => setBacaanSectionOpen(!bacaanSectionOpen)}
+                gradientColor={theme.gradients.badge || theme.colors.badge}
+              />
+            </div>
 
-                  <div
-                    className="p-4 rounded-lg my-4"
-                    style={{
-                      background: `${theme.colors.primary}10`,
-                      borderLeft: `4px solid ${theme.colors.primary}`,
-                    }}
+            {/* Reading Card - Content from guru's input */}
+            {bacaanSectionOpen && (
+              <div className="bg-white rounded-[10px] md:rounded-[15px] w-full shadow-xl overflow-hidden">
+                {/* Card Content - Scrollable for long text */}
+                <div className="p-6 md:p-7 max-h-[600px] md:max-h-[550px] overflow-y-auto">
+                  {/* Main Title - From "Isi judul materi utama" input */}
+                  <h1
+                    className="text-[18px] md:text-2xl font-bold text-center mb-5 md:mb-6 leading-tight"
+                    style={{ color: theme.colors.primary }}
                   >
-                    <p
-                      className="font-bold mb-2 text-[13px]"
-                      style={{ color: theme.colors.primary }}
-                    >
-                      📌 Pecahan Biasa
-                    </p>
-                    <p>
-                      Pecahan Biasa itu seperti saat kamu mengambil 1 potong dari 4
-                      total potongan yang ada. Kita menuliskannya sebagai <strong>1/4</strong>.
-                    </p>
+                    Pecahan Biasa & Campuran
+                  </h1>
+
+                  {/* Content - Text from guru's explanation input */}
+                  {/* whitespace-pre-line preserves line breaks from textarea */}
+                  <div className="text-[#666] text-[12px] md:text-sm leading-relaxed whitespace-pre-line">
+                    {`Bayangkan kamu punya satu kue ulang tahun yang lezat. Kalau kamu ingin membaginya dengan 3 temanmu, kamu harus memotongnya jadi 4 bagian yang sama besar, kan?`}
                   </div>
 
-                  {/* Image */}
-                  <div className="w-full h-[150px] rounded-[10px] overflow-hidden my-4">
+                  {/* Sub-section Title - From "Isi judul sub-bagian" input */}
+                  <h2
+                    className="text-[15px] md:text-lg font-bold mt-5 mb-3 leading-tight"
+                    style={{ color: theme.colors.primary }}
+                  >
+                    📌 Pecahan Biasa
+                  </h2>
+
+                  <div className="text-[#666] text-[12px] md:text-sm leading-relaxed whitespace-pre-line">
+                    {`Pecahan Biasa itu seperti saat kamu mengambil 1 potong dari 4 total potongan yang ada. Kita menuliskannya sebagai 1/4.`}
+                  </div>
+
+                  {/* Images uploaded by guru */}
+                  <div className="w-full h-[150px] md:h-[200px] rounded-[10px] overflow-hidden my-4">
                     <img
                       src="https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400&h=300&fit=crop"
-                      alt="Ilustrasi Kue"
+                      alt="Ilustrasi Materi"
                       className="w-full h-full object-cover"
                     />
                   </div>
 
-                  <div
-                    className="p-4 rounded-lg my-4"
-                    style={{
-                      background: `${theme.colors.primary}10`,
-                      borderLeft: `4px solid ${theme.colors.primary}`,
-                    }}
+                  {/* Sub-section Title - From "Isi judul sub-bagian" input */}
+                  <h2
+                    className="text-[15px] md:text-lg font-bold mt-5 mb-3 leading-tight"
+                    style={{ color: theme.colors.primary }}
                   >
-                    <p
-                      className="font-bold mb-2 text-[13px]"
-                      style={{ color: theme.colors.primary }}
-                    >
-                      📌 Pecahan Campuran
-                    </p>
-                    <p>
-                      Nah, Pecahan Campuran itu kalau kamu punya 1 kue utuh DAN 1/4
-                      potong kue lagi. Kita menuliskannya sebagai <strong>1 ¼</strong>.
-                      Gampang, kan?
-                    </p>
-                  </div>
+                    📌 Pecahan Campuran
+                  </h2>
 
-                  <p>
-                    Dengan memahami pecahan, kamu bisa membagi apa saja secara adil -
-                    mulai dari kue, pizza, atau bahkan permen! Sekarang coba latihan
-                    dengan contoh-contoh lainnya ya!
-                  </p>
+                  <div className="text-[#666] text-[12px] md:text-sm leading-relaxed whitespace-pre-line">
+                    {`Nah, Pecahan Campuran itu kalau kamu punya 1 kue utuh DAN 1/4 potong kue lagi. Kita menuliskannya sebagai 1 ¼. Gampang, kan?
+
+Dengan memahami pecahan, kamu bisa membagi apa saja secara adil - mulai dari kue, pizza, atau bahkan permen! Sekarang coba latihan dengan contoh-contoh lainnya ya!`}
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
 
-        {/* UJI KEMAMPUAN BUTTON */}
-        <div className="mt-8">
-          <button
-            onClick={() => {
-              router.push(`/siswa/materi/${classId}/${materiId}/${isiMateriId}/kuis`);
-            }}
-            className="w-full max-w-[230px] h-[34px] rounded-[20px] flex items-center justify-center mx-auto hover:opacity-90 transition-opacity shadow-lg"
-            style={{
-              background: theme.gradients.badge || theme.colors.badge,
-            }}
-          >
-            {/* Icon */}
-            <div
-              className="w-[21px] h-[21px] rounded-full flex items-center justify-center mr-2"
+          {/* UJI KEMAMPUAN BUTTON */}
+          <div className="mt-6 md:mt-7">
+            <button
+              onClick={() => {
+                router.push(`/siswa/materi/${classId}/${materiId}/${isiMateriId}/kuis`);
+              }}
+              className="w-full max-w-[230px] md:max-w-[260px] h-[34px] md:h-[40px] rounded-[20px] flex items-center justify-center mx-auto hover:opacity-90 hover:scale-105 transition-all shadow-lg"
               style={{
-                backgroundColor: theme.colors.primary,
+                background: theme.gradients.badge || theme.colors.badge,
               }}
             >
-              <span className="material-symbols-outlined text-white text-[14px]">
-                psychology
-              </span>
-            </div>
+              {/* Icon */}
+              <div
+                className="w-[21px] h-[21px] md:w-[24px] md:h-[24px] rounded-full flex items-center justify-center mr-2"
+                style={{
+                  backgroundColor: theme.colors.primary,
+                }}
+              >
+                <span className="material-symbols-outlined text-white text-[14px] md:text-[16px]">
+                  psychology
+                </span>
+              </div>
 
-            {/* Text */}
-            <p className="text-white text-[11px] font-semibold">
-              Uji Kemampuanku Sekarang!
-            </p>
-          </button>
+              {/* Text */}
+              <p className="text-white text-[11px] md:text-[13px] font-semibold">
+                Uji Kemampuanku Sekarang!
+              </p>
+            </button>
+          </div>
         </div>
       </div>
 

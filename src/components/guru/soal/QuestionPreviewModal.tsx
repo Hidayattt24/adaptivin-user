@@ -79,7 +79,10 @@ export function QuestionPreviewModal({
                 <Image
                   src={question.questionFilePreview}
                   alt="Question"
-                  className="w-full rounded-lg shadow-md"
+                  width={100}
+                  height={100}
+                  sizes="100vw"
+                  className="w-full h-auto rounded-lg shadow-md"
                 />
               </div>
             )}
@@ -115,7 +118,10 @@ export function QuestionPreviewModal({
                 <Image
                   src={question.answerFilePreview}
                   alt="Answer"
-                  className="w-full rounded-lg shadow-md"
+                  width={0}
+                  height={0}
+                  sizes="100vw"
+                  className="w-full h-auto rounded-lg shadow-md"
                 />
               </div>
             )}

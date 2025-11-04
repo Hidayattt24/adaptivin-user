@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
-import { Close, AutoAwesome, TrendingUp, TrendingDown, CheckCircle, Cancel } from "@mui/icons-material";
+import React, { useState, useEffect } from "react";
+import { Close, Replay } from "@mui/icons-material";
 
 interface QuizSummary {
   totalQuestions: number;
@@ -10,11 +10,23 @@ interface QuizSummary {
   score: number;
 }
 
+interface VideoRecommendation {
+  id: string;
+  title: string;
+  grade: string;
+  description: string;
+  thumbnailUrl?: string;
+  videoUrl?: string;
+}
+
 interface AnalisaAIModalProps {
   isOpen: boolean;
   onClose: () => void;
   studentName: string;
+  studentId?: string;
   materiTitle: string;
+  materiId?: string;
+  quizId?: string;
   quizSummary: QuizSummary;
 }
 
@@ -22,7 +34,10 @@ const AnalisaAIModal: React.FC<AnalisaAIModalProps> = ({
   isOpen,
   onClose,
   studentName,
+  studentId,
   materiTitle,
+  materiId,
+  quizId,
   quizSummary = {
     totalQuestions: 0,
     correctAnswers: 0,
@@ -30,94 +45,184 @@ const AnalisaAIModal: React.FC<AnalisaAIModalProps> = ({
     score: 0,
   },
 }) => {
-  const [showAnalysis, setShowAnalysis] = useState(false);
-  const [isLoadingAnalysis, setIsLoadingAnalysis] = useState(false);
-  const [aiAnalysisText, setAiAnalysisText] = useState<string>("");
+  // State for AI analysis result
+  const [resultMessage, setResultMessage] = useState<string>("");
+  const [videoRecommendations, setVideoRecommendations] = useState<VideoRecommendation[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string>("");
 
-  // Handle request for AI analysis
-  const handleRequestAnalysis = async () => {
-    setIsLoadingAnalysis(true);
+  // State for teacher analysis
+  const [teacherAnalysis, setTeacherAnalysis] = useState<string>("");
+  const [isAnalyzingForTeacher, setIsAnalyzingForTeacher] = useState(false);
+  const [showTeacherAnalysis, setShowTeacherAnalysis] = useState(false);
+
+  // Fetch result data when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      fetchResultData();
+    }
+  }, [isOpen]);
+
+  // Fetch the AI analysis result
+  const fetchResultData = async () => {
+    setIsLoading(true);
+    setError("");
 
     try {
-      // TODO: Replace with actual API call to Gemini
-      await new Promise((resolve) => setTimeout(resolve, 2500));
+      // TODO: Replace with actual API endpoint
+      // const response = await fetch(`/api/hasil-ai?studentId=${studentId}&materiId=${materiId}&quizId=${quizId}`);
+      // const data = await response.json();
+      // setResultMessage(data.message);
+      // setVideoRecommendations(data.videoRecommendations);
 
-      const percentage = quizSummary.score;
-      let analysisText = `Halo Guru! Saya Mbah AdaptivAI 👴\n\nSaya sudah menganalisis hasil belajar ${studentName} pada materi "${materiTitle}".\n\n`;
+      // Mock data - simulating API call
+      await new Promise((resolve) => setTimeout(resolve, 1500));
 
-      if (percentage >= 80) {
-        analysisText += `🎉 PEMAHAMAN SANGAT BAIK\n${studentName} menunjukkan pemahaman yang luar biasa! Siswa berhasil menjawab ${quizSummary.correctAnswers} dari ${quizSummary.totalQuestions} pertanyaan dengan benar (${percentage}%).\n\n`;
-      } else if (percentage >= 60) {
-        analysisText += `✅ PEMAHAMAN CUKUP BAIK\n${studentName} menunjukkan pemahaman yang cukup baik. Siswa berhasil menjawab ${quizSummary.correctAnswers} dari ${quizSummary.totalQuestions} pertanyaan dengan benar (${percentage}%).\n\n`;
-      } else {
-        analysisText += `📚 PERLU BIMBINGAN LEBIH\n${studentName} berhasil menjawab ${quizSummary.correctAnswers} dari ${quizSummary.totalQuestions} pertanyaan dengan benar (${percentage}%). Siswa perlu bimbingan lebih untuk memahami konsep ${materiTitle}.\n\n`;
+      const message = `Hai Adik! Mbah AdaptivAI senang sekali melihat usaha kamu dalam mengerjakan kuis tentang ${materiTitle}.
+
+Kamu berhasil menjawab ${quizSummary.correctAnswers} dari ${quizSummary.totalQuestions} pertanyaan dengan benar. ${
+        quizSummary.score < 60
+          ? "Tidak apa-apa! Belajar matematika memang butuh waktu dan latihan. Yang penting kamu sudah berani mencoba! 💪"
+          : "Bagus sekali! Terus pertahankan semangat belajarmu! 🎉"
       }
 
-      if (quizSummary.incorrectAnswers > 0) {
-        analysisText += `💡 REKOMENDASI UNTUK GURU\n`;
-        analysisText += `• Jelaskan kembali konsep dasar dengan pendekatan visual\n`;
-        analysisText += `• Berikan latihan tambahan dengan tingkat kesulitan bertahap\n`;
-        analysisText += `• Gunakan contoh konkret dari kehidupan sehari-hari\n`;
-        analysisText += `• Berikan waktu lebih untuk siswa memahami setiap langkah\n\n`;
-      }
+${
+  quizSummary.incorrectAnswers > 0
+    ? `Untuk soal yang masih salah, yuk kita pelajari lagi konsep dasarnya. Ingat, memahami ${materiTitle.toLowerCase()} itu seperti membagi kue - semakin banyak potongan, semakin kecil ukuran setiap potongannya! Jangan ragu untuk bertanya kepada guru atau orang tua jika ada yang belum dipahami.`
+    : ""
+}
 
-      if (percentage >= 70) {
-        analysisText += `🎯 PREDIKSI\n${studentName} memiliki fondasi yang kuat. Dengan latihan konsisten, siswa diprediksi akan mencapai tingkat mahir dalam 2-3 minggu. Terus berikan dukungan dan motivasi!\n\n`;
-      } else {
-        analysisText += `🎯 PREDIKSI\n${studentName} membutuhkan perhatian ekstra dan pendekatan pembelajaran yang lebih personal. Dengan bimbingan yang tepat, siswa pasti bisa menguasai materi ini.\n\n`;
-      }
+Mbah AdaptivAI menyarankan kamu untuk menonton video pembelajaran yang sudah disiapkan di bawah. Video ini akan membantu kamu memahami materi dengan cara yang lebih menarik dan mudah dipahami. Jangan lupa untuk terus berlatih ya!`;
 
-      analysisText += `Salam hangat,\nMbah AdaptivAI 👴`;
+      const videos: VideoRecommendation[] = [
+        {
+          id: "1",
+          title: "Nilai Tempat Matematika Kelas 4 SD",
+          grade: "Kelas 4",
+          description:
+            "Secara keseluruhan, video ini memberikan penjelasan dasar yang jelas mengenai konsep nilai tempat pada bilangan cacah, dari satuan hingga puluhan ribu. Video ini cocok untuk siswa SD kelas 4 dan dapat digunakan dalam pembelajaran di kelas maupun belajar mandiri.",
+        },
+        {
+          id: "2",
+          title: "Pecahan Biasa dan Campuran - Penjelasan Lengkap",
+          grade: "Kelas 4",
+          description:
+            "Video pembelajaran ini menjelaskan konsep pecahan biasa dan pecahan campuran dengan cara yang mudah dipahami. Dilengkapi dengan contoh soal dan latihan interaktif untuk membantu siswa memahami materi dengan lebih baik.",
+        },
+        {
+          id: "3",
+          title: "Cara Mudah Mengubah Pecahan Campuran ke Pecahan Biasa",
+          grade: "Kelas 4",
+          description:
+            "Pelajari trik dan tips untuk mengubah pecahan campuran menjadi pecahan biasa dengan mudah. Video ini cocok untuk siswa yang ingin memperdalam pemahaman tentang operasi pecahan.",
+        },
+      ];
 
-      setAiAnalysisText(analysisText);
-      setShowAnalysis(true);
+      setResultMessage(message);
+      setVideoRecommendations(videos);
     } catch (error) {
-      console.error("Error fetching AI analysis:", error);
-      setAiAnalysisText(
-        "Maaf, terjadi kesalahan saat menganalisis data siswa. Silakan coba lagi."
-      );
-      setShowAnalysis(true);
+      console.error("Error fetching result data:", error);
+      setError("Gagal memuat hasil analisa. Silakan coba lagi.");
     } finally {
-      setIsLoadingAnalysis(false);
+      setIsLoading(false);
     }
   };
 
-  const getScoreStatus = () => {
-    if (quizSummary.score >= 80) return {
-      color: "text-emerald-600",
-      bg: "bg-emerald-50",
-      border: "border-emerald-300",
-      label: "Sangat Baik"
-    };
-    if (quizSummary.score >= 60) return {
-      color: "text-yellow-600",
-      bg: "bg-yellow-50",
-      border: "border-yellow-300",
-      label: "Cukup Baik"
-    };
-    return {
-      color: "text-rose-600",
-      bg: "bg-rose-50",
-      border: "border-rose-300",
-      label: "Perlu Perbaikan"
-    };
-  };
+  // Handle teacher analysis based on current student data
+  const handleTeacherAnalysis = async () => {
+    setIsAnalyzingForTeacher(true);
 
-  const scoreStatus = getScoreStatus();
+    try {
+      // TODO: Replace with actual API endpoint for teacher analysis
+      // const response = await fetch('/api/analisa-guru', {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify({
+      //     studentId,
+      //     studentName,
+      //     materiId,
+      //     materiTitle,
+      //     quizId,
+      //     quizSummary,
+      //     studentResult: resultMessage
+      //   })
+      // });
+      // const data = await response.json();
+      // setTeacherAnalysis(data.analysis);
+
+      // Mock data - simulating AI analysis for teacher
+      await new Promise((resolve) => setTimeout(resolve, 2500));
+
+      const percentage = quizSummary.score;
+      let analysis = `🎓 Analisa Khusus untuk Guru\n\n`;
+      analysis += `Berdasarkan hasil kuis ${studentName} pada materi "${materiTitle}", berikut adalah rekomendasi pembelajaran:\n\n`;
+
+      if (percentage >= 80) {
+        analysis += `✅ EVALUASI KINERJA\n`;
+        analysis += `${studentName} menunjukkan penguasaan materi yang sangat baik (${percentage}%). Siswa ini termasuk dalam kategori pembelajar mandiri yang dapat diberikan tantangan lebih tinggi.\n\n`;
+        analysis += `💡 REKOMENDASI STRATEGI PEMBELAJARAN:\n`;
+        analysis += `• Berikan materi pengayaan atau proyek mandiri\n`;
+        analysis += `• Libatkan siswa sebagai peer tutor untuk membantu teman\n`;
+        analysis += `• Berikan soal dengan tingkat kesulitan lebih tinggi (HOTS)\n`;
+        analysis += `• Dorong eksplorasi topik lanjutan yang relevan\n\n`;
+        analysis += `📈 PREDIKSI PERKEMBANGAN:\n`;
+        analysis += `Dengan konsistensi pembelajaran saat ini, ${studentName} diprediksi akan mencapai tingkat mahir dalam 2-3 minggu ke depan.\n\n`;
+      } else if (percentage >= 60) {
+        analysis += `📊 EVALUASI KINERJA\n`;
+        analysis += `${studentName} memiliki pemahaman dasar yang cukup baik (${percentage}%) namun masih ada ruang untuk peningkatan. Siswa membutuhkan penguatan pada beberapa konsep kunci.\n\n`;
+        analysis += `💡 REKOMENDASI STRATEGI PEMBELAJARAN:\n`;
+        analysis += `• Fokus pada penguatan konsep yang masih lemah\n`;
+        analysis += `• Gunakan variasi metode pembelajaran (visual, audio, kinestetik)\n`;
+        analysis += `• Berikan latihan bertahap dengan feedback reguler\n`;
+        analysis += `• Sediakan waktu konsultasi individual\n`;
+        analysis += `• Manfaatkan video pembelajaran yang sudah direkomendasikan\n\n`;
+        analysis += `📈 PREDIKSI PERKEMBANGAN:\n`;
+        analysis += `Dengan bimbingan yang tepat, ${studentName} dapat mencapai penguasaan materi dalam 3-4 minggu.\n\n`;
+      } else {
+        analysis += `⚠️ EVALUASI KINERJA\n`;
+        analysis += `${studentName} mengalami kesulitan dalam memahami materi (${quizSummary.correctAnswers}/${quizSummary.totalQuestions} benar). Diperlukan intervensi pembelajaran yang lebih intensif dan personal.\n\n`;
+        analysis += `💡 REKOMENDASI STRATEGI PEMBELAJARAN:\n`;
+        analysis += `• Rombak pendekatan pembelajaran dengan metode yang lebih sederhana\n`;
+        analysis += `• Gunakan analogi dan contoh konkret dari kehidupan sehari-hari\n`;
+        analysis += `• Berikan bimbingan one-on-one secara rutin\n`;
+        analysis += `• Pecah materi menjadi bagian-bagian lebih kecil dan terukur\n`;
+        analysis += `• Koordinasikan dengan orang tua untuk dukungan belajar di rumah\n`;
+        analysis += `• Pastikan siswa menonton video pembelajaran yang direkomendasikan\n\n`;
+        analysis += `📈 PREDIKSI PERKEMBANGAN:\n`;
+        analysis += `${studentName} memerlukan waktu sekitar 4-6 minggu dengan pendampingan intensif untuk mencapai penguasaan materi yang memadai.\n\n`;
+      }
+
+      analysis += `🎯 LANGKAH PRAKTIS:\n`;
+      analysis += `1. Evaluasi pemahaman siswa pada setiap sub-topik secara spesifik\n`;
+      analysis += `2. Berikan latihan tambahan yang disesuaikan dengan tingkat kesulitan\n`;
+      analysis += `3. Monitor perkembangan siswa secara berkala\n`;
+      analysis += `4. Berikan apresiasi untuk setiap kemajuan yang dicapai\n\n`;
+      analysis += `Salam,\nMbah AdaptivAI 👴`;
+
+      setTeacherAnalysis(analysis);
+      setShowTeacherAnalysis(true);
+    } catch (error) {
+      console.error("Error analyzing for teacher:", error);
+      setError("Gagal melakukan analisa untuk guru. Silakan coba lagi.");
+    } finally {
+      setIsAnalyzingForTeacher(false);
+    }
+  };
 
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 animate-fadeIn">
-      <div className="bg-white rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl animate-slideUp">
-        {/* Header - Simplified */}
-        <div className="sticky top-0 bg-gradient-to-r from-[#fcc61d] to-[#ffd84d] p-6 rounded-t-3xl flex items-center justify-between z-10 shadow-md">
-          <div className="flex items-center gap-3">
-            <div className="text-5xl">👴</div>
-            <div>
-              <h2 className="text-white text-2xl poppins-bold">Analisa AI</h2>
-              <p className="text-white/90 text-sm poppins-medium">{studentName} • {materiTitle}</p>
-            </div>
+      <div className="bg-white rounded-3xl max-w-3xl w-full max-h-[90vh] overflow-hidden shadow-2xl animate-slideUp flex flex-col">
+        {/* Header */}
+        <div className="bg-gradient-to-r from-[#336d82] to-[#4a8fa3] px-6 py-5 flex items-center justify-between">
+          <div>
+            <h2 className="text-white text-xl poppins-bold">
+              Hasil Analisa AI
+            </h2>
+            <p className="text-white/90 text-sm poppins-medium mt-1">
+              {studentName} • {materiTitle}
+            </p>
           </div>
           <button
             onClick={onClose}
@@ -128,93 +233,113 @@ const AnalisaAIModal: React.FC<AnalisaAIModalProps> = ({
           </button>
         </div>
 
-        {/* Content */}
-        <div className="p-6 md:p-8">
-          {/* Quick Stats - Compact */}
-          <div className="grid grid-cols-3 gap-4 mb-6">
-            {/* Score */}
-            <div className={`${scoreStatus.bg} ${scoreStatus.border} border-2 rounded-2xl p-4 text-center`}>
-              <p className="text-gray-600 text-xs poppins-medium mb-1">Skor</p>
-              <p className={`${scoreStatus.color} text-4xl poppins-bold`}>{quizSummary.score}%</p>
-              <p className={`${scoreStatus.color} text-xs poppins-semibold mt-1`}>{scoreStatus.label}</p>
+        {/* Content - Scrollable */}
+        <div className="flex-1 overflow-y-auto p-6 md:p-8">
+          {isLoading ? (
+            <div className="flex flex-col items-center justify-center py-16 space-y-4">
+              <div className="w-14 h-14 border-4 border-[#336d82]/20 border-t-[#336d82] rounded-full animate-spin"></div>
+              <p className="text-gray-600 text-sm poppins-medium">
+                Memuat hasil analisa...
+              </p>
             </div>
-
-            {/* Correct */}
-            <div className="bg-emerald-50 border-2 border-emerald-200 rounded-2xl p-4 text-center">
-              <div className="flex items-center justify-center gap-1 mb-1">
-                <CheckCircle sx={{ fontSize: 16, color: "#10b981" }} />
-                <p className="text-gray-600 text-xs poppins-medium">Benar</p>
-              </div>
-              <p className="text-emerald-700 text-4xl poppins-bold">{quizSummary.correctAnswers}</p>
-              <p className="text-emerald-600 text-xs poppins-medium mt-1">soal</p>
+          ) : error ? (
+            <div className="bg-red-50 border-2 border-red-200 rounded-2xl p-6">
+              <p className="text-red-600 text-sm poppins-medium text-center">
+                {error}
+              </p>
             </div>
-
-            {/* Incorrect */}
-            <div className="bg-rose-50 border-2 border-rose-200 rounded-2xl p-4 text-center">
-              <div className="flex items-center justify-center gap-1 mb-1">
-                <Cancel sx={{ fontSize: 16, color: "#f43f5e" }} />
-                <p className="text-gray-600 text-xs poppins-medium">Salah</p>
-              </div>
-              <p className="text-rose-700 text-4xl poppins-bold">{quizSummary.incorrectAnswers}</p>
-              <p className="text-rose-600 text-xs poppins-medium mt-1">soal</p>
-            </div>
-          </div>
-
-          {/* AI Analysis Button or Result */}
-          {!showAnalysis ? (
-            <div className="text-center py-8">
-              <div className="mb-6">
-                <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-yellow-100 to-orange-100 rounded-full mb-4">
-                  <span className="text-5xl">👴</span>
+          ) : (
+            <div className="space-y-8">
+              {/* Result Message */}
+              <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl p-6 border border-blue-100">
+                <div className="flex items-start gap-3 mb-4">
+                  <div className="text-4xl">👴</div>
+                  <div>
+                    <h3 className="text-[#336d82] text-base poppins-bold mb-2">
+                      Pesan dari Mbah AdaptivAI
+                    </h3>
+                  </div>
                 </div>
-                <h3 className="text-[#336d82] text-xl poppins-bold mb-2">
-                  Mbah AdaptivAI Siap Membantu!
-                </h3>
-                <p className="text-gray-600 text-sm poppins-regular max-w-md mx-auto">
-                  Dapatkan analisa lengkap dan rekomendasi pembelajaran dari AI
+                <p className="text-gray-700 text-sm poppins-regular leading-relaxed whitespace-pre-wrap">
+                  {resultMessage}
                 </p>
               </div>
 
-              <button
-                onClick={handleRequestAnalysis}
-                disabled={isLoadingAnalysis}
-                className="bg-gradient-to-r from-[#fcc61d] to-[#ffd84d] text-white px-8 py-4 rounded-2xl poppins-bold text-lg hover:from-[#e5b21a] hover:to-[#f0c940] transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-70 disabled:cursor-not-allowed inline-flex items-center gap-3 group"
-              >
-                {isLoadingAnalysis ? (
-                  <>
-                    <div className="w-6 h-6 border-3 border-white/30 border-t-white rounded-full animate-spin"></div>
-                    <span>Mbah AI sedang menganalisis...</span>
-                  </>
-                ) : (
-                  <>
-                    <AutoAwesome sx={{ fontSize: 28 }} className="group-hover:rotate-12 transition-transform" />
-                    <span>Minta Analisa dari Mbah AI</span>
-                  </>
-                )}
-              </button>
-            </div>
-          ) : (
-            /* AI Analysis Result - Cleaner format */
-            <div className="animate-fadeIn">
-              <div className="bg-gradient-to-br from-yellow-50/50 to-orange-50/50 rounded-2xl p-6 border-2 border-yellow-200">
-                <div className="prose prose-sm max-w-none">
-                  <pre className="text-[#336d82] text-base poppins-regular leading-relaxed whitespace-pre-wrap font-sans">
-{aiAnalysisText}
-                  </pre>
+              {/* Video Recommendations */}
+              {videoRecommendations.length > 0 && (
+                <div>
+                  <h3 className="text-[#336d82] text-base poppins-bold mb-4">
+                    Rekomendasi Video Pembelajaran
+                  </h3>
+                  <div className="space-y-4">
+                    {videoRecommendations.map((video) => (
+                      <div
+                        key={video.id}
+                        className="bg-white border border-gray-200 rounded-2xl overflow-hidden hover:shadow-lg hover:border-[#336d82]/30 transition-all duration-200"
+                      >
+                        <div className="px-4 py-4">
+                          <h3 className="text-[#336D82] text-[14px] poppins-semibold mb-2">
+                            {video.title}
+                          </h3>
+                          <div className="inline-block mb-3">
+                            <div className="bg-[#336D82] rounded-[10px] px-3 py-1">
+                              <span className="text-white text-[10px] poppins-medium">
+                                {video.grade}
+                              </span>
+                            </div>
+                          </div>
+                          <p className="text-[#666666] text-[11px] poppins-regular leading-relaxed">
+                            {video.description}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
+
+              {/* Teacher Analysis Section */}
+              {showTeacherAnalysis && (
+                <div className="animate-fadeIn">
+                  <h3 className="text-[#336d82] text-base poppins-bold mb-4 flex items-center gap-2">
+                    <span className="text-2xl">🎓</span>
+                    Rekomendasi untuk Guru
+                  </h3>
+                  <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-6 border border-amber-200">
+                    <p className="text-gray-700 text-sm poppins-regular leading-relaxed whitespace-pre-wrap">
+                      {teacherAnalysis}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Teacher Analysis Button */}
+              {!showTeacherAnalysis && (
+                <div className="pt-4 border-t border-gray-200">
+                  <button
+                    onClick={handleTeacherAnalysis}
+                    disabled={isAnalyzingForTeacher}
+                    className="w-full bg-gradient-to-r from-[#336d82] to-[#4a8fa3] text-white px-6 py-3.5 rounded-xl poppins-semibold hover:from-[#2a5a6b] hover:to-[#3d7a8a] transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center justify-center gap-3 group"
+                  >
+                    {isAnalyzingForTeacher ? (
+                      <>
+                        <div className="w-5 h-5 border-3 border-white/30 border-t-white rounded-full animate-spin"></div>
+                        <span>Sedang menganalisis...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Replay
+                          sx={{ fontSize: 22 }}
+                          className="group-hover:rotate-180 transition-transform duration-300"
+                        />
+                        <span>Ayo Guru Analisa Berdasarkan AI</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              )}
             </div>
           )}
-        </div>
-
-        {/* Footer */}
-        <div className="sticky bottom-0 bg-gray-50 px-6 py-4 rounded-b-3xl border-t-2 border-gray-100 flex justify-end">
-          <button
-            onClick={onClose}
-            className="bg-gradient-to-r from-[#fcc61d] to-[#ffd84d] text-white px-8 py-3 rounded-xl poppins-semibold hover:from-[#e5b21a] hover:to-[#f0c940] transition-all duration-200 shadow-md hover:shadow-lg active:scale-95"
-          >
-            Tutup
-          </button>
         </div>
       </div>
     </div>

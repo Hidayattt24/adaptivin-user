@@ -10,6 +10,7 @@ interface CardItem {
   subtitle?: string;
   imagePath: string;
   link: string;
+  displayTitle?: string; // Optional custom display title for overlay
 }
 
 interface CardCarouselProps {
@@ -19,75 +20,34 @@ interface CardCarouselProps {
 export default function CardCarousel({ cards }: CardCarouselProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const autoScrollTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Auto scroll functionality
-  useEffect(() => {
-    const startAutoScroll = () => {
-      autoScrollTimerRef.current = setInterval(() => {
-        setActiveIndex((prev) => {
-          const nextIndex = (prev + 1) % cards.length;
-          scrollToCard(nextIndex);
-          return nextIndex;
-        });
-      }, 3500); // Auto scroll every 3.5 seconds
-    };
-
-    startAutoScroll();
-
-    return () => {
-      if (autoScrollTimerRef.current) {
-        clearInterval(autoScrollTimerRef.current);
-      }
-    };
-  }, [cards.length]);
-
-  // Handle manual scroll
+  // Handle manual scroll only
   useEffect(() => {
     const container = scrollContainerRef.current;
     if (!container) return;
 
     const handleScroll = () => {
-      // Stop auto scroll when user manually scrolls
-      if (autoScrollTimerRef.current) {
-        clearInterval(autoScrollTimerRef.current);
-      }
-
       const scrollLeft = container.scrollLeft;
-      const cardWidth = 263 + 24; // card width + gap
+      const cardWidth = 320 + 32; // card width + gap
       const newIndex = Math.round(scrollLeft / cardWidth);
       setActiveIndex(newIndex);
-
-      // Resume auto scroll after 5 seconds of inactivity
-      setTimeout(() => {
-        if (autoScrollTimerRef.current) {
-          clearInterval(autoScrollTimerRef.current);
-        }
-        autoScrollTimerRef.current = setInterval(() => {
-          setActiveIndex((prev) => {
-            const nextIndex = (prev + 1) % cards.length;
-            scrollToCard(nextIndex);
-            return nextIndex;
-          });
-        }, 3500);
-      }, 5000);
     };
 
     container.addEventListener("scroll", handleScroll);
     return () => container.removeEventListener("scroll", handleScroll);
-  }, [cards.length]);
+  }, []);
 
   const scrollToCard = (index: number) => {
     const container = scrollContainerRef.current;
     if (!container) return;
 
-    const cardWidth = 263; // card width
-    const gap = 24; // gap between cards
+    const cardWidth = 320; // card width
+    const gap = 32; // gap between cards
     const containerWidth = container.offsetWidth;
 
     // Calculate scroll position to center the card
     const scrollPosition =
-      (cardWidth + gap) * index - containerWidth / 1 + cardWidth / 2;
+      (cardWidth + gap) * index - containerWidth / 2 + cardWidth / 2;
 
     container.scrollTo({
       left: Math.max(0, scrollPosition),
@@ -97,13 +57,13 @@ export default function CardCarousel({ cards }: CardCarouselProps) {
 
   return (
     <div className="relative pb-8">
-      {/* Cards Container - Extra padding to prevent cropping */}
+      {/* Cards Container - Responsive sizing */}
       <div
         ref={scrollContainerRef}
-        className="flex gap-6 overflow-x-auto scrollbar-hide snap-x snap-mandatory py-8 px-6 scroll-smooth"
+        className="flex gap-6 sm:gap-8 overflow-x-auto scrollbar-hide snap-x snap-mandatory py-10 px-6 sm:px-8 scroll-smooth"
         style={{
           scrollSnapType: "x mandatory",
-          scrollPaddingLeft: "calc(50% - 131.5px)",
+          scrollPaddingLeft: "calc(50% - 140px)",
         }}
       >
         {cards.map((card, index) => {
@@ -113,23 +73,48 @@ export default function CardCarousel({ cards }: CardCarouselProps) {
               key={card.id}
               className="flex-shrink-0 snap-center transition-all duration-500 ease-out"
               style={{
-                transform: isCenter ? "scale(1.15)" : "scale(0.85)",
-                opacity: isCenter ? 1 : 0.5,
-                marginLeft: index === 0 ? "calc(50% - 131.5px)" : "0",
+                transform: isCenter ? "scale(1.1)" : "scale(0.9)",
+                opacity: isCenter ? 1 : 0.6,
+                marginLeft: index === 0 ? "calc(50% - 140px)" : "0",
                 marginRight:
-                  index === cards.length - 1 ? "calc(50% - 131.5px)" : "0",
+                  index === cards.length - 1 ? "calc(50% - 140px)" : "0",
               }}
             >
               <Link href={card.link} className="block">
-                <div className="relative">
+                <div className="relative w-[280px] sm:w-[320px] h-auto">
                   <Image
                     src={card.imagePath}
                     alt={card.title}
-                    width={263}
-                    height={323}
-                    className="object-contain transition-transform duration-300"
+                    width={320}
+                    height={393}
+                    style={{ width: '100%', height: 'auto' }}
+                    className="object-contain transition-transform duration-300 hover:scale-105"
                     priority={index <= 2}
                   />
+                  {/* Text Overlay */}
+                  {card.displayTitle && (
+                    <div
+                      className="absolute text-right pointer-events-none"
+                      style={{
+                        top: '35px',
+                        bottom: '280px',
+                        right: '16px',
+                        left: '35px'
+                      }}
+                    >
+                      <div
+                        className="press-start-2p-regular text-white text-[18px] sm:text-[20px] leading-[28px] sm:leading-[32px]"
+                        style={{
+                          fontFamily: '"Press Start 2P", system-ui',
+                          fontWeight: 400
+                        }}
+                      >
+                        {card.displayTitle.split('\n').map((line, i) => (
+                          <div key={i}>{line}</div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </Link>
             </div>
@@ -144,8 +129,8 @@ export default function CardCarousel({ cards }: CardCarouselProps) {
             key={index}
             onClick={() => scrollToCard(index)}
             className={`h-[5px] rounded-full transition-all duration-300 ${index === activeIndex
-                ? "w-[52px] bg-[#336d82]"
-                : "w-[32px] bg-gray-300 hover:bg-gray-400"
+              ? "w-[52px] bg-[#336d82]"
+              : "w-[32px] bg-gray-300 hover:bg-gray-400"
               }`}
             aria-label={`Go to card ${index + 1}`}
           />

@@ -8,7 +8,6 @@ import {
   Badge,
   TextFields,
   Numbers,
-  Image as ImageIcon,
   AccessTime,
 } from "@mui/icons-material";
 
@@ -30,9 +29,9 @@ const questionTypeOptions = [
 ];
 
 const answerTypeOptions = [
-  { value: "Tulisan", label: "Tulisan" },
-  { value: "Angka", label: "Angka" },
-  { value: "Foto", label: "Foto" },
+  { value: "pilihan_ganda", label: "Pilihan Ganda" },
+  { value: "isian_singkat", label: "Isian Singkat" },
+  { value: "angka", label: "Angka" },
 ];
 
 const timeUnitOptions = [
@@ -94,12 +93,12 @@ export function QuestionEditModal({
 
   const getAnswerIcon = () => {
     switch (editedQuestion.answerType) {
-      case "Tulisan":
+      case "pilihan_ganda":
         return <TextFields sx={{ fontSize: 24 }} />;
-      case "Angka":
+      case "isian_singkat":
+        return <TextFields sx={{ fontSize: 24 }} />;
+      case "angka":
         return <Numbers sx={{ fontSize: 24 }} />;
-      case "Foto":
-        return <ImageIcon sx={{ fontSize: 24 }} />;
     }
   };
 
@@ -152,7 +151,7 @@ export function QuestionEditModal({
                 onChange={(value) =>
                   setEditedQuestion({
                     ...editedQuestion,
-                    // questionType: value as any,
+                    questionType: value as Question["questionType"],
                   })
                 }
                 leftIcon={
@@ -179,7 +178,7 @@ export function QuestionEditModal({
                     questionFilePreview: null,
                   })
                 }
-                onPreview={() => {}}
+                onPreview={() => { }}
                 label="Upload Gambar Soal"
                 optional
                 variant="primary"
@@ -226,7 +225,7 @@ export function QuestionEditModal({
                 onChange={(value) =>
                   setEditedQuestion({
                     ...editedQuestion,
-                    // answerType: value as any,
+                    answerType: value as Question["answerType"],
                   })
                 }
                 leftIcon={
@@ -238,38 +237,30 @@ export function QuestionEditModal({
             </div>
 
             {/* Answer Input - Conditional */}
-            {editedQuestion.answerType === "Foto" ? (
-              <div>
-                <label className="block text-gray-700 text-sm poppins-medium mb-2">
-                  Upload Gambar Jawaban
-                </label>
-                <FileUploadArea
-                  file={editedQuestion.answerFile}
-                  filePreview={editedQuestion.answerFilePreview}
-                  onFileSelect={handleAnswerFileUpload}
-                  onRemove={() =>
+            <div>
+              <label className="block text-gray-700 text-sm poppins-medium mb-2">
+                Isi Jawaban
+              </label>
+              {editedQuestion.answerType === "pilihan_ganda" ? (
+                <textarea
+                  value={editedQuestion.answerText}
+                  onChange={(e) =>
                     setEditedQuestion({
                       ...editedQuestion,
-                      answerFile: null,
-                      answerFilePreview: null,
+                      answerText: e.target.value,
                     })
                   }
-                  onPreview={() => {}}
-                  label="Upload Gambar Jawaban"
-                  variant="secondary"
+                  placeholder="Masukkan jawaban pilihan ganda (pisahkan dengan enter atau koma)&#10;A. Pilihan 1&#10;B. Pilihan 2&#10;C. Pilihan 3"
+                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 focus:border-[#2ea062] focus:outline-none poppins-regular resize-none"
+                  rows={5}
                 />
-              </div>
-            ) : (
-              <div>
-                <label className="block text-gray-700 text-sm poppins-medium mb-2">
-                  Isi Jawaban
-                </label>
+              ) : (
                 <div className="relative">
                   <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#2ea062]">
                     {getAnswerIcon()}
                   </div>
                   <input
-                    type={editedQuestion.answerType === "Angka" ? "number" : "text"}
+                    type={editedQuestion.answerType === "angka" ? "number" : "text"}
                     value={editedQuestion.answerText}
                     onChange={(e) =>
                       setEditedQuestion({
@@ -277,12 +268,39 @@ export function QuestionEditModal({
                         answerText: e.target.value,
                       })
                     }
-                    placeholder={`Tulis jawaban ${editedQuestion.answerType.toLowerCase()} di sini...`}
+                    placeholder={
+                      editedQuestion.answerType === "angka"
+                        ? "Masukkan jawaban dalam angka..."
+                        : "Masukkan jawaban isian singkat..."
+                    }
                     className="w-full pl-14 pr-4 py-3 rounded-xl border-2 border-gray-300 focus:border-[#2ea062] focus:outline-none poppins-regular"
                   />
                 </div>
-              </div>
-            )}
+              )}
+            </div>
+
+            {/* Support Image for Answer Explanation */}
+            <div>
+              <label className="block text-gray-700 text-sm poppins-medium mb-2">
+                Gambar Pendukung Penjelasan Jawaban (Opsional)
+              </label>
+              <FileUploadArea
+                file={editedQuestion.answerFile}
+                filePreview={editedQuestion.answerFilePreview}
+                onFileSelect={handleAnswerFileUpload}
+                onRemove={() =>
+                  setEditedQuestion({
+                    ...editedQuestion,
+                    answerFile: null,
+                    answerFilePreview: null,
+                  })
+                }
+                onPreview={() => { }}
+                label="Upload gambar pendukung penjelasan"
+                optional
+                variant="secondary"
+              />
+            </div>
           </div>
 
           {/* Time Section */}
@@ -322,7 +340,7 @@ export function QuestionEditModal({
                   onChange={(value) =>
                     setEditedQuestion({
                       ...editedQuestion,
-                      // timeUnit: value as any,
+                      timeUnit: value as Question["timeUnit"],
                     })
                   }
                   leftIcon={

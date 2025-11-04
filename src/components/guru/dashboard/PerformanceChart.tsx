@@ -61,25 +61,25 @@ const PerformanceChart: React.FC<PerformanceChartProps> = ({
   return (
     <div className={`${className}`}>
       {/* Chart Container */}
-      <div className="bg-gradient-to-br from-[#336d82] via-[#5a96a8] to-[#7bb3c4] rounded-[20px] shadow-xl overflow-hidden">
+      <div className="bg-gradient-to-br from-[#336d82] via-[#5a96a8] to-[#7bb3c4] rounded-xl sm:rounded-2xl lg:rounded-[20px] shadow-xl overflow-hidden">
         {/* Header Section with Student Name */}
-        <div className="bg-white/10 backdrop-blur-sm px-6 py-4 border-b border-white/20">
-          <div className="flex items-center justify-between flex-wrap gap-4">
-            <div>
+        <div className="bg-white/10 backdrop-blur-sm px-4 sm:px-5 lg:px-6 py-3 sm:py-4 border-b border-white/20">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
+            <div className="flex-1 min-w-0">
               {studentName && (
                 <p className="text-white/80 text-xs poppins-medium mb-1">
                   Siswa
                 </p>
               )}
-              <h2 className="text-white text-3xl poppins-bold tracking-tight">
+              <h2 className="text-white text-xl sm:text-2xl lg:text-3xl poppins-bold tracking-tight truncate">
                 {studentName || "Laporan Siswa"}
               </h2>
             </div>
-            <div className="bg-white/20 backdrop-blur-md px-4 py-2 rounded-[12px] border border-white/30">
-              <p className="text-white/90 text-xs poppins-medium mb-0.5">
+            <div className="bg-white/20 backdrop-blur-md px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-[12px] border border-white/30 flex-shrink-0">
+              <p className="text-white/90 text-[10px] sm:text-xs poppins-medium mb-0.5">
                 Analisis
               </p>
-              <p className="text-white text-base poppins-semibold">
+              <p className="text-white text-sm sm:text-base poppins-semibold truncate max-w-[200px] sm:max-w-none">
                 {materiTitle}
               </p>
             </div>
@@ -87,38 +87,37 @@ const PerformanceChart: React.FC<PerformanceChartProps> = ({
         </div>
 
         {/* Chart Section */}
-        <div className="p-6">
-          <div className="bg-white/10 backdrop-blur-sm rounded-[15px] p-4 border border-white/20">
-            <ResponsiveContainer width="100%" height={300}>
+        <div className="p-3 sm:p-4 lg:p-6">
+          <div className="bg-white/10 backdrop-blur-sm rounded-xl sm:rounded-[15px] p-2 sm:p-3 lg:p-4 border border-white/20">
+            <ResponsiveContainer width="100%" height={220} className="sm:!h-[280px] lg:!h-[300px]">
             <BarChart
               data={chartData}
-              margin={{ top: 20, right: 30, left: 0, bottom: 20 }}
+              margin={{ top: 10, right: 5, left: -10, bottom: 5 }}
             >
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.2)" />
               <XAxis
                 dataKey="name"
-                tick={{ fill: "white", fontSize: 13, fontFamily: "Poppins" }}
+                tick={{ fill: "white", fontSize: 11, fontFamily: "Poppins" }}
                 axisLine={{ stroke: "white" }}
+                tickLine={{ stroke: "white" }}
               />
               <YAxis
-                tick={{ fill: "white", fontSize: 13, fontFamily: "Poppins" }}
+                tick={{ fill: "white", fontSize: 11, fontFamily: "Poppins" }}
                 axisLine={{ stroke: "white" }}
-                label={{
-                  value: "",
-                  angle: -90,
-                  position: "insideLeft",
-                  fill: "white",
-                }}
+                tickLine={{ stroke: "white" }}
+                width={30}
               />
               <Tooltip content={<CustomTooltip />} />
               <Legend
                 wrapperStyle={{
-                  paddingTop: "20px",
+                  paddingTop: "10px",
                   fontFamily: "Poppins",
+                  fontSize: "12px"
                 }}
                 iconType="circle"
+                iconSize={8}
                 formatter={(value) => (
-                  <span className="text-white poppins-semibold text-sm">
+                  <span className="text-white poppins-semibold text-xs">
                     {value}
                   </span>
                 )}
@@ -126,41 +125,41 @@ const PerformanceChart: React.FC<PerformanceChartProps> = ({
               <Bar
                 dataKey="Salah"
                 fill="#EF4444"
-                radius={[10, 10, 0, 0]}
-                barSize={40}
+                radius={[6, 6, 0, 0]}
+                barSize={30}
               />
               <Bar
                 dataKey="Benar"
                 fill="#22C55E"
-                radius={[10, 10, 0, 0]}
-                barSize={40}
+                radius={[6, 6, 0, 0]}
+                barSize={30}
               />
             </BarChart>
           </ResponsiveContainer>
           </div>
 
           {/* Statistics Summary */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mt-3 sm:mt-4">
             {/* Total Benar */}
-            <div className="bg-white/10 backdrop-blur-sm rounded-[10px] p-3 border border-white/20">
-              <p className="text-white/70 text-xs poppins-medium mb-1">Total Benar</p>
-              <p className="text-white text-xl poppins-bold">
+            <div className="bg-white/10 backdrop-blur-sm rounded-lg sm:rounded-[10px] p-2.5 sm:p-3 border border-white/20">
+              <p className="text-white/70 text-[10px] sm:text-xs poppins-medium mb-1">Total Benar</p>
+              <p className="text-white text-lg sm:text-xl poppins-bold">
                 {data.reduce((sum, item) => sum + item.benar, 0)}
               </p>
             </div>
 
             {/* Total Salah */}
-            <div className="bg-white/10 backdrop-blur-sm rounded-[10px] p-3 border border-white/20">
-              <p className="text-white/70 text-xs poppins-medium mb-1">Total Salah</p>
-              <p className="text-white text-xl poppins-bold">
+            <div className="bg-white/10 backdrop-blur-sm rounded-lg sm:rounded-[10px] p-2.5 sm:p-3 border border-white/20">
+              <p className="text-white/70 text-[10px] sm:text-xs poppins-medium mb-1">Total Salah</p>
+              <p className="text-white text-lg sm:text-xl poppins-bold">
                 {data.reduce((sum, item) => sum + item.salah, 0)}
               </p>
             </div>
 
             {/* Akurasi */}
-            <div className="bg-white/10 backdrop-blur-sm rounded-[10px] p-3 border border-white/20">
-              <p className="text-white/70 text-xs poppins-medium mb-1">Akurasi</p>
-              <p className="text-white text-xl poppins-bold">
+            <div className="bg-white/10 backdrop-blur-sm rounded-lg sm:rounded-[10px] p-2.5 sm:p-3 border border-white/20">
+              <p className="text-white/70 text-[10px] sm:text-xs poppins-medium mb-1">Akurasi</p>
+              <p className="text-white text-lg sm:text-xl poppins-bold">
                 {(() => {
                   const totalBenar = data.reduce((sum, item) => sum + item.benar, 0);
                   const totalSoal = data.reduce((sum, item) => sum + item.benar + item.salah, 0);
@@ -170,9 +169,9 @@ const PerformanceChart: React.FC<PerformanceChartProps> = ({
             </div>
 
             {/* Total Soal */}
-            <div className="bg-white/10 backdrop-blur-sm rounded-[10px] p-3 border border-white/20">
-              <p className="text-white/70 text-xs poppins-medium mb-1">Total Soal</p>
-              <p className="text-white text-xl poppins-bold">
+            <div className="bg-white/10 backdrop-blur-sm rounded-lg sm:rounded-[10px] p-2.5 sm:p-3 border border-white/20">
+              <p className="text-white/70 text-[10px] sm:text-xs poppins-medium mb-1">Total Soal</p>
+              <p className="text-white text-lg sm:text-xl poppins-bold">
                 {data.reduce((sum, item) => sum + item.benar + item.salah, 0)}
               </p>
             </div>

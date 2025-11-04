@@ -248,26 +248,22 @@ const GrafikPerkembanganModal: React.FC<GrafikPerkembanganModalProps> = ({
           </div>
 
           {/* Insight Card - Compact */}
-          <div className={`rounded-2xl p-5 border-2 ${
-            stats.isImproving
-              ? "bg-emerald-50 border-emerald-200"
-              : "bg-yellow-50 border-yellow-200"
-          }`}>
+          <div className={`rounded-2xl p-5 border-2 ${stats.isImproving
+            ? "bg-emerald-50 border-emerald-200"
+            : "bg-yellow-50 border-yellow-200"
+            }`}>
             <div className="flex items-start gap-3">
-              <div className={`rounded-lg p-2 ${
-                stats.isImproving ? "bg-emerald-200" : "bg-yellow-200"
-              }`}>
+              <div className={`rounded-lg p-2 ${stats.isImproving ? "bg-emerald-200" : "bg-yellow-200"
+                }`}>
                 <Lightbulb sx={{ fontSize: 24, color: stats.isImproving ? "#047857" : "#d97706" }} />
               </div>
               <div className="flex-1">
-                <h4 className={`text-base poppins-bold mb-1 ${
-                  stats.isImproving ? "text-emerald-800" : "text-yellow-800"
-                }`}>
+                <h4 className={`text-base poppins-bold mb-1 ${stats.isImproving ? "text-emerald-800" : "text-yellow-800"
+                  }`}>
                   Insight Pembelajaran
                 </h4>
-                <p className={`text-sm poppins-regular leading-relaxed ${
-                  stats.isImproving ? "text-emerald-700" : "text-yellow-700"
-                }`}>
+                <p className={`text-sm poppins-regular leading-relaxed ${stats.isImproving ? "text-emerald-700" : "text-yellow-700"
+                  }`}>
                   {stats.isImproving ? (
                     <>
                       Siswa menunjukkan <strong>peningkatan yang baik</strong> dengan

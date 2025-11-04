@@ -260,17 +260,17 @@ Salam hangat,
 Mbah AdaptivAI 👴`;
 
   return (
-    <div className="min-h-screen bg-white p-6">
+    <div className="min-h-screen bg-white p-3 sm:p-4 lg:p-6 pb-20 sm:pb-20 lg:pb-6">
       {/* Header Section with Search */}
-      <div className="mb-6">
-        <div className="bg-gradient-to-r from-[#336D82] to-[#ECF3F6] rounded-[20px] p-6">
-          <h1 className="text-white text-4xl poppins-semibold mb-4">
+      <div className="mb-4 sm:mb-5 lg:mb-6">
+        <div className="bg-gradient-to-r from-[#336D82] to-[#ECF3F6] rounded-xl sm:rounded-2xl lg:rounded-[20px] p-4 sm:p-5 lg:p-6">
+          <h1 className="text-white text-2xl sm:text-3xl lg:text-4xl poppins-semibold mb-3 sm:mb-4">
             Laporan & Analisis
           </h1>
 
           {/* Student Search Bar */}
           {isLoading ? (
-            <div className="h-12 bg-white/20 rounded-lg animate-pulse"></div>
+            <div className="h-12 sm:h-14 lg:h-16 bg-white/20 rounded-lg animate-pulse"></div>
           ) : (
             <StudentSearchBar
               students={studentList.map(s => ({ id: s.id, nama: s.nama, nis: s.nis }))}
@@ -310,7 +310,7 @@ Mbah AdaptivAI 👴`;
         <>
           {/* Performance Chart Section - Overall Performance */}
           {currentReport && performanceData.length > 0 && (
-            <div className="mb-6">
+            <div className="mb-4 sm:mb-5 lg:mb-6">
               <PerformanceChart
                 data={performanceData}
                 materiTitle="Performa Pembelajaran Keseluruhan"
@@ -320,9 +320,9 @@ Mbah AdaptivAI 👴`;
           )}
 
           {/* Materials Section */}
-          <div className="mb-6">
-            <div className="mb-6">
-              <h2 className="text-[#336d82] text-4xl poppins-semibold">
+          <div className="mb-4 sm:mb-5 lg:mb-6">
+            <div className="mb-4 sm:mb-5 lg:mb-6">
+              <h2 className="text-[#336d82] text-2xl sm:text-3xl lg:text-4xl poppins-semibold">
                 MATERI DIPELAJARI
               </h2>
             </div>

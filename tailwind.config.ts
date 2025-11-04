@@ -8,6 +8,10 @@ export default {
   ],
   theme: {
     extend: {
+      screens: {
+        'tablet': '768px',
+        'tablet-lg': '820px',
+      },
       fontFamily: {
         sans: ["var(--font-poppins)", "Poppins", "sans-serif"],
         poppins: ["var(--font-poppins)", "Poppins", "sans-serif"],
@@ -84,5 +88,20 @@ export default {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    function ({ addUtilities }: any) {
+      addUtilities({
+        ".scrollbar-hide": {
+          /* IE and Edge */
+          "-ms-overflow-style": "none",
+          /* Firefox */
+          "scrollbar-width": "none",
+          /* Safari and Chrome */
+          "&::-webkit-scrollbar": {
+            display: "none",
+          },
+        },
+      });
+    },
+  ],
 } satisfies Config;

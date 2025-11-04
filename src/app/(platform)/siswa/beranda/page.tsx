@@ -9,7 +9,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { div } from "framer-motion/client";
 
-
 export default function BerandaSiswaPage() {
   const [classes, setClasses] = useState<any[]>([]);
   const [showMascot, setShowMascot] = useState(true);
@@ -28,28 +27,32 @@ export default function BerandaSiswaPage() {
   const tutorialSteps = [
     {
       title: "Selamat Datang! 👋",
-      message: "Hai! Aku Kiro, teman belajarmu. Mau aku tunjukkan cara pakai website ini?",
+      message:
+        "Hai! Aku Adaptivin, teman belajarmu. Mau aku tunjukkan cara pakai website ini?",
       emoji: "🤗",
-      position: "center"
+      position: "center",
     },
     {
       title: "Pilih Kelasmu 📚",
-      message: "Di sini kamu bisa pilih kelas yang mau dipelajari. Klik kartu kelas untuk mulai belajar!",
+      message:
+        "Di sini kamu bisa pilih kelas yang mau dipelajari. Klik kartu kelas untuk mulai belajar!",
       emoji: "👆",
-      position: "cards"
+      position: "cards",
     },
     {
       title: "Lihat Profilmu 👤",
-      message: "Klik foto profilmu untuk lihat perkembangan belajar dan ganti karakter favoritmu!",
+      message:
+        "Klik foto profilmu untuk lihat perkembangan belajar dan ganti karakter favoritmu!",
       emoji: "⭐",
-      position: "profile"
+      position: "profile",
     },
     {
       title: "Siap Belajar! 🚀",
-      message: "Sekarang kamu sudah siap! Yuk mulai petualangan belajarmu. Semangat ya! 💪",
+      message:
+        "Sekarang kamu sudah siap! Yuk mulai petualangan belajarmu. Semangat ya! 💪",
       emoji: "🎉",
-      position: "center"
-    }
+      position: "center",
+    },
   ];
 
   // Fetch classes from API (example)
@@ -91,7 +94,7 @@ export default function BerandaSiswaPage() {
 
   // Check if first visit - Show tutorial immediately
   useEffect(() => {
-    const hasVisited = localStorage.getItem('hasVisitedBeranda');
+    const hasVisited = localStorage.getItem("hasVisitedBeranda");
     if (!hasVisited) {
       setShowTutorial(true);
     }
@@ -102,13 +105,13 @@ export default function BerandaSiswaPage() {
       setTutorialStep(tutorialStep + 1);
     } else {
       setShowTutorial(false);
-      localStorage.setItem('hasVisitedBeranda', 'true');
+      localStorage.setItem("hasVisitedBeranda", "true");
     }
   };
 
   const handleSkipTutorial = () => {
     setShowTutorial(false);
-    localStorage.setItem('hasVisitedBeranda', 'true');
+    localStorage.setItem("hasVisitedBeranda", "true");
   };
 
   const handleRestartTutorial = () => {
@@ -140,7 +143,9 @@ export default function BerandaSiswaPage() {
     imagePath: classData.imagePath,
     link: `/siswa/materi/${classData.gradeLevel}`,
     // Dynamic displayTitle based on admin input
-    displayTitle: `${classData.subject}\nKelas ${toRoman(classData.gradeLevel)}`,
+    displayTitle: `${classData.subject}\nKelas ${toRoman(
+      classData.gradeLevel
+    )}`,
   }));
 
   return (
@@ -151,13 +156,27 @@ export default function BerandaSiswaPage() {
         <div className="absolute top-0 left-0 right-0 h-[400px] bg-gradient-to-b from-[#E8F6FF]/50 via-[#FFE8F5]/30 to-transparent"></div>
 
         {/* Floating Emoji Decorations */}
-        <div className="absolute top-[100px] right-[10%] text-4xl md:text-5xl opacity-20 animate-float">⭐</div>
-        <div className="absolute top-[200px] left-[5%] text-3xl md:text-4xl opacity-20 animate-float-delayed">🎯</div>
-        <div className="absolute top-[350px] right-[15%] text-3xl md:text-4xl opacity-20 animate-float">📚</div>
-        <div className="absolute hidden md:block top-[150px] left-[15%] text-4xl opacity-20 animate-float-delayed">🚀</div>
-        <div className="absolute hidden md:block top-[400px] left-[20%] text-3xl opacity-20 animate-float">💡</div>
-        <div className="absolute hidden lg:block bottom-[250px] right-[10%] text-5xl opacity-20 animate-float-delayed">🎨</div>
-        <div className="absolute hidden lg:block bottom-[300px] left-[10%] text-4xl opacity-20 animate-float">🏆</div>
+        <div className="absolute top-[100px] right-[10%] text-4xl md:text-5xl opacity-20 animate-float">
+          ⭐
+        </div>
+        <div className="absolute top-[200px] left-[5%] text-3xl md:text-4xl opacity-20 animate-float-delayed">
+          🎯
+        </div>
+        <div className="absolute top-[350px] right-[15%] text-3xl md:text-4xl opacity-20 animate-float">
+          📚
+        </div>
+        <div className="absolute hidden md:block top-[150px] left-[15%] text-4xl opacity-20 animate-float-delayed">
+          🚀
+        </div>
+        <div className="absolute hidden md:block top-[400px] left-[20%] text-3xl opacity-20 animate-float">
+          💡
+        </div>
+        <div className="absolute hidden lg:block bottom-[250px] right-[10%] text-5xl opacity-20 animate-float-delayed">
+          🎨
+        </div>
+        <div className="absolute hidden lg:block bottom-[300px] left-[10%] text-4xl opacity-20 animate-float">
+          🏆
+        </div>
 
         {/* Floating Geometric Shapes */}
         <div className="absolute top-[120px] right-[30px] w-16 h-16 border-4 border-[#FFB347]/20 rounded-2xl rotate-12 animate-float"></div>
@@ -169,20 +188,35 @@ export default function BerandaSiswaPage() {
         {/* Colorful Dots Pattern */}
         <div className="absolute top-[250px] left-[8%] flex gap-2 opacity-30">
           <div className="w-3 h-3 bg-[#33A1E0] rounded-full animate-pulse"></div>
-          <div className="w-3 h-3 bg-[#FF6B9D] rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
-          <div className="w-3 h-3 bg-[#FFB347] rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
+          <div
+            className="w-3 h-3 bg-[#FF6B9D] rounded-full animate-pulse"
+            style={{ animationDelay: "0.2s" }}
+          ></div>
+          <div
+            className="w-3 h-3 bg-[#FFB347] rounded-full animate-pulse"
+            style={{ animationDelay: "0.4s" }}
+          ></div>
         </div>
         <div className="absolute hidden md:block bottom-[350px] right-[12%] flex gap-2 opacity-30">
           <div className="w-3 h-3 bg-[#FFB347] rounded-full animate-pulse"></div>
-          <div className="w-3 h-3 bg-[#33A1E0] rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
-          <div className="w-3 h-3 bg-[#FF6B9D] rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
+          <div
+            className="w-3 h-3 bg-[#33A1E0] rounded-full animate-pulse"
+            style={{ animationDelay: "0.2s" }}
+          ></div>
+          <div
+            className="w-3 h-3 bg-[#FF6B9D] rounded-full animate-pulse"
+            style={{ animationDelay: "0.4s" }}
+          ></div>
         </div>
 
         {/* Subtle Grid Pattern */}
-        <div className="absolute inset-0 opacity-[0.02]" style={{
-          backgroundImage: `linear-gradient(#33A1E0 1px, transparent 1px), linear-gradient(90deg, #33A1E0 1px, transparent 1px)`,
-          backgroundSize: '50px 50px'
-        }}></div>
+        <div
+          className="absolute inset-0 opacity-[0.02]"
+          style={{
+            backgroundImage: `linear-gradient(#33A1E0 1px, transparent 1px), linear-gradient(90deg, #33A1E0 1px, transparent 1px)`,
+            backgroundSize: "50px 50px",
+          }}
+        ></div>
 
         {/* Decorative Corner Elements with Stars */}
         <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-[#33A1E0]/5 to-transparent rounded-bl-[100px]">
@@ -193,9 +227,21 @@ export default function BerandaSiswaPage() {
         </div>
 
         {/* Animated Sparkles */}
-        <div className="absolute top-[180px] right-[25%] text-xl opacity-40 animate-sparkle">✨</div>
-        <div className="absolute hidden md:block top-[320px] left-[30%] text-xl opacity-40 animate-sparkle" style={{ animationDelay: '1s' }}>✨</div>
-        <div className="absolute hidden lg:block bottom-[280px] right-[20%] text-xl opacity-40 animate-sparkle" style={{ animationDelay: '2s' }}>✨</div>
+        <div className="absolute top-[180px] right-[25%] text-xl opacity-40 animate-sparkle">
+          ✨
+        </div>
+        <div
+          className="absolute hidden md:block top-[320px] left-[30%] text-xl opacity-40 animate-sparkle"
+          style={{ animationDelay: "1s" }}
+        >
+          ✨
+        </div>
+        <div
+          className="absolute hidden lg:block bottom-[280px] right-[20%] text-xl opacity-40 animate-sparkle"
+          style={{ animationDelay: "2s" }}
+        >
+          ✨
+        </div>
       </div>
 
       {/* Tutorial Overlay */}
@@ -203,10 +249,10 @@ export default function BerandaSiswaPage() {
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] animate-fade-in">
           {/* Tutorial Spotlight Effect */}
           <div className="absolute inset-0">
-            {tutorialSteps[tutorialStep].position === 'cards' && (
+            {tutorialSteps[tutorialStep].position === "cards" && (
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] md:w-[80%] h-[400px] bg-white/5 rounded-3xl animate-pulse-slow"></div>
             )}
-            {tutorialSteps[tutorialStep].position === 'profile' && (
+            {tutorialSteps[tutorialStep].position === "profile" && (
               <div className="absolute top-8 right-8 w-32 h-32 bg-white/5 rounded-full animate-pulse-slow"></div>
             )}
           </div>
@@ -219,10 +265,11 @@ export default function BerandaSiswaPage() {
                 {tutorialSteps.map((_, index) => (
                   <div
                     key={index}
-                    className={`h-2 rounded-full transition-all duration-300 ${index === tutorialStep
-                      ? 'w-8 bg-[#33A1E0]'
-                      : 'w-2 bg-gray-300'
-                      }`}
+                    className={`h-2 rounded-full transition-all duration-300 ${
+                      index === tutorialStep
+                        ? "w-8 bg-[#33A1E0]"
+                        : "w-2 bg-gray-300"
+                    }`}
                   ></div>
                 ))}
               </div>
@@ -291,15 +338,25 @@ export default function BerandaSiswaPage() {
       {/* CSS Animations */}
       <style jsx>{`
         @keyframes float {
-          0%, 100% { transform: translateY(0px) rotate(12deg); }
-          50% { transform: translateY(-20px) rotate(12deg); }
+          0%,
+          100% {
+            transform: translateY(0px) rotate(12deg);
+          }
+          50% {
+            transform: translateY(-20px) rotate(12deg);
+          }
         }
         @keyframes float-delayed {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-15px); }
+          0%,
+          100% {
+            transform: translateY(0px);
+          }
+          50% {
+            transform: translateY(-15px);
+          }
         }
         @keyframes slide-in-bounce {
-          0% { 
+          0% {
             transform: translateX(400px) scale(0);
             opacity: 0;
           }
@@ -326,21 +383,45 @@ export default function BerandaSiswaPage() {
           }
         }
         @keyframes bounce-gentle {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-10px); }
+          0%,
+          100% {
+            transform: translateY(0);
+          }
+          50% {
+            transform: translateY(-10px);
+          }
         }
         @keyframes wave {
-          0%, 100% { transform: rotate(0deg); }
-          25% { transform: rotate(20deg); }
-          75% { transform: rotate(-20deg); }
+          0%,
+          100% {
+            transform: rotate(0deg);
+          }
+          25% {
+            transform: rotate(20deg);
+          }
+          75% {
+            transform: rotate(-20deg);
+          }
         }
         @keyframes fade-in {
-          from { opacity: 0; transform: translateY(-10px); }
-          to { opacity: 1; transform: translateY(0); }
+          from {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
         }
         @keyframes fade-in-delay {
-          from { opacity: 0; transform: translateX(-10px); }
-          to { opacity: 1; transform: translateX(0); }
+          from {
+            opacity: 0;
+            transform: translateX(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateX(0);
+          }
         }
         .animate-float {
           animation: float 6s ease-in-out infinite;
@@ -368,25 +449,31 @@ export default function BerandaSiswaPage() {
           animation: fade-in-delay 0.6s ease-out 0.3s both;
         }
         @keyframes sparkle {
-          0%, 100% { 
+          0%,
+          100% {
             opacity: 0.2;
             transform: scale(1) rotate(0deg);
           }
-          50% { 
+          50% {
             opacity: 0.8;
             transform: scale(1.3) rotate(180deg);
           }
         }
         @keyframes pulse-slow {
-          0%, 100% { opacity: 0.3; }
-          50% { opacity: 0.1; }
+          0%,
+          100% {
+            opacity: 0.3;
+          }
+          50% {
+            opacity: 0.1;
+          }
         }
         @keyframes scale-in {
-          from { 
+          from {
             transform: scale(0.8);
             opacity: 0;
           }
-          to { 
+          to {
             transform: scale(1);
             opacity: 1;
           }
@@ -406,7 +493,10 @@ export default function BerandaSiswaPage() {
       <div className="relative z-10">
         {/* Header with greeting and profile - Mobile Only */}
         <div className="md:hidden">
-          <Header username="Farhan" profileImage="/siswa/foto-profil/kocheng-oren.svg" />
+          <Header
+            username="Farhan"
+            profileImage="/siswa/foto-profil/kocheng-oren.svg"
+          />
         </div>
 
         {/* Desktop/Tablet Header - Compact for Desktop */}
@@ -459,7 +549,12 @@ export default function BerandaSiswaPage() {
                 <h2 className="text-base font-bold text-[#2B7A9E] drop-shadow-sm">
                   Ayo Tentukan Level Petualanganmu
                 </h2>
-                <span className="text-xl animate-bounce-gentle" style={{ animationDelay: '0.5s' }}>🚀</span>
+                <span
+                  className="text-xl animate-bounce-gentle"
+                  style={{ animationDelay: "0.5s" }}
+                >
+                  🚀
+                </span>
               </div>
             </div>
 
@@ -491,12 +586,12 @@ export default function BerandaSiswaPage() {
                         <div className="absolute inset-0 flex items-start justify-end p-5 transition-transform duration-500 group-hover:translate-y-[-4px]">
                           <div className="text-right transform transition-all duration-500 group-hover:scale-105">
                             <div className="press-start-2p-regular text-white text-base leading-relaxed">
-                              {card.displayTitle.split('\n').map((line, i) => (
+                              {card.displayTitle.split("\n").map((line, i) => (
                                 <div
                                   key={i}
                                   className="transform transition-all duration-500"
                                   style={{
-                                    transitionDelay: `${i * 50}ms`
+                                    transitionDelay: `${i * 50}ms`,
                                   }}
                                 >
                                   {line}
@@ -518,7 +613,6 @@ export default function BerandaSiswaPage() {
                 </Link>
               ))}
             </div>
-
           </div>
 
           {/* Empty State Message if no classes - Compact */}
@@ -527,9 +621,12 @@ export default function BerandaSiswaPage() {
               <div className="w-32 h-32 mx-auto mb-5 bg-gradient-to-br from-[#E8F6FF] via-[#FFE8F5] to-[#FFF4E8] rounded-full flex items-center justify-center shadow-2xl animate-bounce-gentle border-4 border-white">
                 <span className="text-6xl">📚</span>
               </div>
-              <h3 className="text-xl font-bold text-[#2B7A9E] mb-2">Belum Ada Kelas Nih! 🤔</h3>
+              <h3 className="text-xl font-bold text-[#2B7A9E] mb-2">
+                Belum Ada Kelas Nih! 🤔
+              </h3>
               <p className="text-sm text-gray-600 max-w-md mx-auto">
-                Tenang, kelas kamu akan muncul di sini setelah guru menambahkanmu. Sabar ya! 😊
+                Tenang, kelas kamu akan muncul di sini setelah guru
+                menambahkanmu. Sabar ya! 😊
               </p>
             </div>
           )}

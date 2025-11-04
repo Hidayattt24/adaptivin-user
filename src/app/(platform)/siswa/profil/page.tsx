@@ -6,10 +6,14 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import MobileWarning from "@/components/siswa/layout/MobileWarning";
 import MobileNavbar from "@/components/siswa/navigation/MobileNavbar";
+import { useSiswaProfile } from "@/hooks/siswa/useSiswaProfile";
+import { getStudentAvatar } from "@/lib/api/user";
+import { clearAuth } from "@/lib/storage";
 
 export default function ProfilSiswaPage() {
   const [isMobile, setIsMobile] = useState(true);
   const router = useRouter();
+  const { data: profile, isLoading } = useSiswaProfile();
 
   useEffect(() => {
     const checkScreenSize = () => {
@@ -23,17 +27,33 @@ export default function ProfilSiswaPage() {
   }, []);
 
   const handleLogout = () => {
-    // TODO: Implement actual logout logic
     if (confirm("Apakah Anda yakin ingin keluar?")) {
-      localStorage.removeItem("user");
-      // Clear session/token
-      router.push("/");
+      clearAuth();
+      router.push("/splash");
     }
   };
 
   if (!isMobile) {
     return <MobileWarning />;
   }
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-white">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-[#33A1E0] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-[#4c859a] font-medium">Memuat profil...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const namaLengkap = profile?.nama_lengkap || "Siswa";
+  const tingkatKelas = profile?.kelas?.tingkat_kelas || "IV";
+  const namaSekolah = profile?.sekolah?.nama_sekolah || "";
+
+  const profileImage = getStudentAvatar(profile?.profil_siswa_index);
 
   return (
     <div className="relative w-full min-h-screen overflow-x-hidden bg-gradient-to-b from-slate-50 to-white">
@@ -56,7 +76,7 @@ export default function ProfilSiswaPage() {
               <div className="relative">
                 <div className="w-32 h-32 rounded-full bg-white/95 flex items-center justify-center shadow-lg ring-4 ring-white/30">
                   <Image
-                    src="/siswa/foto-profil/kocheng-oren.svg"
+                    src={profileImage}
                     alt="Profile"
                     width={75}
                     height={75}
@@ -70,13 +90,18 @@ export default function ProfilSiswaPage() {
 
             {/* Name */}
             <h1 className="text-2xl font-bold text-white text-center mb-3 tracking-tight">
-              Farhan
+              {namaLengkap}
             </h1>
 
             {/* Class Badge */}
-            <div className="flex justify-center">
+            <div className="flex flex-col items-center gap-2">
+              {namaSekolah && (
+                <div className="bg-white/20 backdrop-blur-sm px-6 py-2 rounded-full border border-white/30">
+                  <p className="text-white/80 text-lg font-medium">{namaSekolah}</p>  
+                </div>
+              )}
               <div className="bg-white/20 backdrop-blur-sm px-6 py-2 rounded-full border border-white/30">
-                <p className="text-white text-sm font-semibold tracking-wide">Kelas IV</p>
+                <p className="text-white text-sm font-semibold tracking-wide">Kelas {tingkatKelas}</p>
               </div>
             </div>
           </div>
@@ -150,13 +175,13 @@ export default function ProfilSiswaPage() {
       {/* Spacing before navbar */}
       <div className="h-[200px]" />
 
-      {/* Mobile Navigation Bar */}
-      <MobileNavbar characterImage="/siswa/foto-profil/kocheng-oren.svg" />
+      {/* Mobile Navigation Bar - Karakter dari database otomatis */}
+      <MobileNavbar />
 
       {/* Add Google Material Symbols */}
       <link
         rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=optional"
       />
     </div>
   );

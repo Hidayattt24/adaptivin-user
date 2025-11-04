@@ -32,7 +32,7 @@ export interface Question {
 interface QuestionSectionProps {
   question: Question;
   index: number;
-  onUpdate: (id: string, field: keyof Question, value: any) => void;
+  // onUpdate: (id: string, field: keyof Question, value: any) => void;
   onRemove: (id: string) => void;
   onQuestionFileUpload: (id: string, e: React.ChangeEvent<HTMLInputElement>) => void;
   onAnswerFileUpload: (id: string, e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -64,7 +64,7 @@ const timeUnitOptions = [
 export default function QuestionSection({
   question,
   index,
-  onUpdate,
+  // onUpdate,
   onRemove,
   onQuestionFileUpload,
   onAnswerFileUpload,
@@ -93,7 +93,7 @@ export default function QuestionSection({
 
         {/* Question Type Dropdown */}
         <div className="mb-4">
-          <CustomDropdown
+          {/* <CustomDropdown
             value={question.questionType}
             options={questionTypeOptions}
             onChange={(value) => onUpdate(question.id, "questionType", value)}
@@ -104,7 +104,7 @@ export default function QuestionSection({
                 </span>
               </div>
             }
-          />
+          /> */}
         </div>
 
         {/* Question File Upload */}
@@ -129,7 +129,7 @@ export default function QuestionSection({
         {/* Question Text Input */}
         <textarea
           value={question.questionText}
-          onChange={(e) => onUpdate(question.id, "questionText", e.target.value)}
+          // onChange={(e) => onUpdate(question.id, "questionText", e.target.value)}
           placeholder="Isi soal anda disini..."
           className="w-full px-4 py-3 rounded-xl border-2 border-white/30 bg-white/95 backdrop-blur-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-white shadow-md resize-none"
           rows={4}
@@ -144,12 +144,12 @@ export default function QuestionSection({
 
         {/* Answer Type Dropdown */}
         <div className="mb-4">
-          <CustomDropdown
+          {/* <CustomDropdown
             value={question.answerType}
             options={answerTypeOptions}
             onChange={(value) => onUpdate(question.id, "answerType", value)}
             leftIcon={getAnswerIcon()}
-          />
+          /> */}
         </div>
 
         {/* Answer File Upload (if Foto selected) */}
@@ -181,7 +181,7 @@ export default function QuestionSection({
             <input
               type={question.answerType === "Angka" ? "number" : "text"}
               value={question.answerText}
-              onChange={(e) => onUpdate(question.id, "answerText", e.target.value)}
+              // onChange={(e) => onUpdate(question.id, "answerText", e.target.value)}
               placeholder={
                 question.answerType === "Angka"
                   ? "Masukkan jawaban dalam angka..."
@@ -199,7 +199,7 @@ export default function QuestionSection({
             <input
               type="text"
               value={question.explanation}
-              onChange={(e) => onUpdate(question.id, "explanation", e.target.value)}
+              // onChange={(e) => onUpdate(question.id, "explanation", e.target.value)}
               placeholder="Berikan penjelasan untuk jawaban ini..."
               className="w-full mt-2 px-4 py-3 rounded-xl border-2 border-white/30 bg-white/95 backdrop-blur-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-white shadow-md"
             />
@@ -240,23 +240,23 @@ export default function QuestionSection({
         </h2>
         <div className="flex items-center gap-4">
           <div className="relative flex-1 max-w-xs">
-            <input
+            {/* <input
               type="number"
               min="1"
               value={question.timeValue}
               onChange={(e) =>
-                onUpdate(question.id, "timeValue", parseInt(e.target.value) || 1)
+                // onUpdate(question.id, "timeValue", parseInt(e.target.value) || 1)
               }
               className="w-full px-6 py-4 rounded-2xl border-2 border-white/30 bg-white/95 backdrop-blur-sm text-gray-800 font-bold text-center text-2xl focus:outline-none focus:ring-2 focus:ring-white focus:border-white shadow-lg hover:shadow-xl transition-all"
             />
           </div>
           <div className="flex-1 max-w-xs">
-            <CustomDropdown
+            {/* <CustomDropdown
               value={question.timeUnit}
               options={timeUnitOptions}
               onChange={(value) => onUpdate(question.id, "timeUnit", value)}
               leftIcon={<AccessTime sx={{ fontSize: 24, color: "#336d82" }} />}
-            />
+            /> */}
           </div>
         </div>
       </div>

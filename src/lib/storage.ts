@@ -1,15 +1,32 @@
 /**
  * Storage Utility untuk FE Adaptivin (User Platform)
  *
- * Menggunakan prefix "adaptivin_user_" untuk menghindari collision
- * dengan aplikasi admin yang menggunakan "adaptivin_admin_"
+ * Menggunakan prefix dinamis berdasarkan role untuk menghindari collision
+ * antara guru dan siswa yang login di browser yang sama
  *
- * Ini memastikan localStorage dan cookies tidak tercampur
- * meskipun berjalan di localhost dengan port berbeda
+ * Format: "adaptivin_{role}_" (contoh: "adaptivin_guru_", "adaptivin_siswa_")
  */
 
-const STORAGE_PREFIX = "adaptivin_user_";
-const COOKIE_PREFIX = "adaptivin_user_";
+// Get current active role from URL path
+const getCurrentRole = (): "guru" | "siswa" | "user" => {
+  if (typeof window === "undefined") return "user";
+
+  const path = window.location.pathname;
+  if (path.includes("/guru")) return "guru";
+  if (path.includes("/siswa")) return "siswa";
+
+  return "user";
+};
+
+// Get dynamic prefix based on current role
+const getStoragePrefix = (): string => {
+  const role = getCurrentRole();
+  return `adaptivin_${role}_`;
+};
+
+// These will be called each time to get fresh prefix
+const getPrefix = () => getStoragePrefix();
+const getCookiePrefix = () => getStoragePrefix();
 
 // ==================== LocalStorage ====================
 
@@ -18,7 +35,8 @@ const COOKIE_PREFIX = "adaptivin_user_";
  */
 export const setStorage = (key: string, value: unknown): void => {
   try {
-    const prefixedKey = `${STORAGE_PREFIX}${key}`;
+    const prefix = getPrefix();
+    const prefixedKey = `${prefix}${key}`;
     const serializedValue = JSON.stringify(value);
     localStorage.setItem(prefixedKey, serializedValue);
   } catch (error) {
@@ -31,7 +49,8 @@ export const setStorage = (key: string, value: unknown): void => {
  */
 export const getStorage = <T = unknown>(key: string): T | null => {
   try {
-    const prefixedKey = `${STORAGE_PREFIX}${key}`;
+    const prefix = getPrefix();
+    const prefixedKey = `${prefix}${key}`;
     const item = localStorage.getItem(prefixedKey);
 
     if (!item) return null;
@@ -44,11 +63,12 @@ export const getStorage = <T = unknown>(key: string): T | null => {
 };
 
 /**
- * Hapus data dari localStorage dengan prefix
+ * Hapus item dari localStorage
  */
 export const removeStorage = (key: string): void => {
   try {
-    const prefixedKey = `${STORAGE_PREFIX}${key}`;
+    const prefix = getPrefix();
+    const prefixedKey = `${prefix}${key}`;
     localStorage.removeItem(prefixedKey);
   } catch (error) {
     console.error(`Failed to remove from localStorage (key: ${key}):`, error);
@@ -56,13 +76,14 @@ export const removeStorage = (key: string): void => {
 };
 
 /**
- * Clear semua data dengan prefix adaptivin_user_
+ * Hapus semua item dengan prefix dari localStorage
  */
 export const clearStorage = (): void => {
   try {
+    const prefix = getPrefix();
     const keys = Object.keys(localStorage);
     keys.forEach((key) => {
-      if (key.startsWith(STORAGE_PREFIX)) {
+      if (key.startsWith(prefix)) {
         localStorage.removeItem(key);
       }
     });
@@ -87,7 +108,8 @@ export const setCookie = (
   } = {}
 ): void => {
   try {
-    const prefixedName = `${COOKIE_PREFIX}${name}`;
+    const prefix = getCookiePrefix();
+    const prefixedName = `${prefix}${name}`;
     const {
       maxAge = 86400, // 1 day default
       path = "/",
@@ -115,7 +137,8 @@ export const setCookie = (
  */
 export const getCookie = (name: string): string | null => {
   try {
-    const prefixedName = `${COOKIE_PREFIX}${name}`;
+    const prefix = getCookiePrefix();
+    const prefixedName = `${prefix}${name}`;
     const cookies = document.cookie.split("; ");
 
     for (const cookie of cookies) {
@@ -137,7 +160,8 @@ export const getCookie = (name: string): string | null => {
  */
 export const removeCookie = (name: string, path: string = "/"): void => {
   try {
-    const prefixedName = `${COOKIE_PREFIX}${name}`;
+    const prefix = getCookiePrefix();
+    const prefixedName = `${prefix}${name}`;
     document.cookie = `${prefixedName}=; path=${path}; max-age=0`;
   } catch (error) {
     console.error(`Failed to remove cookie (name: ${name}):`, error);
@@ -149,12 +173,13 @@ export const removeCookie = (name: string, path: string = "/"): void => {
  */
 export const clearCookies = (): void => {
   try {
+    const prefix = getCookiePrefix();
     const cookies = document.cookie.split("; ");
 
     cookies.forEach((cookie) => {
       const [name] = cookie.split("=");
-      if (name.startsWith(COOKIE_PREFIX)) {
-        const cleanName = name.replace(COOKIE_PREFIX, "");
+      if (name.startsWith(prefix)) {
+        const cleanName = name.replace(prefix, "");
         removeCookie(cleanName);
       }
     });

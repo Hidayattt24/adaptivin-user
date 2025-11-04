@@ -3,6 +3,7 @@
 import React from "react";
 import { Close, AccessTime, Image as ImageIcon } from "@mui/icons-material";
 import { Question } from "./QuestionSection";
+import Image from "next/image";
 
 interface QuestionPreviewModalProps {
   isOpen: boolean;
@@ -75,7 +76,7 @@ export function QuestionPreviewModal({
                   <ImageIcon sx={{ fontSize: 20 }} />
                   <span className="text-sm poppins-medium">Gambar Soal</span>
                 </div>
-                <img
+                <Image
                   src={question.questionFilePreview}
                   alt="Question"
                   className="w-full rounded-lg shadow-md"
@@ -111,7 +112,7 @@ export function QuestionPreviewModal({
                   <ImageIcon sx={{ fontSize: 20 }} />
                   <span className="text-sm poppins-medium">Gambar Jawaban</span>
                 </div>
-                <img
+                <Image
                   src={question.answerFilePreview}
                   alt="Answer"
                   className="w-full rounded-lg shadow-md"

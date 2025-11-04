@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import MobileWarning from "@/components/siswa/layout/MobileWarning";
+import { useUpdateSiswaPassword } from "@/hooks/siswa/useSiswaProfile";
+import Swal from "sweetalert2";
 
 export default function GantiPasswordPage() {
   const [isMobile, setIsMobile] = useState(true);
@@ -12,8 +14,9 @@ export default function GantiPasswordPage() {
   const [showPasswordLama, setShowPasswordLama] = useState(false);
   const [showPasswordBaru, setShowPasswordBaru] = useState(false);
   const [showKonfirmasi, setShowKonfirmasi] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+
+  const { mutateAsync: updatePassword, isPending: isLoading } = useUpdateSiswaPassword();
 
   useEffect(() => {
     const checkScreenSize = () => {
@@ -31,28 +34,58 @@ export default function GantiPasswordPage() {
 
     // Validation
     if (!passwordLama || !passwordBaru || !konfirmasiPassword) {
-      alert("Semua field harus diisi!");
+      Swal.fire({
+        icon: "warning",
+        title: "Peringatan",
+        text: "Semua field harus diisi!",
+        confirmButtonColor: "#336d82",
+      });
       return;
     }
 
-    if (passwordBaru.length < 6) {
-      alert("Password baru minimal 6 karakter!");
+    if (passwordBaru.length < 8) {
+      Swal.fire({
+        icon: "warning",
+        title: "Peringatan",
+        text: "Password baru minimal 8 karakter!",
+        confirmButtonColor: "#336d82",
+      });
       return;
     }
 
     if (passwordBaru !== konfirmasiPassword) {
-      alert("Password baru dan konfirmasi password tidak cocok!");
+      Swal.fire({
+        icon: "warning",
+        title: "Peringatan",
+        text: "Password baru dan konfirmasi password tidak cocok!",
+        confirmButtonColor: "#336d82",
+      });
       return;
     }
 
-    setIsLoading(true);
+    try {
+      await updatePassword({
+        currentPassword: passwordLama,
+        newPassword: passwordBaru,
+      });
 
-    // TODO: Implement actual API call
-    setTimeout(() => {
-      setIsLoading(false);
-      alert("Password berhasil diubah!");
+      Swal.fire({
+        icon: "success",
+        title: "Berhasil!",
+        text: "Password berhasil diubah!",
+        confirmButtonColor: "#336d82",
+        timer: 2000,
+      });
+
       router.push("/siswa/profil");
-    }, 1000);
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Gagal!",
+        text: error instanceof Error ? error.message : "Gagal mengubah password",
+        confirmButtonColor: "#336d82",
+      });
+    }
   };
 
   if (!isMobile) {
@@ -179,7 +212,7 @@ export default function GantiPasswordPage() {
                 <div className="text-[12px] text-[#336d82] leading-relaxed">
                   <p className="font-semibold mb-1">Tips Password Aman:</p>
                   <ul className="list-disc list-inside space-y-1">
-                    <li>Minimal 6 karakter</li>
+                    <li>Minimal 8 karakter</li>
                     <li>Gunakan kombinasi huruf dan angka</li>
                     <li>Jangan gunakan tanggal lahir</li>
                   </ul>
@@ -190,11 +223,10 @@ export default function GantiPasswordPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className={`w-full bg-gradient-to-r from-[#336d82] to-[#5b9db5] text-white text-[16px] font-semibold py-3 rounded-[20px] shadow-lg transition-all duration-300 ${
-                isLoading
+              className={`w-full bg-gradient-to-r from-[#336d82] to-[#5b9db5] text-white text-[16px] font-semibold py-3 rounded-[20px] shadow-lg transition-all duration-300 ${isLoading
                   ? "opacity-50 cursor-not-allowed"
                   : "hover:shadow-xl hover:scale-[1.02]"
-              }`}
+                }`}
             >
               {isLoading ? "Menyimpan..." : "Simpan Password Baru"}
             </button>
@@ -205,7 +237,7 @@ export default function GantiPasswordPage() {
       {/* Add Google Material Symbols */}
       <link
         rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=optional"
       />
     </div>
   );

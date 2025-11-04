@@ -7,6 +7,7 @@ import { useState, useRef, useEffect } from "react";
 interface CardItem {
   id: string;
   title: string;
+  subtitle?: string;
   imagePath: string;
   link: string;
 }
@@ -142,11 +143,10 @@ export default function CardCarousel({ cards }: CardCarouselProps) {
           <button
             key={index}
             onClick={() => scrollToCard(index)}
-            className={`h-[5px] rounded-full transition-all duration-300 ${
-              index === activeIndex
+            className={`h-[5px] rounded-full transition-all duration-300 ${index === activeIndex
                 ? "w-[52px] bg-[#336d82]"
                 : "w-[32px] bg-gray-300 hover:bg-gray-400"
-            }`}
+              }`}
             aria-label={`Go to card ${index + 1}`}
           />
         ))}

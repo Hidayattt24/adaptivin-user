@@ -6,9 +6,11 @@ import Header from "@/components/siswa/layout/Header";
 import SectionTitle from "@/components/siswa/layout/SectionTitle";
 import CardCarousel from "@/components/siswa/carousel/CardCarousel";
 import MobileNavbar from "@/components/siswa/navigation/MobileNavbar";
+import { useSiswaProfile } from "@/hooks/siswa/useSiswaProfile";
 
 export default function BerandaSiswaPage() {
   const [isMobile, setIsMobile] = useState(true);
+  const { data: profile, isLoading } = useSiswaProfile();
 
   useEffect(() => {
     const checkScreenSize = () => {
@@ -26,25 +28,55 @@ export default function BerandaSiswaPage() {
     return <MobileWarning />;
   }
 
-  // Card data
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-white">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-[#33A1E0] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-[#4c859a] font-medium">Memuat data...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Get kelas info from profile
+  const kelas = profile?.kelas;
+  const tingkatKelas = kelas?.tingkat_kelas || "4";
+  const namaKelas = kelas?.nama_kelas || `Kelas ${tingkatKelas}`;
+  const mataPelajaran = kelas?.mata_pelajaran || "Matematika";
+  const namaLengkap = profile?.nama_lengkap || "Siswa";
+
+  // Format tingkat kelas untuk nama file gambar
+  // Database might store: "4", "5", "6", "IV", "V", "VI"
+  // Files available: kelas-4.svg, kelas-5.svg, Kelas 6.svg
+  const formatKelasForImage = (tingkat: string): string => {
+    // Convert Roman numerals to Arabic if needed
+    const romanToArabic: Record<string, string> = {
+      "IV": "4",
+      "V": "5",
+      "VI": "6"
+    };
+
+    // Check if it's a Roman numeral and convert it
+    const arabicTingkat = romanToArabic[tingkat] || tingkat;
+
+    // Map to correct file names
+    if (arabicTingkat === "6") return "Kelas-6";
+    if (arabicTingkat === "4") return "kelas-4";
+    if (arabicTingkat === "5") return "kelas-5";
+
+    // Default fallback
+    return "kelas-4";
+  };
+
   const cards = [
     {
-      id: "kelas-4",
-      title: "Matematika Kelas 4",
-      imagePath: "/siswa/card-siswa/kelas-4.svg",
-      link: "/siswa/materi/4",
-    },
-    {
-      id: "kelas-5",
-      title: "Matematika Kelas 5",
-      imagePath: "/siswa/card-siswa/kelas-5.svg",
-      link: "/siswa/materi/5",
-    },
-    {
-      id: "kelas-6",
-      title: "Matematika Kelas 6",
-      imagePath: "/siswa/card-siswa/Kelas 6.svg",
-      link: "/siswa/materi/6",
+      id: kelas?.id || `kelas-${tingkatKelas}`,
+      title: namaKelas,
+      subtitle: mataPelajaran,
+      imagePath: `/siswa/card-siswa/${formatKelasForImage(tingkatKelas)}.svg`,
+      link: `/siswa/materi/${tingkatKelas}`,
     },
   ];
 
@@ -92,8 +124,8 @@ export default function BerandaSiswaPage() {
 
       {/* Content */}
       <div className="relative z-10">
-        {/* Header with greeting and profile */}
-        <Header username="Farhan" profileImage="/siswa/foto-profil/kocheng-oren.svg" />
+        {/* Header with greeting and profile - Gambar dari database otomatis */}
+        <Header username={namaLengkap} />
 
         {/* Section Title */}
         <SectionTitle>Ayo Tentukan Level Petualanganmu</SectionTitle>
@@ -101,8 +133,8 @@ export default function BerandaSiswaPage() {
         {/* Card Carousel */}
         <CardCarousel cards={cards} />
 
-        {/* Mobile Navigation Bar */}
-        <MobileNavbar characterImage="/siswa/foto-profil/kocheng-oren.svg" />
+        {/* Mobile Navigation Bar - Karakter dari database otomatis */}
+        <MobileNavbar />
 
         {/* Bottom Spacing for navbar */}
         <div className="h-32"></div>

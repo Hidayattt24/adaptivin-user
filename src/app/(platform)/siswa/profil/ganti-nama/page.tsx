@@ -3,12 +3,16 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import MobileWarning from "@/components/siswa/layout/MobileWarning";
+import { useSiswaProfile, useUpdateSiswaProfile } from "@/hooks/siswa/useSiswaProfile";
+import Swal from "sweetalert2";
 
 export default function GantiNamaPage() {
   const [isMobile, setIsMobile] = useState(true);
-  const [nama, setNama] = useState("Farhan");
-  const [isLoading, setIsLoading] = useState(false);
+  const [nama, setNama] = useState("");
   const router = useRouter();
+
+  const { data: profile, isLoading: isLoadingProfile } = useSiswaProfile();
+  const { mutateAsync: updateProfile, isPending: isUpdating } = useUpdateSiswaProfile();
 
   useEffect(() => {
     const checkScreenSize = () => {
@@ -21,23 +25,49 @@ export default function GantiNamaPage() {
     return () => window.removeEventListener("resize", checkScreenSize);
   }, []);
 
+  // Load current name from profile
+  useEffect(() => {
+    if (profile?.nama_lengkap) {
+      setNama(profile.nama_lengkap);
+    }
+  }, [profile]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!nama.trim()) {
-      alert("Nama tidak boleh kosong!");
+      Swal.fire({
+        icon: "warning",
+        title: "Peringatan",
+        text: "Nama tidak boleh kosong!",
+        confirmButtonColor: "#336d82",
+      });
       return;
     }
 
-    setIsLoading(true);
+    try {
+      await updateProfile({ nama_lengkap: nama.trim() });
 
-    // TODO: Implement actual API call
-    setTimeout(() => {
-      setIsLoading(false);
-      alert("Nama berhasil diubah!");
+      Swal.fire({
+        icon: "success",
+        title: "Berhasil!",
+        text: "Nama berhasil diubah!",
+        confirmButtonColor: "#336d82",
+        timer: 2000,
+      });
+
       router.push("/siswa/profil");
-    }, 1000);
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Gagal!",
+        text: error instanceof Error ? error.message : "Gagal mengubah nama",
+        confirmButtonColor: "#336d82",
+      });
+    }
   };
+
+  const isLoading = isLoadingProfile || isUpdating;
 
   if (!isMobile) {
     return <MobileWarning />;
@@ -97,11 +127,10 @@ export default function GantiNamaPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className={`w-full bg-gradient-to-r from-[#336d82] to-[#5b9db5] text-white text-[16px] font-semibold py-3 rounded-[20px] shadow-lg transition-all duration-300 ${
-                isLoading
+              className={`w-full bg-gradient-to-r from-[#336d82] to-[#5b9db5] text-white text-[16px] font-semibold py-3 rounded-[20px] shadow-lg transition-all duration-300 ${isLoading
                   ? "opacity-50 cursor-not-allowed"
                   : "hover:shadow-xl hover:scale-[1.02]"
-              }`}
+                }`}
             >
               {isLoading ? "Menyimpan..." : "Simpan Perubahan"}
             </button>
@@ -112,7 +141,7 @@ export default function GantiNamaPage() {
       {/* Add Google Material Symbols */}
       <link
         rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=optional"
       />
     </div>
   );

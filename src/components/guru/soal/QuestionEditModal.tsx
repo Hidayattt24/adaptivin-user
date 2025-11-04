@@ -152,7 +152,7 @@ export function QuestionEditModal({
                 onChange={(value) =>
                   setEditedQuestion({
                     ...editedQuestion,
-                    questionType: value as any,
+                    // questionType: value as any,
                   })
                 }
                 leftIcon={
@@ -226,7 +226,7 @@ export function QuestionEditModal({
                 onChange={(value) =>
                   setEditedQuestion({
                     ...editedQuestion,
-                    answerType: value as any,
+                    // answerType: value as any,
                   })
                 }
                 leftIcon={
@@ -322,7 +322,7 @@ export function QuestionEditModal({
                   onChange={(value) =>
                     setEditedQuestion({
                       ...editedQuestion,
-                      timeUnit: value as any,
+                      // timeUnit: value as any,
                     })
                   }
                   leftIcon={

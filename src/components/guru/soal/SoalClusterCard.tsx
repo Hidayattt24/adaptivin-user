@@ -3,9 +3,10 @@
 import React from "react";
 import { Visibility, Edit, Delete } from "@mui/icons-material";
 // import { Question } from "./QuestionSection";
+import Image from "next/image";
 
 interface SoalClusterCardProps {
-  question: Question;
+  // question: Question;
   questionNumber: number;
   onPreview: () => void;
   onEdit: () => void;
@@ -13,7 +14,7 @@ interface SoalClusterCardProps {
 }
 
 export function SoalClusterCard({
-  question,
+  // question,
   questionNumber,
   onPreview,
   onEdit,
@@ -32,28 +33,27 @@ export function SoalClusterCard({
               Soal #{questionNumber}
             </p>
             <p className="text-gray-500 text-[10px] poppins-medium">
-              {question.questionType} • {question.answerType}
+              {/* {question.questionType} • {question.answerType} */}
             </p>
           </div>
         </div>
         <span className="px-2 py-1 bg-[#fcc61d]/20 text-[#f5b800] text-[10px] poppins-semibold rounded">
-          {question.timeValue} {question.timeUnit}
+          {/* {question.timeValue} {question.timeUnit} */}
         </span>
       </div>
 
       {/* Question Preview - Flexible */}
       <div className="mb-3 flex-1">
-        {question.questionFilePreview && (
+        {/* {question.questionFilePreview && ( */}
           <div className="mb-2 rounded-lg overflow-hidden">
-            <img
+            {/* <Image
               src={question.questionFilePreview}
               alt="Question preview"
               className="w-full h-24 object-cover"
-            />
+            /> */}
           </div>
-        )}
         <p className="text-gray-700 text-xs poppins-regular line-clamp-3 leading-relaxed">
-          {question.questionText || "Soal dengan gambar"}
+          {/* {question.questionText || "Soal dengan gambar"} */}
         </p>
       </div>
 

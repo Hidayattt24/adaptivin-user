@@ -2,69 +2,117 @@
 
 import React from "react";
 import Link from "next/link";
-import AddIcon from "@mui/icons-material/Add";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
+import { useDeleteMateri } from "@/hooks/guru/useMateri";
+import Swal from "sweetalert2";
 
 interface MateriCardProps {
   id: string;
   kelasId: string;
-  judul: string;
-  deskripsi: string;
-  topik: string;
-  status: "published" | "draft";
-  jumlahSiswaSelesai: number;
-  totalSiswa: number;
-  onKelolaMaterial?: () => void;
-  onKelolaKuis?: () => void;
+  judul_materi: string;
+  deskripsi: string | null;
+  jumlah_sub_materi: number;
+  created_at: string;
 }
 
 const MateriCard: React.FC<MateriCardProps> = ({
   id,
   kelasId,
-  judul,
+  judul_materi,
   deskripsi,
-  topik,
-  status,
-  jumlahSiswaSelesai,
-  totalSiswa,
-  onKelolaMaterial,
-  onKelolaKuis,
+  jumlah_sub_materi,
 }) => {
+  const { mutateAsync: deleteMateri, isPending: isDeleting } =
+    useDeleteMateri();
+
+  const handleDelete = async () => {
+    const result = await Swal.fire({
+      icon: "warning",
+      title: "Konfirmasi Hapus",
+      text: "Apakah Anda yakin ingin menghapus materi ini?",
+      showCancelButton: true,
+      confirmButtonColor: "#d9534f",
+      cancelButtonColor: "#6c757d",
+      confirmButtonText: "Ya, hapus",
+      cancelButtonText: "Batal",
+    });
+
+    if (!result.isConfirmed) return;
+
+    try {
+      await deleteMateri(id);
+
+      await Swal.fire({
+        icon: "success",
+        title: "Berhasil!",
+        text: "Materi berhasil dihapus!",
+        confirmButtonColor: "#336d82",
+        timer: 2000,
+      });
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Terjadi kesalahan";
+
+      await Swal.fire({
+        icon: "error",
+        title: "Gagal!",
+        text: `❌ Gagal menghapus materi: ${message}`,
+        confirmButtonColor: "#336d82",
+      });
+    }
+  };
+
   return (
     <div className="relative bg-gradient-to-r from-[#336D82] to-[#ECF3F6] rounded-[12px] sm:rounded-[16px] md:rounded-[18px] min-h-[140px] sm:min-h-[160px] flex flex-col justify-between p-4 sm:p-5 shadow-lg hover:shadow-xl transition-shadow">
       {/* Judul Materi */}
-      <div className="mb-3 sm:mb-4">
-        <h2 className="text-white text-xl sm:text-2xl md:text-3xl poppins-semibold mb-1.5 leading-tight">
-          {judul}
+      <div className="mb-3">
+        <h2 className="text-white text-3xl poppins-semibold mb-1.5 leading-tight">
+          {judul_materi}
         </h2>
-        <p className="text-white/90 text-xs sm:text-sm poppins-regular">{deskripsi}</p>
+        <p className="text-white/90 text-sm poppins-regular">
+          {deskripsi || "Tidak ada deskripsi"}
+        </p>
+        <p className="text-white/70 text-xs poppins-regular mt-2">
+          {jumlah_sub_materi} Sub Materi
+        </p>
       </div>
 
       {/* Action Buttons */}
-      <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 self-stretch sm:self-end">
-        <Link href={`/guru/kelas/${kelasId}/materi/edit?id=${id}`} className="w-full sm:w-auto">
-          <button
-            onClick={onKelolaMaterial}
-            className="bg-[#336d82] text-white px-3 sm:px-4 py-2 rounded-[12px] sm:rounded-[15px] flex items-center justify-center sm:justify-start gap-2 hover:bg-[#2a5a6a] transition-all hover:shadow-lg h-[40px] sm:h-[44px] w-full sm:w-auto"
-          >
-            <div className="w-6 h-6 sm:w-7 sm:h-7 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0">
-              <AddIcon className="text-white" sx={{ fontSize: { xs: 14, sm: 16 } }} />
+      <div className="flex gap-3 self-end">
+        <Link href={`/guru/kelas/${kelasId}/materi/edit?id=${id}`}>
+          <button className="bg-[#336d82] text-white px-4 py-2 rounded-[15px] flex items-center gap-2 hover:bg-[#2a5a6a] transition-all hover:shadow-lg h-[44px]">
+            <div className="w-7 h-7 bg-white/20 rounded-full flex items-center justify-center">
+              <EditIcon className="text-white" sx={{ fontSize: 16 }} />
             </div>
             <span className="text-xs sm:text-sm poppins-semibold">
               Kelola materi pembelajaran
             </span>
           </button>
         </Link>
-        <Link href={`/guru/kelas/${kelasId}/materi/${id}/edit-kuis`} className="w-full sm:w-auto">
-          <button
-            onClick={onKelolaKuis}
-            className="bg-[#336d82] text-white px-3 sm:px-4 py-2 rounded-[12px] sm:rounded-[15px] flex items-center justify-center sm:justify-start gap-2 hover:bg-[#2a5a6a] transition-all hover:shadow-lg h-[40px] sm:h-[44px] w-full sm:w-auto"
-          >
-            <div className="w-6 h-6 sm:w-7 sm:h-7 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0">
-              <AddIcon className="text-white" sx={{ fontSize: { xs: 14, sm: 16 } }} />
+        <Link href={`/guru/kelas/${kelasId}/materi/${id}/edit-kuis`}>
+          <button className="bg-[#336d82] text-white px-4 py-2 rounded-[15px] flex items-center gap-2 hover:bg-[#2a5a6a] transition-all hover:shadow-lg h-[44px]">
+            <div className="w-7 h-7 bg-white/20 rounded-full flex items-center justify-center">
+              <EditIcon className="text-white" sx={{ fontSize: 16 }} />
             </div>
-            <span className="text-xs sm:text-sm poppins-semibold">Kelola Kuis</span>
+            <span className="text-xs sm:text-sm poppins-semibold">
+              Kelola Kuis
+            </span>
           </button>
         </Link>
+        <button
+          type="button"
+          onClick={handleDelete}
+          disabled={isDeleting}
+          className="bg-[#d9534f] text-white px-4 py-2 rounded-[15px] flex items-center gap-2 hover:bg-[#c3423d] transition-all hover:shadow-lg h-[44px] disabled:opacity-60 disabled:cursor-not-allowed"
+        >
+          <div className="w-7 h-7 bg-white/20 rounded-full flex items-center justify-center">
+            <DeleteIcon className="text-white" sx={{ fontSize: 16 }} />
+          </div>
+          <span className="text-sm poppins-semibold">
+            {isDeleting ? "Menghapus..." : "Hapus Materi"}
+          </span>
+        </button>
       </div>
     </div>
   );

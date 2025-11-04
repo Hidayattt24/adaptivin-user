@@ -1,36 +1,45 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import { ArrowBack, CheckCircle } from "@mui/icons-material";
+import { Autorenew, Add, Delete, Save } from "@mui/icons-material";
 import {
-  EditableTitleSection,
-  EditableFileSection,
-  EditableExplanationSection,
+  UploadTimeline,
+  MainMateriTitle,
+  MateriSection,
   MateriPageHeader,
-  PreviewModal,
+  type MainMateriData,
+  type MateriSectionData,
 } from "@/components/guru";
+import {
+  useMateriDetail,
+  useUpdateMateri,
+  useUpdateSubMateri,
+  useCreateSubMateri,
+  useUploadMedia,
+  useDeleteMedia,
+} from "@/hooks/guru/useMateri";
+import type { SubMateriMedia } from "@/lib/api/materi";
+import Swal from "sweetalert2";
 
-// Toast notification types
-type ToastType = "success" | "error" | "info";
+type MediaGroup = {
+  pdf?: SubMateriMedia;
+  video?: SubMateriMedia;
+  images: SubMateriMedia[];
+};
 
-interface Toast {
-  id: number;
-  message: string;
-  type: ToastType;
-}
+type EditSubSection = MateriSectionData & {
+  dbId?: string;
+  originalUrutan?: number;
+  existingMedia: MediaGroup;
+  removedMediaIds: string[];
+};
 
-// Material data interface
-interface MaterialData {
-  id: string;
-  title: string;
-  fileUrl?: string;
-  fileName?: string;
-  videoUrl?: string;
-  videoName?: string;
-  explanation: string;
-  imageUrls: string[];
-}
+type MainSubMeta = {
+  dbId?: string;
+  existingMedia: MediaGroup;
+  removedMediaIds: string[];
+};
 
 const EditMateriPage = () => {
   const params = useParams();
@@ -38,224 +47,712 @@ const EditMateriPage = () => {
   const searchParams = useSearchParams();
 
   const kelasId = params.kelasId as string;
-  const materiId = searchParams.get("id") || ""; // Get materiId from query params
+  const materiId = searchParams.get("id") || "";
 
   const [isLoading, setIsLoading] = useState(true);
-  const [materialData, setMaterialData] = useState<MaterialData | null>(null);
-  const [toasts, setToasts] = useState<Toast[]>([]);
-  const [previewModal, setPreviewModal] = useState<{
-    isOpen: boolean;
-    type: "image" | "pdf" | "video" | "document";
-    src: string;
-    fileName?: string;
-  }>({ isOpen: false, type: "image", src: "" });
+  const [isSaving, setIsSaving] = useState(false);
 
-  // Toast notification helper
-  const showToast = useCallback((message: string, type: ToastType = "success") => {
-    const id = Date.now();
-    setToasts((prev) => [...prev, { id, message, type }]);
-    setTimeout(() => {
-      setToasts((prev) => prev.filter((toast) => toast.id !== id));
-    }, 3000);
-  }, []);
+  // Mutation hooks
+  const updateMateriMutation = useUpdateMateri();
+  const updateSubMateriMutation = useUpdateSubMateri();
+  const createSubMateriMutation = useCreateSubMateri();
+  const uploadMediaMutation = useUploadMedia();
+  const deleteMediaMutation = useDeleteMedia();
+  // A. MAIN MATERIAL TITLE (judul_materi parent)
+  const [mainMateri, setMainMateri] = useState<MainMateriData>({
+    title: "",
+    file: null,
+    video: null,
+    explanation: "",
+    images: [],
+    imagePreviews: [],
+    confirmed: {
+      title: false,
+      file: false,
+      video: false,
+      explanation: false,
+    },
+  });
 
-  // Fetch material data on mount
+  // Drag states for main material
+  const [isDraggingMainFile, setIsDraggingMainFile] = useState(false);
+  const [isDraggingMainVideo, setIsDraggingMainVideo] = useState(false);
+
+  const [mainSubMeta, setMainSubMeta] = useState<MainSubMeta>({
+    existingMedia: { images: [] },
+    removedMediaIds: [],
+  });
+
+  // B. SUB-MATERIAL SECTIONS (dari database sub_materi)
+  const [subSections, setSubSections] = useState<EditSubSection[]>([]);
+
+  // Drag states for sub-sections
+  const [activeDragSection, setActiveDragSection] = useState<string | null>(
+    null
+  );
+  const [dragType, setDragType] = useState<"file" | "video" | null>(null);
+
+  // Fetch data from API
+  const { data: materiDetail } = useMateriDetail(materiId);
+
+  // Load data into state
   useEffect(() => {
-    const fetchMaterialData = async () => {
-      setIsLoading(true);
-      try {
-        // TODO: Replace with actual API call
-        // const response = await fetch(`/api/materi/${materiId}`);
-        // const data = await response.json();
+    if (!materiDetail) return;
 
-        // Mock data for now
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+    const subMateriList = materiDetail.sub_materi ?? [];
+    const mainSub = subMateriList.find((sub) => sub.urutan === 0);
+    const otherSubs = subMateriList
+      .filter((sub) => sub.urutan !== 0)
+      .sort((a, b) => a.urutan - b.urutan);
 
-        const mockData: MaterialData = {
-          id: materiId,
-          title: "Pecahan biasa & campuran",
-          fileName: "File belajar pecahan dasar bilangan.pdf",
-          fileUrl: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf", // Mock PDF URL
-          videoName: "Video belajar pecahan dasar bilangan.mp4",
-          videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4", // Mock video URL
-          explanation:
-            "Cara Menghitung Luas Agar Semua Kebagian!\n\nBayangkan kamu punya satu kue yang sangat enak dan kamu ingin berbagi dengan 3 temanmu. Kalau kamu ingin membaginya dengan adil, kue itu perlu dipotong jadi 4 bagian yang sama besar (untuk kamu dan 3 temanmu). Nah, satu potongan kue itu adalah 1/4 (satu per empat) dari seluruh kue!\n\nKenapa disebut 1/4?\n\n1 adalah satu potong (bagian yang kamu punya)\n4 adalah jumlah total potongan (untuk kamu dan temanmu semua)\n\nJadi, pecahan campuran itu kayak kamu punya 1 kue utuh PLUS 1/4 potongan dari kue lagi. Itu artinya kamu sebenarnya punya 1 1/4 kue!",
-          imageUrls: [
-            "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=800&h=600&fit=crop",
-          ],
-        };
+    const mainPdf = mainSub?.sub_materi_media?.find(
+      (media) => media.tipe_media === "pdf"
+    );
+    const mainVideo = mainSub?.sub_materi_media?.find(
+      (media) => media.tipe_media === "video"
+    );
+    const mainImages =
+      mainSub?.sub_materi_media?.filter((media) => media.tipe_media === "gambar") || [];
 
-        setMaterialData(mockData);
-      } catch (error) {
-        console.error("Failed to fetch material data:", error);
-        showToast("Gagal memuat data materi", "error");
-      } finally {
-        setIsLoading(false);
-      }
-    };
+    setMainMateri((prev) => ({
+      ...prev,
+      title: materiDetail.judul_materi,
+      file: null,
+      video: null,
+      explanation: materiDetail.deskripsi || "",
+      images: [],
+      imagePreviews: mainImages.map((media) => media.url),
+      confirmed: {
+        title: false,
+        file: false,
+        video: false,
+        explanation: false,
+      },
+    }));
 
-    if (materiId) {
-      fetchMaterialData();
-    } else {
-      setIsLoading(false);
-    }
-  }, [materiId, showToast]);
+    setMainSubMeta({
+      dbId: mainSub?.id,
+      existingMedia: {
+        pdf: mainPdf,
+        video: mainVideo,
+        images: mainImages,
+      },
+      removedMediaIds: [],
+    });
 
-  // API handlers
-  const handleSaveTitle = async (newTitle: string) => {
-    try {
-      // TODO: Replace with actual API call
-      // await fetch(`/api/materi/${materiId}`, {
-      //   method: 'PATCH',
-      //   body: JSON.stringify({ title: newTitle }),
-      // });
+    const mappedSections: EditSubSection[] = otherSubs.map((sub) => {
+      const pdfMedia = sub.sub_materi_media?.find((m) => m.tipe_media === "pdf");
+      const videoMedia = sub.sub_materi_media?.find((m) => m.tipe_media === "video");
+      const imageMedia =
+        sub.sub_materi_media?.filter((m) => m.tipe_media === "gambar") || [];
 
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      return {
+        id: `section-${sub.id}`,
+        dbId: sub.id,
+        originalUrutan: sub.urutan,
+        title: sub.judul_sub_materi,
+        file: null,
+        video: null,
+        explanation: sub.isi_materi || "",
+        images: [],
+        imagePreviews: imageMedia.map((m) => m.url),
+        confirmed: {
+          title: false,
+          file: false,
+          video: false,
+          explanation: false,
+        },
+        existingMedia: {
+          pdf: pdfMedia,
+          video: videoMedia,
+          images: imageMedia,
+        },
+        removedMediaIds: [],
+      };
+    });
 
-      setMaterialData((prev) =>
-        prev ? { ...prev, title: newTitle } : null
-      );
-      showToast("Judul berhasil diperbarui", "success");
-    } catch (error) {
-      console.error("Failed to save title:", error);
-      showToast("Gagal menyimpan judul", "error");
-      throw error;
-    }
-  };
+    setSubSections(mappedSections);
+    setIsLoading(false);
+  }, [materiDetail]);
 
-  const handleSaveFile = async (file: File | null) => {
-    try {
-      // TODO: Replace with actual API call
-      // const formData = new FormData();
-      // if (file) formData.append('file', file);
-      // await fetch(`/api/materi/${materiId}/file`, {
-      //   method: 'PATCH',
-      //   body: formData,
-      // });
+  // ==================== MAIN MATERIAL HANDLERS ====================
 
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
-      setMaterialData((prev) =>
-        prev ? { ...prev, fileName: file?.name } : null
-      );
-      showToast("File berhasil diperbarui", "success");
-    } catch (error) {
-      console.error("Failed to save file:", error);
-      showToast("Gagal menyimpan file", "error");
-      throw error;
-    }
-  };
-
-  const handleDeleteFile = async () => {
-    try {
-      // TODO: Replace with actual API call
-      // await fetch(`/api/materi/${materiId}/file`, { method: 'DELETE' });
-
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
-      setMaterialData((prev) =>
-        prev ? { ...prev, fileName: undefined, fileUrl: undefined } : null
-      );
-      showToast("File berhasil dihapus", "success");
-    } catch (error) {
-      console.error("Failed to delete file:", error);
-      showToast("Gagal menghapus file", "error");
-      throw error;
-    }
-  };
-
-  const handleSaveVideo = async (video: File | null) => {
-    try {
-      // TODO: Replace with actual API call
-      // const formData = new FormData();
-      // if (video) formData.append('video', video);
-      // await fetch(`/api/materi/${materiId}/video`, {
-      //   method: 'PATCH',
-      //   body: formData,
-      // });
-
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
-      setMaterialData((prev) =>
-        prev ? { ...prev, videoName: video?.name } : null
-      );
-      showToast("Video berhasil diperbarui", "success");
-    } catch (error) {
-      console.error("Failed to save video:", error);
-      showToast("Gagal menyimpan video", "error");
-      throw error;
-    }
-  };
-
-  const handleDeleteVideo = async () => {
-    try {
-      // TODO: Replace with actual API call
-      // await fetch(`/api/materi/${materiId}/video`, { method: 'DELETE' });
-
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
-      setMaterialData((prev) =>
-        prev ? { ...prev, videoName: undefined, videoUrl: undefined } : null
-      );
-      showToast("Video berhasil dihapus", "success");
-    } catch (error) {
-      console.error("Failed to delete video:", error);
-      showToast("Gagal menghapus video", "error");
-      throw error;
-    }
-  };
-
-  const handleSaveExplanation = async (explanation: string, images: File[]) => {
-    try {
-      // TODO: Replace with actual API call
-      // const formData = new FormData();
-      // formData.append('explanation', explanation);
-      // images.forEach((img, index) => {
-      //   formData.append(`images[${index}]`, img);
-      // });
-      // await fetch(`/api/materi/${materiId}/explanation`, {
-      //   method: 'PATCH',
-      //   body: formData,
-      // });
-
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
-      const newImageUrls = images.map(() =>
-        "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=800&h=600&fit=crop"
-      );
-
-      setMaterialData((prev) =>
-        prev
-          ? {
+  const handleMainFileSelect = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    type: "file" | "video"
+  ) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (type === "file" && mainSubMeta.existingMedia.pdf) {
+        setMainSubMeta((prev) => {
+          const media = prev.existingMedia.pdf;
+          if (!media) return prev;
+          return {
             ...prev,
-            explanation,
-            imageUrls: [...prev.imageUrls, ...newImageUrls],
-          }
-          : null
-      );
-      showToast("Penjelasan berhasil diperbarui", "success");
-    } catch (error) {
-      console.error("Failed to save explanation:", error);
-      showToast("Gagal menyimpan penjelasan", "error");
-      throw error;
+            existingMedia: { ...prev.existingMedia, pdf: undefined },
+            removedMediaIds: prev.removedMediaIds.includes(media.id)
+              ? prev.removedMediaIds
+              : [...prev.removedMediaIds, media.id],
+          };
+        });
+      }
+      if (type === "video" && mainSubMeta.existingMedia.video) {
+        setMainSubMeta((prev) => {
+          const media = prev.existingMedia.video;
+          if (!media) return prev;
+          return {
+            ...prev,
+            existingMedia: { ...prev.existingMedia, video: undefined },
+            removedMediaIds: prev.removedMediaIds.includes(media.id)
+              ? prev.removedMediaIds
+              : [...prev.removedMediaIds, media.id],
+          };
+        });
+      }
+
+      setMainMateri((prev) => ({
+        ...prev,
+        [type === "file" ? "file" : "video"]: file,
+        confirmed: {
+          ...prev.confirmed,
+          [type === "file" ? "file" : "video"]: false,
+        },
+      }));
     }
   };
 
-  const handleDeleteExplanation = async () => {
-    try {
-      // TODO: Replace with actual API call
-      // await fetch(`/api/materi/${materiId}/explanation`, { method: 'DELETE' });
+  const handleMainImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length > 0) {
+      const newPreviews = files.map((file) => URL.createObjectURL(file));
 
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      setMainMateri((prev) => ({
+        ...prev,
+        images: [...prev.images, ...files],
+        imagePreviews: [...prev.imagePreviews, ...newPreviews],
+        confirmed: { ...prev.confirmed, explanation: false },
+      }));
+    }
+  };
 
-      setMaterialData((prev) =>
-        prev ? { ...prev, explanation: "", imageUrls: [] } : null
+  const handleMainRemoveImage = (index: number) => {
+    const existingCount = mainSubMeta.existingMedia.images.length;
+    const isExisting = index < existingCount;
+    const preview = mainMateri.imagePreviews[index];
+
+    if (isExisting) {
+      const target = mainSubMeta.existingMedia.images[index];
+      setMainSubMeta((prev) => ({
+        ...prev,
+        existingMedia: {
+          ...prev.existingMedia,
+          images: prev.existingMedia.images.filter((img) => img.id !== target?.id),
+        },
+        removedMediaIds:
+          target && !prev.removedMediaIds.includes(target.id)
+            ? [...prev.removedMediaIds, target.id]
+            : prev.removedMediaIds,
+      }));
+    } else {
+      const blobIndex = index - existingCount;
+      setMainMateri((prev) => ({
+        ...prev,
+        images: prev.images.filter((_, i) => i !== blobIndex),
+        imagePreviews: prev.imagePreviews.filter((_, i) => i !== index),
+        confirmed: { ...prev.confirmed, explanation: false },
+      }));
+      if (preview?.startsWith("blob:")) {
+        URL.revokeObjectURL(preview);
+      }
+      return;
+    }
+
+    setMainMateri((prev) => ({
+      ...prev,
+      imagePreviews: prev.imagePreviews.filter((_, i) => i !== index),
+      confirmed: { ...prev.confirmed, explanation: false },
+    }));
+  };
+
+  const handleMainDragOver = (
+    e: React.DragEvent,
+    type: "file" | "video"
+  ) => {
+    e.preventDefault();
+    if (type === "file") setIsDraggingMainFile(true);
+    else setIsDraggingMainVideo(true);
+  };
+
+  const handleMainDragLeave = (
+    e: React.DragEvent,
+    type: "file" | "video"
+  ) => {
+    e.preventDefault();
+    if (type === "file") setIsDraggingMainFile(false);
+    else setIsDraggingMainVideo(false);
+  };
+
+  const handleMainDrop = (e: React.DragEvent, type: "file" | "video") => {
+    e.preventDefault();
+    if (type === "file") setIsDraggingMainFile(false);
+    else setIsDraggingMainVideo(false);
+
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      setMainMateri({
+        ...mainMateri,
+        [type === "file" ? "file" : "video"]: file,
+        confirmed: {
+          ...mainMateri.confirmed,
+          [type === "file" ? "file" : "video"]: false,
+        },
+      });
+    }
+  };
+
+  // ==================== SUB-SECTION HANDLERS ====================
+
+  const createNewSubSection = (): EditSubSection => ({
+    id: `section-${Date.now()}-${Math.random()}`,
+    title: "",
+    file: null,
+    video: null,
+    explanation: "",
+    images: [],
+    imagePreviews: [],
+    confirmed: {
+      title: false,
+      file: false,
+      video: false,
+      explanation: false,
+    },
+    existingMedia: {
+      images: [],
+    },
+    removedMediaIds: [],
+  });
+
+  const handleAddSubSection = () => {
+    setSubSections((prev) => [...prev, createNewSubSection()]);
+  };
+
+  const handleDeleteSubSection = (sectionId: string) => {
+    const sectionToRemove = subSections.find((section) => section.id === sectionId);
+    if (sectionToRemove) {
+      const existingImageCount = sectionToRemove.existingMedia.images.length;
+      sectionToRemove.imagePreviews.forEach((preview, index) => {
+        if (index >= existingImageCount && preview.startsWith("blob:")) {
+          URL.revokeObjectURL(preview);
+        }
+      });
+    }
+    setSubSections((prev) => prev.filter((section) => section.id !== sectionId));
+  };
+
+  const handleUpdateSubSection = (
+    sectionId: string,
+    updatedSection: MateriSectionData
+  ) => {
+    setSubSections((prev) =>
+      prev.map((section) =>
+        section.id === sectionId
+          ? {
+            ...section,
+            ...updatedSection,
+          }
+          : section
+      )
+    );
+  };
+
+  const handleSubFileSelect = (
+    sectionId: string,
+    e: React.ChangeEvent<HTMLInputElement>,
+    type: "file" | "video"
+  ) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSubSections((prev) =>
+        prev.map((section) => {
+          if (section.id !== sectionId) return section;
+
+          const isFile = type === "file";
+          let updatedExisting = section.existingMedia;
+          let updatedRemoved = section.removedMediaIds;
+
+          if (isFile && section.existingMedia.pdf) {
+            const media = section.existingMedia.pdf;
+            updatedExisting = { ...updatedExisting, pdf: undefined };
+            if (media && !updatedRemoved.includes(media.id)) {
+              updatedRemoved = [...updatedRemoved, media.id];
+            }
+          }
+
+          if (!isFile && section.existingMedia.video) {
+            const media = section.existingMedia.video;
+            updatedExisting = { ...updatedExisting, video: undefined };
+            if (media && !updatedRemoved.includes(media.id)) {
+              updatedRemoved = [...updatedRemoved, media.id];
+            }
+          }
+
+          return {
+            ...section,
+            existingMedia: updatedExisting,
+            removedMediaIds: updatedRemoved,
+            [isFile ? "file" : "video"]: file,
+            confirmed: {
+              ...section.confirmed,
+              [isFile ? "file" : "video"]: false,
+            },
+          };
+        })
       );
-      showToast("Penjelasan berhasil dihapus", "success");
+    }
+  };
+
+  const handleSubImageSelect = (
+    sectionId: string,
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length > 0) {
+      const newPreviews = files.map((file) => URL.createObjectURL(file));
+
+      setSubSections((prev) =>
+        prev.map((section) =>
+          section.id === sectionId
+            ? {
+              ...section,
+              images: [...section.images, ...files],
+              imagePreviews: [...section.imagePreviews, ...newPreviews],
+              confirmed: { ...section.confirmed, explanation: false },
+            }
+            : section
+        )
+      );
+    }
+  };
+
+  const handleSubRemoveImage = (sectionId: string, imageIndex: number) => {
+    setSubSections((prev) =>
+      prev.map((section) => {
+        if (section.id !== sectionId) return section;
+
+        const existingCount = section.existingMedia.images.length;
+        const isExistingImage = imageIndex < existingCount;
+        const newImagePreviews = section.imagePreviews.filter((_, i) => i !== imageIndex);
+        let newImages = section.images;
+        let newExistingMedia = section.existingMedia;
+        let newRemoved = section.removedMediaIds;
+
+        if (isExistingImage) {
+          const target = section.existingMedia.images[imageIndex];
+          newExistingMedia = {
+            ...section.existingMedia,
+            images: section.existingMedia.images.filter((img) => img.id !== target.id),
+          };
+          newRemoved = target ? [...section.removedMediaIds, target.id] : section.removedMediaIds;
+        } else {
+          const blobIndex = imageIndex - existingCount;
+          newImages = section.images.filter((_, idx) => idx !== blobIndex);
+          const preview = section.imagePreviews[imageIndex];
+          if (preview?.startsWith("blob:")) {
+            URL.revokeObjectURL(preview);
+          }
+        }
+
+        return {
+          ...section,
+          images: newImages,
+          imagePreviews: newImagePreviews,
+          existingMedia: newExistingMedia,
+          removedMediaIds: newRemoved,
+          confirmed: { ...section.confirmed, explanation: false },
+        };
+      })
+    );
+  };
+
+  const handleSubDragOver = (
+    sectionId: string,
+    e: React.DragEvent,
+    type: "file" | "video"
+  ) => {
+    e.preventDefault();
+    setActiveDragSection(sectionId);
+    setDragType(type);
+  };
+
+  const handleSubDragLeave = (
+    e: React.DragEvent,
+    type: "file" | "video"
+  ) => {
+    e.preventDefault();
+    void type;
+    setActiveDragSection(null);
+    setDragType(null);
+  };
+
+  const handleSubDrop = (
+    sectionId: string,
+    e: React.DragEvent,
+    type: "file" | "video"
+  ) => {
+    e.preventDefault();
+    setActiveDragSection(null);
+    setDragType(null);
+
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      setSubSections((prev) =>
+        prev.map((section) => {
+          if (section.id !== sectionId) return section;
+
+          const isFile = type === "file";
+          let updatedExisting = section.existingMedia;
+          let updatedRemoved = section.removedMediaIds;
+
+          if (isFile && section.existingMedia.pdf) {
+            const media = section.existingMedia.pdf;
+            updatedExisting = { ...updatedExisting, pdf: undefined };
+            if (media && !updatedRemoved.includes(media.id)) {
+              updatedRemoved = [...updatedRemoved, media.id];
+            }
+          }
+
+          if (!isFile && section.existingMedia.video) {
+            const media = section.existingMedia.video;
+            updatedExisting = { ...updatedExisting, video: undefined };
+            if (media && !updatedRemoved.includes(media.id)) {
+              updatedRemoved = [...updatedRemoved, media.id];
+            }
+          }
+
+          return {
+            ...section,
+            existingMedia: updatedExisting,
+            removedMediaIds: updatedRemoved,
+            [isFile ? "file" : "video"]: file,
+            confirmed: {
+              ...section.confirmed,
+              [isFile ? "file" : "video"]: false,
+            },
+          };
+        })
+      );
+    }
+  };
+
+  // ==================== SAVE HANDLERS ====================
+
+  const inferMediaType = (file: File): "pdf" | "video" | "gambar" => {
+    if (file.type.startsWith("image/")) return "gambar";
+    if (file.type.startsWith("video/")) return "video";
+    return "pdf";
+  };
+
+  const handleSave = async () => {
+    // Validate main title
+    if (!mainMateri.title.trim()) {
+      Swal.fire({
+        icon: "warning",
+        title: "Peringatan!",
+        text: "⚠️ Judul materi utama wajib diisi!",
+        confirmButtonColor: "#336d82",
+      });
+      return;
+    }
+
+    setIsSaving(true);
+
+    try {
+      // Step 1: Update parent materi (title only)
+      await updateMateriMutation.mutateAsync({
+        materiId,
+        data: {
+          judul_materi: mainMateri.title,
+          deskripsi: mainMateri.explanation ?? "",
+        },
+      });
+
+      console.log("✅ Materi updated");
+
+      // Step 2: Update or create main sub-materi (urutan 0)
+      const mainSectionFiles: File[] = [];
+      if (mainMateri.file) mainSectionFiles.push(mainMateri.file);
+      if (mainMateri.video) mainSectionFiles.push(mainMateri.video);
+      if (mainMateri.images.length > 0) mainSectionFiles.push(...mainMateri.images);
+
+      // Hanya buat/update sub-materi jika ada files (BUKAN deskripsi, karena deskripsi disimpan di parent materi)
+      const hasMainContent = mainSectionFiles.length > 0;
+
+      if (mainSubMeta.dbId) {
+        // Update existing main sub-materi
+        // Note: isi_materi dikosongkan karena deskripsi sekarang disimpan di parent materi.deskripsi
+        await updateSubMateriMutation.mutateAsync({
+          subMateriId: mainSubMeta.dbId,
+          data: {
+            judul_sub_materi: mainMateri.title || "Materi Utama",
+            isi_materi: "",
+            urutan: 0,
+          },
+        });
+
+        console.log("✅ Sub-materi utama diperbarui");
+
+        // Delete removed media
+        const uniqueRemoved = Array.from(new Set(mainSubMeta.removedMediaIds));
+        for (const mediaId of uniqueRemoved) {
+          await deleteMediaMutation.mutateAsync(mediaId);
+        }
+
+        // Upload new media
+        const mainSubId = mainSubMeta.dbId;
+        if (mainSubId) {
+          if (mainMateri.file) {
+            await uploadMediaMutation.mutateAsync({
+              subMateriId: mainSubId,
+              file: mainMateri.file,
+              tipeMedia: inferMediaType(mainMateri.file),
+            });
+          }
+
+          if (mainMateri.video) {
+            await uploadMediaMutation.mutateAsync({
+              subMateriId: mainSubId,
+              file: mainMateri.video,
+              tipeMedia: inferMediaType(mainMateri.video),
+            });
+          }
+
+          if (mainMateri.images.length > 0) {
+            for (const imageFile of mainMateri.images) {
+              await uploadMediaMutation.mutateAsync({
+                subMateriId: mainSubId,
+                file: imageFile,
+                tipeMedia: "gambar",
+              });
+            }
+          }
+        }
+      } else if (hasMainContent) {
+        // Only create if there's actual files (not explanation, as explanation is saved in parent materi.deskripsi)
+        await createSubMateriMutation.mutateAsync({
+          data: {
+            materi_id: materiId,
+            judul_sub_materi: mainMateri.title || "Materi Utama",
+            isi_materi: "",
+            urutan: 0,
+          },
+          files: mainSectionFiles.length > 0 ? mainSectionFiles : undefined,
+        });
+
+        console.log("✅ Sub-materi utama dibuat");
+      }
+
+      // Step 3: Update/Create sub_materi sections
+      for (let i = 0; i < subSections.length; i++) {
+        const section = subSections[i];
+        const urutan = i + 1; // urutan 0 reserved for main materi
+
+        // Collect files for this section
+        const sectionFiles: File[] = [];
+        if (section.file) sectionFiles.push(section.file);
+        if (section.video) sectionFiles.push(section.video);
+        if (section.images.length > 0) sectionFiles.push(...section.images);
+
+        if (section.dbId) {
+          // Update existing sub_materi
+          await updateSubMateriMutation.mutateAsync({
+            subMateriId: section.dbId,
+            data: {
+              judul_sub_materi: section.title || `Sub Materi ${i + 1}`,
+              isi_materi: section.explanation ?? "",
+              urutan,
+            },
+          });
+
+          console.log(`✅ Sub-materi ${i + 1} updated`);
+
+          const uniqueRemoved = Array.from(new Set(section.removedMediaIds));
+          for (const mediaId of uniqueRemoved) {
+            await deleteMediaMutation.mutateAsync(mediaId);
+          }
+
+          const targetSubId = section.dbId;
+          if (targetSubId) {
+            if (section.file) {
+              await uploadMediaMutation.mutateAsync({
+                subMateriId: targetSubId,
+                file: section.file,
+                tipeMedia: inferMediaType(section.file),
+              });
+            }
+
+            if (section.video) {
+              await uploadMediaMutation.mutateAsync({
+                subMateriId: targetSubId,
+                file: section.video,
+                tipeMedia: inferMediaType(section.video),
+              });
+            }
+
+            if (section.images.length > 0) {
+              for (const imageFile of section.images) {
+                await uploadMediaMutation.mutateAsync({
+                  subMateriId: targetSubId,
+                  file: imageFile,
+                  tipeMedia: "gambar",
+                });
+              }
+            }
+          }
+        } else {
+          // Create new sub_materi
+          await createSubMateriMutation.mutateAsync({
+            data: {
+              materi_id: materiId,
+              judul_sub_materi: section.title || `Sub Materi ${i + 1}`,
+              isi_materi: section.explanation ?? "",
+              urutan,
+            },
+            files: sectionFiles.length > 0 ? sectionFiles : undefined,
+          });
+
+          console.log(`✅ Sub-materi ${i + 1} created`);
+        }
+      }
+
+      // Clean up image previews
+      mainMateri.imagePreviews.forEach((preview) => {
+        if (preview.startsWith("blob:")) URL.revokeObjectURL(preview);
+      });
+      subSections.forEach((section) => {
+        section.imagePreviews.forEach((preview) => {
+          if (preview.startsWith("blob:")) URL.revokeObjectURL(preview);
+        });
+      });
+
+      Swal.fire({
+        icon: "success",
+        title: "Berhasil!",
+        text: "Materi berhasil diperbarui!",
+        confirmButtonColor: "#336d82",
+        timer: 2000,
+      });
+      router.push(`/guru/kelas/${kelasId}/materi`);
     } catch (error) {
-      console.error("Failed to delete explanation:", error);
-      showToast("Gagal menghapus penjelasan", "error");
-      throw error;
+      const errorMsg =
+        error instanceof Error ? error.message : "Gagal memperbarui materi";
+      
+        Swal.fire({
+        icon: "error",
+        title: "Error!",
+        text: `❌ ${errorMsg}`,
+        confirmButtonColor: "#336d82",
+      });
+      setIsSaving(false);
     }
   };
 
@@ -263,63 +760,32 @@ const EditMateriPage = () => {
     router.push(`/guru/kelas/${kelasId}/materi`);
   };
 
-  const handleSubmit = () => {
-    showToast("Semua perubahan berhasil disimpan", "success");
-    setTimeout(() => {
-      router.push(`/guru/kelas/${kelasId}/materi`);
-    }, 1000);
-  };
-
-  const handlePreviewFile = () => {
-    if (!materialData?.fileUrl) return;
-
-    const fileExtension = materialData.fileName?.split(".").pop()?.toLowerCase();
-    let type: "pdf" | "document" = "document";
-
-    if (fileExtension === "pdf") {
-      type = "pdf";
-    }
-
-    setPreviewModal({
-      isOpen: true,
-      type,
-      src: materialData.fileUrl,
-      fileName: materialData.fileName,
-    });
-  };
-
-  const handlePreviewVideo = () => {
-    if (!materialData?.videoUrl) return;
-
-    setPreviewModal({
-      isOpen: true,
-      type: "video",
-      src: materialData.videoUrl,
-      fileName: materialData.videoName,
-    });
-  };
+  // ==================== RENDER ====================
 
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-[#336d82] mx-auto mb-4"></div>
-          <p className="text-gray-600 font-poppins">Memuat data materi...</p>
+        <div className="flex flex-col items-center gap-4">
+          <Autorenew
+            className="animate-spin text-[#336d82]"
+            sx={{ fontSize: 48 }}
+          />
+          <p className="text-gray-600 font-poppins text-sm">
+            Memuat data materi...
+          </p>
         </div>
       </div>
     );
   }
 
-  if (!materiId || !materialData) {
+  if (!materiId || !materiDetail) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white flex items-center justify-center">
         <div className="text-center">
-          <p className="text-gray-600 font-poppins text-lg mb-4">
-            {!materiId ? "ID Materi tidak ditemukan" : "Data materi tidak ditemukan"}
-          </p>
+          <p className="text-gray-600 font-poppins">Materi tidak ditemukan</p>
           <button
             onClick={handleBack}
-            className="mt-4 px-6 py-2 bg-[#336d82] text-white rounded-lg hover:bg-[#2a5a6d] transition-colors font-poppins"
+            className="mt-4 px-6 py-2 bg-[#336d82] text-white rounded-lg hover:bg-[#2a5a6d] transition-colors"
           >
             Kembali
           </button>
@@ -330,23 +796,6 @@ const EditMateriPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
-      {/* Toast Notifications */}
-      <div className="fixed top-4 right-4 z-50 space-y-2">
-        {toasts.map((toast) => (
-          <div
-            key={toast.id}
-            className={`px-6 py-4 rounded-xl shadow-lg font-poppins font-semibold text-white animate-slide-in ${toast.type === "success"
-              ? "bg-gradient-to-r from-[#2ea062] to-[#26824f]"
-              : toast.type === "error"
-                ? "bg-gradient-to-r from-[#ff1919] to-[#e01515]"
-                : "bg-gradient-to-r from-[#336d82] to-[#2a5a6d]"
-              }`}
-          >
-            {toast.message}
-          </div>
-        ))}
-      </div>
-
       {/* Header */}
       <div className="py-6 px-4 sticky top-0 z-40 bg-gradient-to-br from-gray-50 to-white">
         <MateriPageHeader
@@ -357,107 +806,140 @@ const EditMateriPage = () => {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-4xl mx-auto px-4 pb-8 space-y-6">
-        {/* Title Section */}
-        <EditableTitleSection
-          initialTitle={materialData.title}
-          onSave={handleSaveTitle}
-        />
+      <div className="max-w-6xl mx-auto px-4 pb-32">
+        {/* Upload Timeline */}
+        <div className="mb-8">
+          <UploadTimeline currentStep={1} />
+        </div>
 
-        {/* File Section */}
-        <EditableFileSection
-          title="Unggah materi dalam bentuk file"
-          initialFile={null}
-          initialFileName={materialData.fileName}
-          initialFileUrl={materialData.fileUrl}
-          accept=".pdf,.doc,.docx"
-          formatHint="Format: PDF, DOC, DOCX"
-          onSave={handleSaveFile}
-          onDelete={handleDeleteFile}
-          onPreview={handlePreviewFile}
-        />
+        {/* A. MAIN MATERIAL TITLE */}
+        <div className="mb-6">
+          <MainMateriTitle
+            materiData={mainMateri}
+            onUpdate={setMainMateri}
+            onFileSelect={handleMainFileSelect}
+            onImageSelect={handleMainImageSelect}
+            onRemoveImage={handleMainRemoveImage}
+            onDragOver={handleMainDragOver}
+            onDragLeave={handleMainDragLeave}
+            onDrop={handleMainDrop}
+            isDraggingFile={isDraggingMainFile}
+            isDraggingVideo={isDraggingMainVideo}
+            existingPdf={mainSubMeta.existingMedia.pdf}
+            existingVideo={mainSubMeta.existingMedia.video}
+          />
+        </div>
 
-        {/* Video Section */}
-        <EditableFileSection
-          title="Unggah materi dalam bentuk video"
-          initialFile={null}
-          initialFileName={materialData.videoName}
-          initialFileUrl={materialData.videoUrl}
-          accept="video/*"
-          formatHint="Format: MP4, AVI, MOV"
-          onSave={handleSaveVideo}
-          onDelete={handleDeleteVideo}
-          onPreview={handlePreviewVideo}
-        />
+        {/* Divider */}
+        <div className="my-8 border-t-2 border-dashed border-gray-300"></div>
 
-        {/* Explanation Section */}
-        <EditableExplanationSection
-          initialExplanation={materialData.explanation}
-          initialImages={materialData.imageUrls}
-          onSave={handleSaveExplanation}
-          onDelete={handleDeleteExplanation}
-        />
-
-        {/* Action Buttons - Professional Design */}
-        <div className="sticky bottom-0 -mx-4 px-4 py-6 bg-gradient-to-t from-white via-white to-transparent backdrop-blur-sm border-t border-gray-100 mt-8">
-          <div className="max-w-4xl mx-auto flex flex-col gap-3">
-            {/* Tombol Simpan - Di Atas */}
+        {/* B. SUB-MATERIAL SECTIONS */}
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-bold text-gray-800 font-poppins">
+              Sub Materi
+            </h2>
             <button
-              onClick={handleSubmit}
-              className="w-full flex items-center justify-center gap-2 px-12 py-4 rounded-xl text-base font-semibold transition-all duration-300 font-poppins shadow-xl hover:shadow-2xl hover:-translate-y-1 bg-gradient-to-r from-[#2ea062] to-[#26824f] text-white hover:from-[#26824f] hover:to-[#1f6640] relative overflow-hidden group"
+              onClick={handleAddSubSection}
+              className="px-4 py-2 bg-gradient-to-r from-[#fcc61d] to-[#f5b800] text-white rounded-xl font-semibold flex items-center gap-2 hover:shadow-lg transition-all hover:-translate-y-0.5"
             >
-              <span className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></span>
-              <span className="relative flex items-center gap-2">
-                <CheckCircle sx={{ fontSize: 20 }} />
-                Simpan Semua Perubahan
-              </span>
-            </button>
-
-            {/* Tombol Kembali - Di Bawah */}
-            <button
-              onClick={handleBack}
-              className="w-full flex items-center justify-center gap-2 px-8 py-4 rounded-xl text-base font-semibold transition-all duration-300 font-poppins shadow-md hover:shadow-lg bg-white border-2 border-[#336d82] text-[#336d82] hover:bg-[#336d82] hover:text-white group"
-            >
-              <ArrowBack
-                sx={{ fontSize: 20 }}
-                className="transition-transform group-hover:-translate-x-1"
-              />
-              Kembali
+              <Add sx={{ fontSize: 20 }} />
+              Tambah Sub Materi
             </button>
           </div>
+
+          {subSections.length === 0 && (
+            <div className="text-center py-12 bg-white rounded-xl border-2 border-dashed border-gray-300">
+              <p className="text-gray-500 font-poppins">
+                Belum ada sub materi. Klik tombol di atas untuk menambahkan.
+              </p>
+            </div>
+          )}
+
+          {subSections.map((section, index) => (
+            <div key={section.id}>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-lg font-semibold text-gray-700 font-poppins">
+                  Sub Materi {index + 1}
+                </h3>
+                <button
+                  onClick={() => handleDeleteSubSection(section.id)}
+                  className="px-4 py-2 bg-red-500 text-white rounded-lg font-semibold flex items-center gap-2 hover:bg-red-600 transition-colors text-sm"
+                >
+                  <Delete sx={{ fontSize: 18 }} />
+                  Hapus
+                </button>
+              </div>
+
+              <MateriSection
+                section={section}
+                sectionIndex={index}
+                totalSections={subSections.length}
+                isDraggingFile={
+                  activeDragSection === section.id && dragType === "file"
+                }
+                isDraggingVideo={
+                  activeDragSection === section.id && dragType === "video"
+                }
+                onUpdate={(updated) =>
+                  handleUpdateSubSection(section.id, updated)
+                }
+                onDelete={() => handleDeleteSubSection(section.id)}
+                onFileSelect={(e, type) =>
+                  handleSubFileSelect(section.id, e, type)
+                }
+                onImageSelect={(e) => handleSubImageSelect(section.id, e)}
+                onRemoveImage={(imgIndex) =>
+                  handleSubRemoveImage(section.id, imgIndex)
+                }
+                onDragOver={(e, type) =>
+                  handleSubDragOver(section.id, e, type)
+                }
+                onDragLeave={handleSubDragLeave}
+                onDrop={(e, type) => handleSubDrop(section.id, e, type)}
+                existingPdf={section.existingMedia?.pdf}
+                existingVideo={section.existingMedia?.video}
+              />
+
+              {/* Divider between sections */}
+              {index < subSections.length - 1 && (
+                <div className="my-8 border-t-2 border-dashed border-gray-300"></div>
+              )}
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* Bottom spacing */}
-      <div className="h-12"></div>
+      {/* Fixed Bottom Action Bar */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t-2 border-gray-200 shadow-lg z-40">
+        <div className="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
+          <button
+            onClick={handleBack}
+            disabled={isSaving}
+            className="px-6 py-3 bg-gray-400 text-white rounded-xl font-semibold hover:bg-gray-500 transition-colors disabled:opacity-50 font-poppins"
+          >
+            Batal
+          </button>
 
-      {/* Preview Modal */}
-      <PreviewModal
-        isOpen={previewModal.isOpen}
-        onClose={() =>
-          setPreviewModal({ isOpen: false, type: "image", src: "" })
-        }
-        type={previewModal.type}
-        src={previewModal.src}
-        fileName={previewModal.fileName}
-      />
-
-      <style jsx>{`
-        @keyframes slide-in {
-          from {
-            transform: translateX(100%);
-            opacity: 0;
-          }
-          to {
-            transform: translateX(0);
-            opacity: 1;
-          }
-        }
-
-        .animate-slide-in {
-          animation: slide-in 0.3s ease-out;
-        }
-      `}</style>
+          <button
+            onClick={handleSave}
+            disabled={isSaving || !mainMateri.title.trim()}
+            className="px-8 py-3 bg-gradient-to-r from-[#2ea062] to-[#26824f] text-white rounded-xl font-semibold flex items-center gap-2 hover:shadow-lg transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed font-poppins"
+          >
+            {isSaving ? (
+              <>
+                <Autorenew className="animate-spin" sx={{ fontSize: 20 }} />
+                Menyimpan...
+              </>
+            ) : (
+              <>
+                <Save sx={{ fontSize: 20 }} />
+                Simpan Perubahan
+              </>
+            )}
+          </button>
+        </div>
+      </div>
     </div>
   );
 };

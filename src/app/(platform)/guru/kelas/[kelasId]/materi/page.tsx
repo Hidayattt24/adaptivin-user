@@ -19,13 +19,17 @@ const MateriListPage = () => {
   const kelasId = params.kelasId as string;
 
   const [searchQuery, setSearchQuery] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
 
   // Debounce search query
   const debouncedSearch = useDebounce(searchQuery, 350);
 
-  // Lazy load materi data
-  const { data, isLoading, error, refetch } = useMateriList(kelasId, currentPage);
+  // Load materi data from API
+  const {
+    data: materiList,
+    isLoading,
+    error,
+    refetch,
+  } = useMateriList(kelasId);
 
   // Dummy data untuk kelas (should come from parent layout or API)
   const kelasData = {
@@ -34,24 +38,22 @@ const MateriListPage = () => {
 
   // Filter materi berdasarkan search query
   const filteredMateriList = useMemo(() => {
-    const materiList = data?.items || [];
+    const list = materiList || [];
 
     if (!debouncedSearch.trim()) {
-      return materiList;
+      return list;
     }
 
     const query = debouncedSearch.toLowerCase();
-    return materiList.filter(
+    return list.filter(
       (materi) =>
-        materi.judul.toLowerCase().includes(query) ||
-        materi.topik.toLowerCase().includes(query) ||
-        materi.deskripsi.toLowerCase().includes(query)
+        materi.judul_materi.toLowerCase().includes(query) ||
+        (materi.deskripsi && materi.deskripsi.toLowerCase().includes(query))
     );
-  }, [data, debouncedSearch]);
+  }, [materiList, debouncedSearch]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    setCurrentPage(1); // Reset to first page on search
   };
 
   return (
@@ -61,17 +63,19 @@ const MateriListPage = () => {
         title={kelasData.nama}
         actionLabel="Tambah Materi"
         actionHref={`/guru/kelas/${kelasId}/materi/tambah`}
-        actionIcon={<AddIcon className="text-white" sx={{ fontSize: { xs: 16, sm: 18, md: 20 } }} />}
+        actionIcon={
+          <AddIcon
+            className="text-white"
+            sx={{ fontSize: { xs: 16, sm: 18, md: 20 } }}
+          />
+        }
         className="mb-6 sm:mb-7 md:mb-8"
       />
 
       {/* Search Bar Component */}
       <SearchBar
         value={searchQuery}
-        onChange={(value) => {
-          setSearchQuery(value);
-          setCurrentPage(1);
-        }}
+        onChange={(value) => setSearchQuery(value)}
         onSubmit={handleSearch}
         placeholder="Cari materi pembelajaran...."
         className="mb-6 sm:mb-7 md:mb-8"
@@ -110,47 +114,22 @@ const MateriListPage = () => {
           onAction={searchQuery ? () => setSearchQuery("") : undefined}
         />
       ) : (
-        <div className="space-y-4 sm:space-y-5 md:space-y-6" role="list" aria-label="Daftar materi">
+        <div
+          className="space-y-4 sm:space-y-5 md:space-y-6"
+          role="list"
+          aria-label="Daftar materi"
+        >
           {filteredMateriList.map((materi) => (
             <MateriCard
               key={materi.id}
               id={materi.id}
               kelasId={kelasId}
-              judul={materi.judul}
+              judul_materi={materi.judul_materi}
               deskripsi={materi.deskripsi}
-              topik={materi.topik}
-              status={materi.status}
-              jumlahSiswaSelesai={materi.jumlahSiswaSelesai}
-              totalSiswa={materi.totalSiswa}
+              jumlah_sub_materi={materi.jumlah_sub_materi}
+              created_at={materi.created_at}
             />
           ))}
-        </div>
-      )}
-
-      {/* Pagination - if API returns pagination data */}
-      {data?.totalPages && data.totalPages > 1 && (
-        <div className="flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-2 mt-6 sm:mt-7 md:mt-8" role="navigation" aria-label="Pagination">
-          <button
-            onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
-            disabled={currentPage === 1}
-            className="w-full sm:w-auto px-4 py-2 text-sm sm:text-base rounded-lg border border-gray-300 bg-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
-            aria-label="Halaman sebelumnya"
-          >
-            Sebelumnya
-          </button>
-
-          <span className="px-4 py-2 font-medium text-sm sm:text-base" aria-live="polite">
-            Halaman {currentPage} dari {data.totalPages}
-          </span>
-
-          <button
-            onClick={() => setCurrentPage((prev) => Math.min(data.totalPages, prev + 1))}
-            disabled={currentPage === data.totalPages}
-            className="w-full sm:w-auto px-4 py-2 text-sm sm:text-base rounded-lg border border-gray-300 bg-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
-            aria-label="Halaman selanjutnya"
-          >
-            Selanjutnya
-          </button>
         </div>
       )}
     </div>

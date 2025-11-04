@@ -22,61 +22,16 @@ const SiswaListPage = () => {
 
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 2;
+  const itemsPerPage = 6;
 
   // Debounce search to avoid excessive filtering
   const debouncedSearch = useDebounce(searchQuery, 300);
 
-  // Lazy load siswa data with React Query
-  const { data: siswaData, isLoading, error, refetch } = useSiswaList(
-    kelasId,
-    currentPage
-  );
+  // Load siswa data with React Query
+  const { data: siswaData, isLoading, error, refetch } = useSiswaList(kelasId);
 
-  // TODO: Replace with actual API data when backend is ready
-  // For now, use dummy data as fallback
-  const allSiswaList = [
-    {
-      id: "1",
-      nama: "FARHAN",
-      nis: "2208107010063",
-      tanggalLahir: "24 Desember 2004",
-      tempatLahir: "pango deah",
-      jenisKelamin: "Laki-laki" as const,
-    },
-    {
-      id: "2",
-      nama: "SITI NURHALIZA",
-      nis: "2208107010064",
-      tanggalLahir: "15 Januari 2004",
-      tempatLahir: "Jakarta",
-      jenisKelamin: "Perempuan" as const,
-    },
-    {
-      id: "3",
-      nama: "AHMAD FAUZI",
-      nis: "2208107010065",
-      tanggalLahir: "10 Maret 2004",
-      tempatLahir: "Bandung",
-      jenisKelamin: "Laki-laki" as const,
-    },
-    {
-      id: "4",
-      nama: "DEWI KUSUMA",
-      nis: "2208107010066",
-      tanggalLahir: "22 Mei 2004",
-      tempatLahir: "Surabaya",
-      jenisKelamin: "Perempuan" as const,
-    },
-    {
-      id: "5",
-      nama: "BUDI SANTOSO",
-      nis: "2208107010067",
-      tanggalLahir: "8 Juli 2004",
-      tempatLahir: "Medan",
-      jenisKelamin: "Laki-laki" as const,
-    },
-  ];
+  // Get siswa list from API
+  const allSiswaList = siswaData?.items || [];
 
   // Filter siswa berdasarkan debounced search query
   const filteredSiswaList = useMemo(() => {
@@ -87,9 +42,9 @@ const SiswaListPage = () => {
     const query = debouncedSearch.toLowerCase();
     return allSiswaList.filter(
       (siswa) =>
-        siswa.nama.toLowerCase().includes(query) ||
-        siswa.nis.toLowerCase().includes(query) ||
-        siswa.tempatLahir.toLowerCase().includes(query)
+        siswa.nama?.toLowerCase().includes(query) ||
+        siswa.nis?.toLowerCase().includes(query) ||
+        siswa.tempatLahir?.toLowerCase().includes(query)
     );
   }, [debouncedSearch, allSiswaList]);
 
@@ -165,8 +120,8 @@ const SiswaListPage = () => {
             </div>
 
             {/* Right: Total Murid Card */}
-            <div className="md:col-span-1">
-              <TotalMuridCard total={allSiswaList.length} />
+            <div className="lg:col-span-1">
+              <TotalMuridCard jumlahSiswa={siswaData?.total || 0} />
             </div>
           </div>
 
@@ -174,7 +129,8 @@ const SiswaListPage = () => {
           {searchQuery && (
             <div className="mb-3 sm:mb-4">
               <p className="text-[#336d82] text-sm sm:text-base poppins-medium">
-                Menampilkan {filteredSiswaList.length} hasil untuk &ldquo;{searchQuery}&rdquo;
+                Menampilkan {filteredSiswaList.length} hasil untuk &ldquo;
+                {searchQuery}&rdquo;
               </p>
             </div>
           )}
@@ -195,7 +151,11 @@ const SiswaListPage = () => {
             />
           ) : (
             <>
-              <div className="space-y-4 sm:space-y-5 md:space-y-6 mb-6 sm:mb-7 md:mb-8" role="list" aria-label="Daftar siswa">
+              <div
+                className="space-y-4 sm:space-y-5 md:space-y-6 mb-6 sm:mb-7 md:mb-8"
+                role="list"
+                aria-label="Daftar siswa"
+              >
                 {currentSiswaList.map((siswa) => (
                   <StudentCard
                     key={siswa.id}

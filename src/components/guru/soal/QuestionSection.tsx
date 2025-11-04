@@ -24,6 +24,7 @@ export interface Question {
   answerFile: File | null;
   answerFilePreview: string | null;
   answerText: string;
+  explanation: string;
   timeValue: number;
   timeUnit: TimeUnit;
 }
@@ -33,8 +34,14 @@ interface QuestionSectionProps {
   index: number;
   onUpdate: (id: string, field: keyof Question, value: any) => void;
   onRemove: (id: string) => void;
-  onQuestionFileUpload: (id: string, e: React.ChangeEvent<HTMLInputElement>) => void;
-  onAnswerFileUpload: (id: string, e: React.ChangeEvent<HTMLInputElement>) => void;
+  onQuestionFileUpload: (
+    id: string,
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => void;
+  onAnswerFileUpload: (
+    id: string,
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => void;
   onRemoveFile: (id: string, type: "question" | "answer") => void;
   onPreviewFile: (src: string, fileName: string) => void;
   canDelete: boolean;
@@ -128,7 +135,9 @@ export default function QuestionSection({
         {/* Question Text Input */}
         <textarea
           value={question.questionText}
-          onChange={(e) => onUpdate(question.id, "questionText", e.target.value)}
+          onChange={(e) =>
+            onUpdate(question.id, "questionText", e.target.value)
+          }
           placeholder="Isi soal anda disini..."
           className="w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg sm:rounded-xl border-2 border-white/30 bg-white/95 backdrop-blur-sm text-gray-800 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-white shadow-md resize-none"
           rows={4}
@@ -173,14 +182,16 @@ export default function QuestionSection({
 
         {/* Answer Text Input */}
         {question.answerType !== "Foto" && (
-          <div className="relative mb-3 sm:mb-4">
-            <div className="absolute left-3 sm:left-4 top-3 sm:top-4 pointer-events-none">
+          <div className="relative mb-6">
+            <div className="absolute left-4 top-4 pointer-events-none">
               {getAnswerIcon()}
             </div>
             <input
               type={question.answerType === "Angka" ? "number" : "text"}
               value={question.answerText}
-              onChange={(e) => onUpdate(question.id, "answerText", e.target.value)}
+              onChange={(e) =>
+                onUpdate(question.id, "answerText", e.target.value)
+              }
               placeholder={
                 question.answerType === "Angka"
                   ? "Masukkan jawaban dalam angka..."
@@ -191,11 +202,27 @@ export default function QuestionSection({
           </div>
         )}
 
+        {/* Explanation Section */}
+        <div className="mb-6">
+          <h3 className="text-xl font-bold text-white">Penjelasan</h3>
+          <p className="text-gray-300">
+            <input
+              type="text"
+              value={question.explanation}
+              onChange={(e) =>
+                onUpdate(question.id, "explanation", e.target.value)
+              }
+              placeholder="Berikan penjelasan untuk jawaban ini..."
+              className="w-full mt-2 px-4 py-3 rounded-xl border-2 border-white/30 bg-white/95 backdrop-blur-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-white shadow-md"
+            />
+          </p>
+        </div>
+
         {/* Optional Support Image for Text/Number */}
         {question.answerType !== "Foto" && (
-          <div className="mt-3 sm:mt-4">
-            <p className="text-white/80 text-xs sm:text-sm font-medium mb-2 flex items-center gap-2">
-              <ImageIcon sx={{ fontSize: 16 }} className="sm:text-lg" />
+          <div className="mt-6">
+            <p className="text-white/80 text-sm font-medium mb-2 flex items-center gap-2">
+              <ImageIcon sx={{ fontSize: 18 }} />
               Gambar Pendukung Jawaban (Opsional)
             </p>
             <FileUploadArea
@@ -230,7 +257,11 @@ export default function QuestionSection({
               min="1"
               value={question.timeValue}
               onChange={(e) =>
-                onUpdate(question.id, "timeValue", parseInt(e.target.value) || 1)
+                onUpdate(
+                  question.id,
+                  "timeValue",
+                  parseInt(e.target.value) || 1
+                )
               }
               className="w-full px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl border-2 border-white/30 bg-white/95 backdrop-blur-sm text-gray-800 font-bold text-center text-xl sm:text-2xl focus:outline-none focus:ring-2 focus:ring-white focus:border-white shadow-lg hover:shadow-xl transition-all"
             />
@@ -240,7 +271,12 @@ export default function QuestionSection({
               value={question.timeUnit}
               options={timeUnitOptions}
               onChange={(value) => onUpdate(question.id, "timeUnit", value)}
-              leftIcon={<AccessTime sx={{ fontSize: 20, color: "#336d82" }} className="sm:text-2xl" />}
+              leftIcon={
+                <AccessTime
+                  sx={{ fontSize: 20, color: "#336d82" }}
+                  className="sm:text-2xl"
+                />
+              }
             />
           </div>
         </div>

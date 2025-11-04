@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { useParams, usePathname } from "next/navigation";
 import { KelasNavigationSidebar } from "@/components/guru";
+import { useTeacherProfile } from "@/hooks/guru/useTeacherProfile";
 import Image from "next/image";
 import MenuIcon from "@mui/icons-material/Menu";
 
@@ -20,11 +21,13 @@ export default function KelasLayout({
   const isFullscreenPage = pathname.includes("/tambah") || pathname.includes("/edit") || pathname.includes("/bank");
 
   // Dummy data untuk guru
-  const guruData = {
-    nama: "Isabella",
-    email: "isabella@gmail.com",
-    foto: "/guru/foto-profil/profil-guru.svg",
-  };
+  // const guruData = {
+  //   nama: "Isabella",
+  //   email: "isabella@gmail.com",
+  //   foto: "/guru/foto-profil/profil-guru.svg",
+  // };
+
+  const { data: teacher } = useTeacherProfile();
 
   // If it's fullscreen page (tambah/edit/bank), render without sidebar and profile
   if (isFullscreenPage) {
@@ -53,15 +56,15 @@ export default function KelasLayout({
         {/* Top Right - User Profile - Scrolls with content */}
         <div className="absolute top-6 right-12 flex items-center gap-4 z-30">
           <div className="text-right">
-            <p className="text-black text-base poppins-medium">{guruData.nama}</p>
+            <p className="text-black text-2xl poppins-medium">{teacher?.nama_lengkap}</p>
             <p className="text-black/55 text-base poppins-medium">
-              {guruData.email}
+              {teacher?.email}
             </p>
           </div>
           <div className="w-[83px] h-[83px] rounded-full border-[6px] border-[#336d82] overflow-hidden flex-shrink-0">
             <Image
-              src={guruData.foto}
-              alt={guruData.nama}
+              src="/guru/foto-profil/profil-guru.svg"
+              alt={teacher?.nama_lengkap || "Foto Profil Guru"}
               width={83}
               height={83}
               className="w-full h-full object-cover"

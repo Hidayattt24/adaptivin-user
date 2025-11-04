@@ -19,13 +19,12 @@ const MateriListPage = () => {
   const kelasId = params.kelasId as string;
 
   const [searchQuery, setSearchQuery] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
 
   // Debounce search query
   const debouncedSearch = useDebounce(searchQuery, 350);
 
-  // Lazy load materi data
-  const { data, isLoading, error, refetch } = useMateriList(kelasId, currentPage);
+  // Load materi data from API
+  const { data: materiList, isLoading, error, refetch } = useMateriList(kelasId);
 
   // Dummy data untuk kelas (should come from parent layout or API)
   const kelasData = {
@@ -34,24 +33,22 @@ const MateriListPage = () => {
 
   // Filter materi berdasarkan search query
   const filteredMateriList = useMemo(() => {
-    const materiList = data?.items || [];
+    const list = materiList || [];
 
     if (!debouncedSearch.trim()) {
-      return materiList;
+      return list;
     }
 
     const query = debouncedSearch.toLowerCase();
-    return materiList.filter(
+    return list.filter(
       (materi) =>
-        materi.judul.toLowerCase().includes(query) ||
-        materi.topik.toLowerCase().includes(query) ||
-        materi.deskripsi.toLowerCase().includes(query)
+        materi.judul_materi.toLowerCase().includes(query) ||
+        (materi.deskripsi && materi.deskripsi.toLowerCase().includes(query))
     );
-  }, [data, debouncedSearch]);
+  }, [materiList, debouncedSearch]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    setCurrentPage(1); // Reset to first page on search
   };
 
   return (
@@ -68,10 +65,7 @@ const MateriListPage = () => {
       {/* Search Bar Component */}
       <SearchBar
         value={searchQuery}
-        onChange={(value) => {
-          setSearchQuery(value);
-          setCurrentPage(1);
-        }}
+        onChange={(value) => setSearchQuery(value)}
         onSubmit={handleSearch}
         placeholder="Cari materi pembelajaran...."
         className="mb-8"
@@ -116,41 +110,12 @@ const MateriListPage = () => {
               key={materi.id}
               id={materi.id}
               kelasId={kelasId}
-              judul={materi.judul}
+              judul_materi={materi.judul_materi}
               deskripsi={materi.deskripsi}
-              topik={materi.topik}
-              status={materi.status}
-              jumlahSiswaSelesai={materi.jumlahSiswaSelesai}
-              totalSiswa={materi.totalSiswa}
+              jumlah_sub_materi={materi.jumlah_sub_materi}
+              created_at={materi.created_at}
             />
           ))}
-        </div>
-      )}
-
-      {/* Pagination - if API returns pagination data */}
-      {data?.totalPages && data.totalPages > 1 && (
-        <div className="flex justify-center items-center gap-2 mt-8" role="navigation" aria-label="Pagination">
-          <button
-            onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
-            disabled={currentPage === 1}
-            className="px-4 py-2 rounded-lg border border-gray-300 bg-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
-            aria-label="Halaman sebelumnya"
-          >
-            Sebelumnya
-          </button>
-
-          <span className="px-4 py-2 font-medium" aria-live="polite">
-            Halaman {currentPage} dari {data.totalPages}
-          </span>
-
-          <button
-            onClick={() => setCurrentPage((prev) => Math.min(data.totalPages, prev + 1))}
-            disabled={currentPage === data.totalPages}
-            className="px-4 py-2 rounded-lg border border-gray-300 bg-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
-            aria-label="Halaman selanjutnya"
-          >
-            Selanjutnya
-          </button>
         </div>
       )}
     </div>

@@ -1,24 +1,21 @@
 "use client";
 
-import React, { useState } from "react";
-import { useParams } from "next/navigation";
+import React, { useState, useEffect } from "react";
 import { TeacherProfile } from "@/components/guru";
+import { getMyProfile, updateMyProfile, updateMyPassword } from "@/lib/api/user";
 import PersonIcon from "@mui/icons-material/Person";
 import LockIcon from "@mui/icons-material/Lock";
 import SaveIcon from "@mui/icons-material/Save";
-import EditIcon from "@mui/icons-material/Edit";
+import Swal from "sweetalert2";
 
 const PengaturanGuruPage = () => {
-  const params = useParams();
-  const kelasId = params.kelasId;
-
-  // State for form inputs
   const [formData, setFormData] = useState({
-    nama: "Isabella",
-    email: "isabella@adaptivin.com",
-    nip: "1234567890",
-    telepon: "+62 812-3456-7890",
-    alamat: "Jl. Pendidikan No. 123, Jakarta",
+    nama: "",
+    email: "",
+    nip: "",
+    jenis_kelamin: "",
+    alamat: "",
+    tanggal_lahir: "",
     passwordLama: "",
     passwordBaru: "",
     konfirmasiPassword: "",
@@ -26,6 +23,46 @@ const PengaturanGuruPage = () => {
 
   const [activeSection, setActiveSection] = useState<string>("profil");
   const [isEditing, setIsEditing] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  // Fetch user profile on mount
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        const profile = await getMyProfile();
+
+        setFormData({
+          nama: profile.nama_lengkap || "",
+          email: profile.email || "",
+          nip: profile.nip || "",
+          jenis_kelamin: profile.jenis_kelamin || "",
+          alamat: profile.alamat || "",
+          tanggal_lahir: profile.tanggal_lahir || "",
+          passwordLama: "",
+          passwordBaru: "",
+          konfirmasiPassword: "",
+        });
+      } catch (err) {
+        const error = err as { response?: { data?: { error?: string } } };
+        Swal.fire({
+          icon: "error",
+          title: "Error!",
+          text: error.response?.data?.error || "Gagal memuat data profil",
+          confirmButtonColor: "#336d82",
+        });
+        setError(error.response?.data?.error || "Gagal memuat data profil");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, []);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
@@ -34,10 +71,91 @@ const PengaturanGuruPage = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSave = () => {
-    console.log("Saving settings:", formData);
-    setIsEditing(false);
-    // TODO: Implement API call to save settings
+  const handleSave = async () => {
+    try {
+      setIsSaving(true);
+      setError(null);
+      setSuccessMessage(null);
+
+      // Validasi jika section keamanan (password)
+      if (activeSection === "keamanan") {
+        if (!formData.passwordLama || !formData.passwordBaru || !formData.konfirmasiPassword) {
+          setError("Semua field password harus diisi");
+          return;
+        }
+
+        if (formData.passwordBaru !== formData.konfirmasiPassword) {
+          setError("Password baru dan konfirmasi password tidak cocok");
+          return;
+        }
+
+        if (formData.passwordBaru.length < 8) {
+          setError("Password baru minimal 8 karakter");
+          return;
+        }
+
+        // Update password
+        await updateMyPassword({
+          currentPassword: formData.passwordLama,
+          newPassword: formData.passwordBaru,
+        });
+
+        Swal.fire({
+          icon: "success",
+          title: "Berhasil!",
+          text: "Password berhasil diubah!",
+          confirmButtonColor: "#336d82",
+          timer: 2000,
+        });
+
+        // Clear password fields
+        setFormData((prev) => ({
+          ...prev,
+          passwordLama: "",
+          passwordBaru: "",
+          konfirmasiPassword: "",
+        }));
+
+        // Clear success message after 3 seconds
+        setTimeout(() => {
+          setSuccessMessage(null);
+        }, 3000);
+
+        return;
+      }
+
+      // Update profil
+      await updateMyProfile({
+        nama_lengkap: formData.nama,
+        jenis_kelamin: formData.jenis_kelamin,
+        alamat: formData.alamat,
+        tanggal_lahir: formData.tanggal_lahir,
+      });
+
+      Swal.fire({
+        icon: "success",
+        title: "Berhasil!",
+        text: "Profil berhasil diperbarui!",
+        confirmButtonColor: "#336d82",
+      });
+      setIsEditing(false);
+
+      // Clear success message after 3 seconds
+      setTimeout(() => {
+        setSuccessMessage(null);
+      }, 3000);
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { error?: string } } };
+      Swal.fire({
+        icon: "error",
+        title: "Error!",
+        text: error.response?.data?.error || "Gagal menyimpan perubahan",
+        confirmButtonColor: "#336d82",
+      });
+      setError(error.response?.data?.error || "Gagal menyimpan perubahan");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const sections = [
@@ -46,10 +164,40 @@ const PengaturanGuruPage = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-100 p-4">
+    <div className="min-h-screen bg-gray-100 p-4 rounded-4xl">
+      {/* Loading Overlay */}
+      {isLoading && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-[25px] p-8 shadow-2xl">
+            <div className="flex flex-col items-center gap-4">
+              <div className="w-16 h-16 border-4 border-[#336d82]/30 border-t-[#336d82] rounded-full animate-spin"></div>
+              <p className="text-[#336d82] poppins-semibold">Memuat data profil...</p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Outer Container with Rounded Corners and Gradient */}
       <div className="bg-gradient-to-br from-[#336D82] via-[#5a96a8] to-[#7bb3c4] rounded-[30px] shadow-2xl overflow-hidden">
         <div className="p-6">
+          {/* Success/Error Messages */}
+          {(successMessage || error) && (
+            <div className="mb-6">
+              {successMessage && (
+                <div className="bg-green-50 border-2 border-green-200 text-green-700 px-6 py-4 rounded-[20px] flex items-center gap-3 poppins-medium">
+                  <SaveIcon sx={{ fontSize: 24 }} />
+                  <span>{successMessage}</span>
+                </div>
+              )}
+              {error && (
+                <div className="bg-red-50 border-2 border-red-200 text-red-700 px-6 py-4 rounded-[20px] flex items-center gap-3 poppins-medium">
+                  <LockIcon sx={{ fontSize: 24 }} />
+                  <span>{error}</span>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Header Card with Enhanced Design */}
           <div className="relative mb-6 overflow-hidden">
             {/* Decorative Elements */}
@@ -60,10 +208,8 @@ const PengaturanGuruPage = () => {
             <div className="relative bg-white rounded-[25px] shadow-xl p-6 border-3 border-white/50">
               <div className="flex items-center justify-between flex-wrap gap-4">
                 <div className="flex items-center gap-6">
-                  <div className="transform hover:scale-105 transition-transform duration-300 scale-75">
-                    <TeacherProfile
-                      profileImage="/guru/foto-profil/profil-guru.svg"
-                      teacherName={formData.nama}
+                  <div className="transform transition-transform duration-300 scale-75">
+                    <TeacherProfile profileImage="/guru/foto-profil/profil-guru.svg"
                     />
                   </div>
                   <div>
@@ -75,13 +221,6 @@ const PengaturanGuruPage = () => {
                     </p>
                   </div>
                 </div>
-                <button
-                  onClick={() => setIsEditing(!isEditing)}
-                  className="bg-gradient-to-r from-[#336d82] to-[#5a96a8] hover:from-[#2a5a6a] hover:to-[#4a8199] text-white px-6 py-3 rounded-[20px] flex items-center gap-2 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 poppins-semibold text-sm"
-                >
-                  <EditIcon sx={{ fontSize: 20 }} />
-                  {isEditing ? "Batal Edit" : "Edit Profil"}
-                </button>
               </div>
             </div>
           </div>
@@ -101,15 +240,13 @@ const PengaturanGuruPage = () => {
                       <button
                         key={section.id}
                         onClick={() => setActiveSection(section.id)}
-                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-[15px] transition-all duration-300 poppins-semibold text-sm ${
-                          activeSection === section.id
-                            ? "bg-gradient-to-r from-[#336d82] to-[#5a96a8] text-white shadow-lg transform scale-105"
-                            : "text-[#336d82] bg-white/50 hover:bg-white hover:shadow-md hover:transform hover:scale-102"
-                        }`}
+                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-[15px] transition-all duration-300 poppins-semibold text-sm ${activeSection === section.id
+                          ? "bg-gradient-to-r from-[#336d82] to-[#5a96a8] text-white shadow-lg transform scale-105"
+                          : "text-[#336d82] bg-white/50 hover:bg-white hover:shadow-md hover:transform hover:scale-102"
+                          }`}
                       >
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                          activeSection === section.id ? "bg-white/20" : "bg-[#336d82]/10"
-                        }`}>
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center ${activeSection === section.id ? "bg-white/20" : "bg-[#336d82]/10"
+                          }`}>
                           <Icon sx={{ fontSize: 18 }} />
                         </div>
                         <span>{section.label}</span>
@@ -140,7 +277,7 @@ const PengaturanGuruPage = () => {
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-black/70">
                       <div className="space-y-2">
                         <label className="text-[#336d82] text-sm poppins-semibold">
                           Nama Lengkap
@@ -150,7 +287,6 @@ const PengaturanGuruPage = () => {
                           name="nama"
                           value={formData.nama}
                           onChange={handleInputChange}
-                          disabled={!isEditing}
                           className="w-full px-4 py-3 border-2 border-[#336d82]/20 rounded-[15px] focus:outline-none focus:ring-2 focus:ring-[#336d82]/30 focus:border-[#336d82] poppins-medium text-base disabled:bg-gray-50 disabled:cursor-not-allowed transition-all duration-200 hover:border-[#336d82]/40"
                         />
                       </div>
@@ -164,7 +300,6 @@ const PengaturanGuruPage = () => {
                           name="email"
                           value={formData.email}
                           onChange={handleInputChange}
-                          disabled={!isEditing}
                           className="w-full px-4 py-3 border-2 border-[#336d82]/20 rounded-[15px] focus:outline-none focus:ring-2 focus:ring-[#336d82]/30 focus:border-[#336d82] poppins-medium text-base disabled:bg-gray-50 disabled:cursor-not-allowed transition-all duration-200 hover:border-[#336d82]/40"
                         />
                       </div>
@@ -178,27 +313,41 @@ const PengaturanGuruPage = () => {
                           name="nip"
                           value={formData.nip}
                           onChange={handleInputChange}
-                          disabled={!isEditing}
-                          className="w-full px-4 py-3 border-2 border-[#336d82]/20 rounded-[15px] focus:outline-none focus:ring-2 focus:ring-[#336d82]/30 focus:border-[#336d82] poppins-medium text-base disabled:bg-gray-50 disabled:cursor-not-allowed transition-all duration-200 hover:border-[#336d82]/40"
+                          className="w-full px-4 py-3 border-2 border-[#336d82]/20 rounded-[15px] focus:outline-none focus:ring-2 focus:ring-[#336d82]/30 focus:border-[#336d82] poppins-medium text-base bg-gray-50 cursor-not-allowed transition-all duration-200"
                         />
                       </div>
 
                       <div className="space-y-2">
                         <label className="text-[#336d82] text-sm poppins-semibold">
-                          Nomor Telepon
+                          Jenis Kelamin
+                        </label>
+                        <select
+                          name="jenis_kelamin"
+                          value={formData.jenis_kelamin}
+                          onChange={handleInputChange}
+                          className="w-full px-4 py-3 border-2 border-[#336d82]/20 rounded-[15px] focus:outline-none focus:ring-2 focus:ring-[#336d82]/30 focus:border-[#336d82] poppins-medium text-base disabled:bg-gray-50 disabled:cursor-not-allowed transition-all duration-200 hover:border-[#336d82]/40"
+                        >
+                          <option value="">Pilih Jenis Kelamin</option>
+                          <option value="Laki-laki">Laki-laki</option>
+                          <option value="Perempuan">Perempuan</option>
+                        </select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-[#336d82] text-sm poppins-semibold">
+                          Tanggal Lahir
                         </label>
                         <input
-                          type="tel"
-                          name="telepon"
-                          value={formData.telepon}
+                          type="date"
+                          name="tanggal_lahir"
+                          value={formData.tanggal_lahir}
                           onChange={handleInputChange}
-                          disabled={!isEditing}
                           className="w-full px-4 py-3 border-2 border-[#336d82]/20 rounded-[15px] focus:outline-none focus:ring-2 focus:ring-[#336d82]/30 focus:border-[#336d82] poppins-medium text-base disabled:bg-gray-50 disabled:cursor-not-allowed transition-all duration-200 hover:border-[#336d82]/40"
                         />
                       </div>
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-2 text-black/70">
                       <label className="text-[#336d82] text-sm poppins-semibold">
                         Alamat
                       </label>
@@ -206,7 +355,6 @@ const PengaturanGuruPage = () => {
                         name="alamat"
                         value={formData.alamat}
                         onChange={handleInputChange}
-                        disabled={!isEditing}
                         rows={3}
                         className="w-full px-4 py-3 border-2 border-[#336d82]/20 rounded-[15px] focus:outline-none focus:ring-2 focus:ring-[#336d82]/30 focus:border-[#336d82] poppins-medium text-base disabled:bg-gray-50 disabled:cursor-not-allowed resize-none transition-all duration-200 hover:border-[#336d82]/40"
                       />
@@ -262,7 +410,7 @@ const PengaturanGuruPage = () => {
                       </div>
                     </div>
 
-                    <div className="space-y-4">
+                    <div className="space-y-4 text-black/70">
                       <div className="space-y-2">
                         <label className="text-[#336d82] text-sm poppins-semibold">
                           Password Lama
@@ -312,10 +460,20 @@ const PengaturanGuruPage = () => {
                 <div className="mt-6 pt-6 border-t-2 border-[#336d82]/10">
                   <button
                     onClick={handleSave}
-                    className="w-full md:w-auto bg-gradient-to-r from-[#336d82] via-[#4a8199] to-[#5a96a8] hover:from-[#2a5a6a] hover:via-[#336d82] hover:to-[#4a8199] text-white px-8 py-3 rounded-[18px] flex items-center justify-center gap-3 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 poppins-bold text-base"
+                    disabled={isSaving}
+                    className="w-full md:w-auto bg-gradient-to-r from-[#336d82] via-[#4a8199] to-[#5a96a8] hover:from-[#2a5a6a] hover:via-[#336d82] hover:to-[#4a8199] text-white px-8 py-3 rounded-[18px] flex items-center justify-center gap-3 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 poppins-bold text-base disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                   >
-                    <SaveIcon sx={{ fontSize: 22 }} />
-                    Simpan Perubahan
+                    {isSaving ? (
+                      <>
+                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                        Menyimpan...
+                      </>
+                    ) : (
+                      <>
+                        <SaveIcon sx={{ fontSize: 22 }} />
+                        Simpan Perubahan
+                      </>
+                    )}
                   </button>
                 </div>
               </div>

@@ -24,6 +24,13 @@ export interface MateriSectionData {
   };
 }
 
+interface SubMateriMedia {
+  id: string;
+  tipe_media: "pdf" | "video" | "gambar";
+  url: string;
+  created_at: string;
+}
+
 interface MateriSectionProps {
   section: MateriSectionData;
   sectionIndex: number;
@@ -38,6 +45,8 @@ interface MateriSectionProps {
   onDragOver: (e: React.DragEvent, type: "file" | "video") => void;
   onDragLeave: (e: React.DragEvent, type: "file" | "video") => void;
   onDrop: (e: React.DragEvent, type: "file" | "video") => void;
+  existingPdf?: SubMateriMedia;
+  existingVideo?: SubMateriMedia;
 }
 
 export function MateriSection({
@@ -54,6 +63,8 @@ export function MateriSection({
   onDragOver,
   onDragLeave,
   onDrop,
+  existingPdf,
+  existingVideo,
 }: MateriSectionProps) {
   const baseNumber = sectionIndex * 4;
 
@@ -72,7 +83,9 @@ export function MateriSection({
         confirmed: { ...section.confirmed, title: false },
       });
     } else if (field === "explanation") {
-      section.imagePreviews.forEach((preview) => URL.revokeObjectURL(preview));
+      section.imagePreviews.forEach((preview) => {
+        if (preview.startsWith("blob:")) URL.revokeObjectURL(preview);
+      });
       onUpdate({
         ...section,
         explanation: "",
@@ -97,6 +110,12 @@ export function MateriSection({
         confirmed: { ...section.confirmed, video: false },
       });
     }
+  };
+
+  const getFileName = (url?: string) => {
+    if (!url) return undefined;
+    const parts = url.split("/");
+    return parts[parts.length - 1];
   };
 
   return (
@@ -161,6 +180,8 @@ export function MateriSection({
         onDragLeave={(e) => onDragLeave(e, "file")}
         onDrop={(e) => onDrop(e, "file")}
         inputId={`file-upload-${section.id}`}
+        existingFileUrl={existingPdf?.url}
+        existingFileName={getFileName(existingPdf?.url)}
       />
 
       {/* 3. Video Upload */}
@@ -179,6 +200,8 @@ export function MateriSection({
         onDragLeave={(e) => onDragLeave(e, "video")}
         onDrop={(e) => onDrop(e, "video")}
         inputId={`video-upload-${section.id}`}
+        existingFileUrl={existingVideo?.url}
+        existingFileName={getFileName(existingVideo?.url)}
       />
 
       {/* 4. Explanation with Images */}
@@ -228,14 +251,13 @@ export function MateriSection({
                 document.getElementById(`image-upload-${section.id}`)?.click()
               }
               disabled={section.confirmed.explanation}
-              className={`px-5 py-2.5 rounded-xl text-[12px] font-semibold transition-all flex items-center gap-2 font-poppins shadow-md hover:shadow-lg ${
-                section.confirmed.explanation
+              className={`px-5 py-2.5 rounded-xl text-[12px] font-semibold transition-all flex items-center gap-2 font-poppins shadow-md hover:shadow-lg ${section.confirmed.explanation
                   ? "bg-gray-400 text-gray-200 cursor-not-allowed"
                   : "bg-gradient-to-r from-[#fcc61d] to-[#f5b800] text-white hover:-translate-y-0.5"
-              }`}
+                }`}
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+                <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z" />
               </svg>
               Tambah Gambar
             </button>
@@ -244,28 +266,26 @@ export function MateriSection({
             <button
               onClick={() => handleDeleteField("explanation")}
               disabled={section.confirmed.explanation}
-              className={`flex-1 sm:flex-none px-7 py-2 rounded-xl text-[12px] font-semibold transition-all font-poppins shadow-md hover:shadow-lg ${
-                section.confirmed.explanation
+              className={`flex-1 sm:flex-none px-7 py-2 rounded-xl text-[12px] font-semibold transition-all font-poppins shadow-md hover:shadow-lg ${section.confirmed.explanation
                   ? "bg-gray-400 text-gray-200 cursor-not-allowed"
                   : "bg-[#ff1919] text-white hover:bg-[#e01515] hover:-translate-y-0.5"
-              }`}
+                }`}
             >
               Hapus
             </button>
             <button
               onClick={() => handleConfirm("explanation")}
               disabled={!section.explanation || section.confirmed.explanation}
-              className={`flex-1 sm:flex-none px-7 py-2 rounded-xl text-[12px] font-semibold transition-all flex items-center gap-2 font-poppins shadow-md hover:shadow-lg ${
-                section.confirmed.explanation
+              className={`flex-1 sm:flex-none px-7 py-2 rounded-xl text-[12px] font-semibold transition-all flex items-center gap-2 font-poppins shadow-md hover:shadow-lg ${section.confirmed.explanation
                   ? "bg-[#2ea062] text-white cursor-default"
                   : !section.explanation
-                  ? "bg-gray-400 text-gray-200 cursor-not-allowed"
-                  : "bg-[#2ea062] text-white hover:bg-[#26824f] hover:-translate-y-0.5"
-              }`}
+                    ? "bg-gray-400 text-gray-200 cursor-not-allowed"
+                    : "bg-[#2ea062] text-white hover:bg-[#26824f] hover:-translate-y-0.5"
+                }`}
             >
               {section.confirmed.explanation && (
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
                 </svg>
               )}
               Konfirmasi

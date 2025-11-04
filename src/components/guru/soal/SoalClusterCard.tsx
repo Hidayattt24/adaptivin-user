@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Visibility, Edit, Delete } from "@mui/icons-material";
-import { Question } from "./QuestionSection";
+// import { Question } from "./QuestionSection";
 
 interface SoalClusterCardProps {
   question: Question;

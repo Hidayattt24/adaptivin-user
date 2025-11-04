@@ -15,6 +15,8 @@ import {
   type MainMateriData,
   type MateriSectionData,
 } from "@/components/guru";
+import { useCreateMateri, useCreateSubMateri } from "@/hooks/guru/useMateri";
+import Swal from "sweetalert2";
 
 const TambahMateriPage = () => {
   const params = useParams();
@@ -279,29 +281,106 @@ const TambahMateriPage = () => {
     }
   };
 
+  // ==================== MUTATION HOOKS ====================
+  const createMateriMutation = useCreateMateri();
+  const createSubMateriMutation = useCreateSubMateri();
+
   // ==================== SUBMIT HANDLER ====================
 
   const handleSubmit = async () => {
     // Validate main title is filled
     if (!mainMateri.title.trim()) {
-      alert("⚠️ Judul materi utama wajib diisi!");
+      Swal.fire({
+        icon: "warning",
+        title: "Peringatan!",
+        text: "⚠️ Judul materi utama wajib diisi!",
+        confirmButtonColor: "#336d82",
+      });
       return;
     }
 
     setIsSubmitting(true);
-    await new Promise((resolve) => setTimeout(resolve, 1500));
 
-    // Clean up all image previews
-    mainMateri.imagePreviews.forEach((preview) => URL.revokeObjectURL(preview));
-    subSections.forEach((section) => {
-      section.imagePreviews.forEach((preview) => URL.revokeObjectURL(preview));
-    });
+    try {
+      // Step 1: Create parent materi
+      const deskripsiMateri = mainMateri.explanation || "Materi pembelajaran";
+      const createdMateri = await createMateriMutation.mutateAsync({
+        kelas_id: kelasId,
+        judul_materi: mainMateri.title,
+        deskripsi: deskripsiMateri,
+      });
 
-    // TODO: Send data to API
-    console.log("Main Material:", mainMateri);
-    console.log("Sub-sections:", subSections);
+      // Step 2: Create main material as first sub_materi (urutan 0)
+      // HANYA jika ada file/video/gambar yang di-upload
+      // Deskripsi TIDAK termasuk karena sudah disimpan di parent materi.deskripsi
+      const mainFiles: File[] = [];
+      if (mainMateri.file) mainFiles.push(mainMateri.file);
+      if (mainMateri.video) mainFiles.push(mainMateri.video);
+      if (mainMateri.images.length > 0) mainFiles.push(...mainMateri.images);
 
-    router.push(`/guru/kelas/${kelasId}/materi`);
+      if (mainFiles.length > 0) {
+        await createSubMateriMutation.mutateAsync({
+          data: {
+            materi_id: createdMateri.id,
+            judul_sub_materi: mainMateri.title,
+            isi_materi: "", // Kosong karena deskripsi ada di parent
+            urutan: 0,
+          },
+          files: mainFiles,
+        });
+      }
+
+      // Step 3: Create sub-sections as sub_materi (urutan 1, 2, 3...)
+      for (let i = 0; i < subSections.length; i++) {
+        const section = subSections[i];
+
+        // Collect files for this section
+        const sectionFiles: File[] = [];
+        if (section.file) sectionFiles.push(section.file);
+        if (section.video) sectionFiles.push(section.video);
+        if (section.images.length > 0) sectionFiles.push(...section.images);
+
+        await createSubMateriMutation.mutateAsync({
+          data: {
+            materi_id: createdMateri.id,
+            judul_sub_materi: section.title || `Sub Materi ${i + 1}`,
+            isi_materi: section.explanation ?? "",
+            urutan: i + 1,
+          },
+          files: sectionFiles.length > 0 ? sectionFiles : undefined,
+        });
+      }
+
+      // Clean up all image previews
+      mainMateri.imagePreviews.forEach((preview) =>
+        URL.revokeObjectURL(preview)
+      );
+      subSections.forEach((section) => {
+        section.imagePreviews.forEach((preview) =>
+          URL.revokeObjectURL(preview)
+        );
+      });
+
+      Swal.fire({
+        icon: "success",
+        title: "Berhasil!",
+        text: "Materi berhasil dibuat!",
+        confirmButtonColor: "#336d82",
+        timer: 2000,
+      });
+      router.push(`/guru/kelas/${kelasId}/materi`);
+    } catch (error) {
+      const errorMsg =
+        error instanceof Error ? error.message : "Gagal membuat materi";
+
+      Swal.fire({
+        icon: "error",
+        title: "Gagal!",
+        text: errorMsg,
+        confirmButtonColor: "#336d82",
+      });
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -331,9 +410,9 @@ const TambahMateriPage = () => {
               <p className="text-sm text-gray-800 font-poppins leading-relaxed">
                 <strong className="text-[#336d82]">ℹ️ Cara Kerja:</strong>
                 <br />
-                1. Isi <strong>Judul Materi Utama</strong> (wajib) - Contoh: "Pecahan"
+                1. Isi <strong>Judul Materi Utama</strong> (wajib) - Contoh: &quot;Pecahan&quot;
                 <br />
-                2. Tambahkan <strong>Sub-Materi</strong> (opsional) - Contoh: "Pecahan Biasa", "Pecahan Campuran"
+                2. Tambahkan <strong>Sub-Materi</strong> (opsional) - Contoh: &quot;Pecahan Biasa&quot;, &quot;Pecahan Campuran&quot;
               </p>
             </div>
 

@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   setStorage,
   getStorage,
@@ -36,6 +37,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const API_URL =
     process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
@@ -70,10 +72,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         throw new Error("Akses ditolak: role tidak sesuai");
       }
 
-      // Update state
+      // PENTING: Clear semua cache dan storage sebelum login baru
+      // Ini mencegah data user lama muncul di UI
+      queryClient.clear(); // Clear semua React Query cache
+      clearAuth(); // Clear localStorage dan cookies lama
+
+      // Update state dengan user baru
       setUser(data.user);
 
-      // Simpan dengan prefix untuk menghindari collision dengan admin
+      // Simpan data user baru dengan prefix untuk menghindari collision dengan admin
       setStorage(StorageKeys.USER, data.user);
       setStorage(StorageKeys.TOKEN, data.token);
 
@@ -111,9 +118,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     } catch (error) {
       console.error("Logout error:", error);
     } finally {
-      // Always clear client-side data dengan prefix
+      // Always clear client-side data
       setUser(null);
-      clearAuth(); // Clear dengan prefix adaptivin_user_
+      queryClient.clear(); // Clear semua React Query cache
+      clearAuth(); // Clear localStorage dan cookies dengan prefix adaptivin_user_
       router.push("/splash");
     }
   };

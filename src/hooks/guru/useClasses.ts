@@ -11,6 +11,7 @@ interface TransformedKelas {
   mataPelajaran: string | null;
   tahunAjaran: string | null;
   roleDalamKelas?: "guru" | "siswa";
+  studentProfiles: string[]; // Array foto profil siswa (max 3)
 }
 
 function transformKelasData(kelas: KelasResponse[]): TransformedKelas[] {
@@ -23,6 +24,7 @@ function transformKelasData(kelas: KelasResponse[]): TransformedKelas[] {
     mataPelajaran: k.mata_pelajaran,
     tahunAjaran: k.tahun_ajaran,
     roleDalamKelas: k.role_dalam_kelas,
+    studentProfiles: k.student_profiles ?? [], // Foto profil dari database
   }));
 }
 

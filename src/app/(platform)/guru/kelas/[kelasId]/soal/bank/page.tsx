@@ -26,33 +26,37 @@ import {
 import type { Soal } from "@/lib/api/soal";
 import Swal from "sweetalert2";
 
-const bloomCategories = [
+const levelCategories = [
   {
-    level: "C1",
-    label: "C1 - Mengingat",
+    level: "Level 1",
+    label: "Level 1 - Mengingat",
     color: "from-blue-500 to-blue-600"
   },
   {
-    level: "C2",
-    label: "C2 - Memahami",
+    level: "Level 2",
+    label: "Level 2 - Memahami",
     color: "from-green-500 to-green-600"
   },
   {
-    level: "C3",
-    label: "C3 - Menerapkan",
+    level: "Level 3",
+    label: "Level 3 - Menerapkan",
     color: "from-yellow-500 to-yellow-600",
   },
   {
-    level: "C4",
-    label: "C4 - Menganalisis",
+    level: "Level 4",
+    label: "Level 4 - Menganalisis",
     color: "from-orange-500 to-orange-600",
   },
   {
-    level: "C5",
-    label: "C5 - Mengevaluasi",
+    level: "Level 5",
+    label: "Level 5 - Mengevaluasi",
     color: "from-red-500 to-red-600",
   },
-  { level: "C6", label: "C6 - Mencipta", color: "from-purple-500 to-purple-600" },
+  {
+    level: "Level 6",
+    label: "Level 6 - Mencipta",
+    color: "from-purple-500 to-purple-600",
+  },
 ];
 
 const BankSoalPage = () => {
@@ -76,17 +80,37 @@ const BankSoalPage = () => {
   // Convert backend soal to Question format
   const convertSoalToQuestion = (soal: Soal): Question => {
     // Get the correct answer text
-    // Untuk pilihan ganda, gabungkan semua jawaban dengan newline
     let correctAnswer = "";
-    if (soal.tipe_jawaban === "pilihan_ganda") {
-      correctAnswer = soal.jawaban?.map((j) => j.isi_jawaban).join("\n") || "";
+    const multipleChoiceOptions: Array<{ label: string; text: string; isCorrect: boolean }> = [
+      { label: 'A', text: '', isCorrect: false },
+      { label: 'B', text: '', isCorrect: false },
+      { label: 'C', text: '', isCorrect: false },
+      { label: 'D', text: '', isCorrect: false },
+    ];
+
+    if (soal.tipe_jawaban === "pilihan_ganda" || soal.tipe_jawaban === "pilihan_ganda_kompleks") {
+      // Parse jawaban dari backend ke format multipleChoiceOptions
+      if (soal.jawaban && soal.jawaban.length > 0) {
+        soal.jawaban.forEach((jawab, idx) => {
+          if (idx < 4) { // Maksimal 4 pilihan (A, B, C, D)
+            // Extract text dari format "A. text" atau langsung "text"
+            const text = jawab.isi_jawaban.replace(/^[A-D]\.\s*/, '');
+            multipleChoiceOptions[idx] = {
+              label: String.fromCharCode(65 + idx), // A, B, C, D
+              text: text,
+              isCorrect: jawab.is_benar,
+            };
+          }
+        });
+      }
+      correctAnswer = ""; // Tidak perlu answerText untuk pilihan ganda
     } else {
       correctAnswer = soal.jawaban?.find((j) => j.is_benar)?.isi_jawaban || "";
     }
 
     return {
       id: soal.soal_id,
-      questionType: soal.level_soal.toUpperCase() as "C1" | "C2" | "C3" | "C4" | "C5" | "C6",
+      questionType: soal.level_soal.toUpperCase() as "level1" | "level2" | "level3" | "level4" | "level5" | "level6",
       questionFile: null,
       questionFilePreview: soal.soal_gambar || null,
       questionText: soal.soal_teks,
@@ -97,6 +121,7 @@ const BankSoalPage = () => {
       explanation: soal.penjelasan || "",
       timeValue: Math.floor(soal.durasi_soal / 60),
       timeUnit: "Menit",
+      multipleChoiceOptions: multipleChoiceOptions,
     };
   };
 
@@ -108,12 +133,12 @@ const BankSoalPage = () => {
   // Group questions by Bloom level
   const groupedQuestions = useMemo(() => {
     const groups: Record<string, Question[]> = {
-      C1: [],
-      C2: [],
-      C3: [],
-      C4: [],
-      C5: [],
-      C6: [],
+      level1: [],
+      level2: [],
+      level3: [],
+      level4: [],
+      level5: [],
+      level6: [],
     };
 
     questions.forEach((q) => {
@@ -135,31 +160,52 @@ const BankSoalPage = () => {
 
   const handleSaveEdit = async (updatedQuestion: Question) => {
     try {
-      // Parse jawaban from answerText
+      // Parse jawaban from multipleChoiceOptions or answerText
       let jawaban: Array<{ isi_jawaban: string; is_benar: boolean }> = [];
 
       if (updatedQuestion.answerType === "pilihan_ganda") {
-        // Pilihan ganda - split by newline or comma
-        const answers = updatedQuestion.answerText
-          .split(/[\n,]/)
-          .map((a) => a.trim())
-          .filter((a) => a.length > 0);
+        // Gunakan multipleChoiceOptions untuk pilihan ganda
+        if (!updatedQuestion.multipleChoiceOptions || updatedQuestion.multipleChoiceOptions.every(opt => !opt.text.trim())) {
+          throw new Error("Jawaban pilihan ganda tidak valid");
+        }
 
-        // Setiap pilihan adalah entry terpisah, pertama adalah benar
-        jawaban = answers.map((ans, idx) => ({
-          isi_jawaban: ans,
-          is_benar: idx === 0,
-        }));
+        // Filter options yang ada textnya dan map ke format jawaban
+        jawaban = updatedQuestion.multipleChoiceOptions
+          .filter(opt => opt.text.trim().length > 0)
+          .map((opt) => ({
+            isi_jawaban: `${opt.label}. ${opt.text}`,
+            is_benar: opt.isCorrect,
+          }));
+
+        // Validasi minimal ada 1 jawaban benar
+        if (!jawaban.some(j => j.is_benar)) {
+          throw new Error("Pilihan ganda harus memiliki minimal 1 jawaban benar");
+        }
+      } else if (updatedQuestion.answerType === "pilihan_ganda_kompleks") {
+        // Gunakan multipleChoiceOptions untuk pilihan ganda kompleks
+        if (!updatedQuestion.multipleChoiceOptions || updatedQuestion.multipleChoiceOptions.every(opt => !opt.text.trim())) {
+          throw new Error("Jawaban pilihan ganda kompleks tidak valid");
+        }
+
+        // Filter options yang ada textnya dan map ke format jawaban
+        jawaban = updatedQuestion.multipleChoiceOptions
+          .filter(opt => opt.text.trim().length > 0)
+          .map((opt) => ({
+            isi_jawaban: `${opt.label}. ${opt.text}`,
+            is_benar: opt.isCorrect,
+          }));
+
+        // Validasi minimal ada 1 jawaban benar
+        if (!jawaban.some(j => j.is_benar)) {
+          throw new Error("Pilihan ganda kompleks harus memiliki minimal 1 jawaban benar");
+        }
       } else if (updatedQuestion.answerType === "isian_singkat") {
         // Isian singkat - hanya 1 jawaban
-        jawaban = [{ isi_jawaban: updatedQuestion.answerText.trim(), is_benar: true }];
-      } else if (updatedQuestion.answerType === "angka") {
-        // Angka - hanya 1 jawaban
         jawaban = [{ isi_jawaban: updatedQuestion.answerText.trim(), is_benar: true }];
       }
 
       const payload = {
-        level_soal: updatedQuestion.questionType.toLowerCase() as "c1" | "c2" | "c3" | "c4" | "c5" | "c6",
+        level_soal: updatedQuestion.questionType.toLowerCase() as "level1" | "level2" | "level3" | "level4" | "level5" | "level6",
         tipe_jawaban: updatedQuestion.answerType, // Tambahkan tipe_jawaban
         soal_teks: updatedQuestion.questionText,
         penjelasan: updatedQuestion.explanation || undefined,
@@ -347,9 +393,9 @@ const BankSoalPage = () => {
               </div>
             </div>
 
-            {/* Bottom Row: Bloom Stats - Scrollable */}
+            {/* Bottom Row: Level Stats - Scrollable */}
             <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide -mx-3 px-3">
-              {bloomCategories.map((cat) => (
+              {levelCategories.map((cat) => (
                 <div
                   key={cat.level}
                   className="bg-white/15 backdrop-blur-sm px-3 py-1.5 rounded-lg text-center min-w-[60px] flex-shrink-0"
@@ -396,7 +442,7 @@ const BankSoalPage = () => {
 
               {/* Bloom Stats */}
               <div className="flex gap-2">
-                {bloomCategories.map((cat) => (
+                {levelCategories.map((cat) => (
                   <div
                     key={cat.level}
                     className="bg-white/15 backdrop-blur-sm px-3 py-2 rounded-lg text-center min-w-[55px] hover:bg-white/25 transition-colors cursor-default"
@@ -435,7 +481,7 @@ const BankSoalPage = () => {
           </div>
         ) : (
           <div className="space-y-4 sm:space-y-6">
-            {bloomCategories.map((category) => {
+            {levelCategories.map((category) => {
               const categoryQuestions = groupedQuestions[category.level];
               if (categoryQuestions.length === 0) return null;
 

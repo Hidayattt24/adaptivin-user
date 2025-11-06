@@ -144,7 +144,7 @@ const MateriProgressCard: React.FC<MateriProgressCardProps> = ({
               </h4>
 
               <p className="text-gray-600 text-[11px] sm:text-sm poppins-regular mb-2 sm:mb-4 leading-snug flex-1">
-                Lihat perkembangan pembelajaran siswa C1-C6
+                Lihat perkembangan pembelajaran siswa Level 1 - Level 6
               </p>
 
               <div className="flex items-center gap-1.5 sm:gap-2 text-[#336d82] poppins-semibold text-[11px] sm:text-sm group-hover:gap-3 transition-all mt-auto">

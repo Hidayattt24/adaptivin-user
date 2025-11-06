@@ -2,12 +2,10 @@
 
 import { useRouter } from "next/navigation";
 import { useClassTheme } from "@/contexts/ClassThemeContext";
-import MateriHeaderNew from "@/components/siswa/materi/MateriHeaderNew";
-import MateriCardNew from "@/components/siswa/materi/MateriCardNew";
+import MateriHeader from "@/components/siswa/materi/MateriHeader";
+import MateriCard from "@/components/siswa/materi/MateriCard";
 import { useSiswaProfile } from "@/hooks/siswa/useSiswaProfile";
 import { useMateriByKelas } from "@/hooks/siswa/useMateri";
-
-
 
 export default function MateriClassListPage() {
   const router = useRouter();
@@ -36,7 +34,7 @@ export default function MateriClassListPage() {
           </span>
         </button>
 
-        <MateriHeaderNew />
+        <MateriHeader />
       </div>
 
       {/* Materials List - Responsive */}
@@ -49,12 +47,12 @@ export default function MateriClassListPage() {
           ) : materiList && materiList.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
               {materiList.map((material) => (
-                <MateriCardNew
+                <MateriCard
                   key={material.id}
                   id={material.id}
                   title={material.judul_materi}
                   description={material.deskripsi || ""}
-                  icon="📚"
+                  icon="book"
                   isLocked={false}
                 />
               ))}

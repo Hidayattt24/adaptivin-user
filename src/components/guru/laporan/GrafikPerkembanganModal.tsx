@@ -167,7 +167,7 @@ const GrafikPerkembanganModal: React.FC<GrafikPerkembanganModalProps> = ({
           <div className="bg-gray-50 rounded-2xl p-6 border-2 border-gray-200 mb-6">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-[#336d82] text-xl poppins-bold">
-                Performa per Tingkat (C1-C6)
+                Performa per Tingkat (Level 1 - Level 6)
               </h3>
               {/* Compact Legend */}
               <div className="flex items-center gap-3 text-sm">

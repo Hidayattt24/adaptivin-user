@@ -16,7 +16,7 @@ export const SISWA_KELAS_QUERY_KEYS = {
 export function useSiswaKelas() {
   return useQuery<KelasResponse[]>({
     queryKey: SISWA_KELAS_QUERY_KEYS.all,
-    queryFn: getAllKelas,
+    queryFn: () => getAllKelas(),
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 }

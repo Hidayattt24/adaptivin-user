@@ -11,7 +11,6 @@ import { useSiswaProfile } from "@/hooks/siswa/useSiswaProfile";
 export default function BerandaSiswaPage() {
   const [isMobile, setIsMobile] = useState(true);
 
-  // ✅ Fetch data profil siswa dari database via API
   const { data: profile, isLoading } = useSiswaProfile();
 
   // Check screen size
@@ -43,7 +42,6 @@ export default function BerandaSiswaPage() {
     );
   }
 
-  // ✅ Get kelas info from DATABASE (bukan mock!)
   const kelas = profile?.kelas;
   const tingkatKelas = kelas?.tingkat_kelas || "4";
   const namaKelas = kelas?.nama_kelas || `Kelas ${tingkatKelas}`;
@@ -51,8 +49,7 @@ export default function BerandaSiswaPage() {
   const namaLengkap = profile?.nama_lengkap || "Siswa";
 
   // Format tingkat kelas untuk nama file gambar
-  // Database might store: "4", "5", "6", "IV", "V", "VI"
-  // Files available: kelas-4.svg, kelas-5.svg, Kelas 6.svg
+  // Menggunakan card kosong (card-1, card-2, card-3) sesuai tingkat kelas
   const formatKelasForImage = (tingkat: string): string => {
     // Convert Roman numerals to Arabic if needed
     const romanToArabic: Record<string, string> = {
@@ -67,16 +64,15 @@ export default function BerandaSiswaPage() {
     // Check if it's a Roman numeral and convert it
     const arabicTingkat = romanToArabic[tingkat] || tingkat;
 
-    // Map to correct file names
-    if (arabicTingkat === "6") return "Kelas-6";
-    if (arabicTingkat === "4") return "kelas-4";
-    if (arabicTingkat === "5") return "kelas-5";
+    // Map to card kosong: card-1 untuk kelas 4, card-2 untuk kelas 5, card-3 untuk kelas 6
+    if (arabicTingkat === "6") return "card-3";
+    if (arabicTingkat === "5") return "card-2";
+    if (arabicTingkat === "4") return "card-1";
 
-    // Default fallback
-    return "kelas-4";
+    // Default fallback ke card-1
+    return "card-1";
   };
 
-  // ✅ Card data - SEMUA DARI DATABASE (bukan mock!)
   const cards = [
     {
       id: kelas?.id || `kelas-${tingkatKelas}`,
@@ -84,6 +80,7 @@ export default function BerandaSiswaPage() {
       subtitle: mataPelajaran,
       imagePath: `/siswa/card-siswa/${formatKelasForImage(tingkatKelas)}.svg`,
       link: `/siswa/materi/${tingkatKelas}`,
+      displayTitle: `${mataPelajaran}\n${namaKelas}`,
     },
   ];
 

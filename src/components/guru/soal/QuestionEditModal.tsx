@@ -7,7 +7,6 @@ import { CustomDropdown, FileUploadArea } from "@/components/guru";
 import {
   Badge,
   TextFields,
-  Numbers,
   AccessTime,
 } from "@mui/icons-material";
 
@@ -20,18 +19,18 @@ interface QuestionEditModalProps {
 }
 
 const questionTypeOptions = [
-  { value: "C1", label: "C1 - Mengingat" },
-  { value: "C2", label: "C2 - Memahami" },
-  { value: "C3", label: "C3 - Menerapkan" },
-  { value: "C4", label: "C4 - Menganalisis" },
-  { value: "C5", label: "C5 - Mengevaluasi" },
-  { value: "C6", label: "C6 - Mencipta" },
+  { value: "Level 1", label: "Level 1 - Mengingat" },
+  { value: "Level 2", label: "Level 2 - Memahami" },
+  { value: "Level 3", label: "Level 3 - Menerapkan" },
+  { value: "Level 4", label: "Level 4 - Menganalisis" },
+  { value: "Level 5", label: "Level 5 - Mengevaluasi" },
+  { value: "Level 6", label: "Level 6 - Mencipta" },
 ];
 
 const answerTypeOptions = [
   { value: "pilihan_ganda", label: "Pilihan Ganda" },
+  { value: "pilihan_ganda_kompleks", label: "Pilihan Ganda Kompleks" },
   { value: "isian_singkat", label: "Isian Singkat" },
-  { value: "angka", label: "Angka" },
 ];
 
 const timeUnitOptions = [
@@ -95,10 +94,10 @@ export function QuestionEditModal({
     switch (editedQuestion.answerType) {
       case "pilihan_ganda":
         return <TextFields sx={{ fontSize: 24 }} />;
+      case "pilihan_ganda_kompleks":
+        return <TextFields sx={{ fontSize: 24 }} />;
       case "isian_singkat":
         return <TextFields sx={{ fontSize: 24 }} />;
-      case "angka":
-        return <Numbers sx={{ fontSize: 24 }} />;
     }
   };
 
@@ -241,26 +240,124 @@ export function QuestionEditModal({
               <label className="block text-gray-700 text-sm poppins-medium mb-2">
                 Isi Jawaban
               </label>
-              {editedQuestion.answerType === "pilihan_ganda" ? (
-                <textarea
-                  value={editedQuestion.answerText}
-                  onChange={(e) =>
-                    setEditedQuestion({
-                      ...editedQuestion,
-                      answerText: e.target.value,
-                    })
-                  }
-                  placeholder="Masukkan jawaban pilihan ganda (pisahkan dengan enter atau koma)&#10;A. Pilihan 1&#10;B. Pilihan 2&#10;C. Pilihan 3"
-                  className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 focus:border-[#2ea062] focus:outline-none poppins-regular resize-none"
-                  rows={5}
-                />
-              ) : (
+
+              {/* Template A B C D untuk pilihan_ganda dan pilihan_ganda_kompleks */}
+              {(editedQuestion.answerType === "pilihan_ganda" || editedQuestion.answerType === "pilihan_ganda_kompleks") && (
+                <div className="space-y-3">
+                  {/* Info Banner */}
+                  <div className="mb-3 bg-blue-50 border-l-4 border-blue-400 p-3 rounded-lg">
+                    <p className="text-blue-800 text-sm font-medium flex items-center gap-2">
+                      <span className="text-lg">ℹ️</span>
+                      <span>
+                        {editedQuestion.answerType === "pilihan_ganda" ? (
+                          <><strong>Pilihan Ganda:</strong> Pilih SATU jawaban yang benar dengan klik pada lingkaran.</>
+                        ) : (
+                          <><strong>Pilihan Ganda Kompleks:</strong> Pilih BEBERAPA jawaban yang benar dengan klik pada kotak.</>
+                        )}
+                      </span>
+                    </p>
+                  </div>
+
+                  {/* Options A B C D */}
+                  {['A', 'B', 'C', 'D'].map((label) => {
+                    const optionIndex = label.charCodeAt(0) - 65; // A=0, B=1, C=2, D=3
+                    const option = editedQuestion.multipleChoiceOptions?.[optionIndex] || { label, text: '', isCorrect: false };
+
+                    return (
+                      <div key={label} className="bg-gray-50 rounded-xl border-2 border-gray-200 hover:border-[#2ea062] transition-all">
+                        <div className="flex items-center gap-3 p-3">
+                          {/* Radio/Checkbox */}
+                          <div className="flex-shrink-0">
+                            {editedQuestion.answerType === "pilihan_ganda" ? (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const newOptions = (editedQuestion.multipleChoiceOptions || [
+                                    { label: 'A', text: '', isCorrect: false },
+                                    { label: 'B', text: '', isCorrect: false },
+                                    { label: 'C', text: '', isCorrect: false },
+                                    { label: 'D', text: '', isCorrect: false },
+                                  ]).map((opt, idx) => ({
+                                    ...opt,
+                                    isCorrect: idx === optionIndex
+                                  }));
+                                  setEditedQuestion({ ...editedQuestion, multipleChoiceOptions: newOptions });
+                                }}
+                                className={`w-6 h-6 rounded-full border-3 flex items-center justify-center transition-all ${option.isCorrect
+                                    ? 'bg-green-500 border-green-600 shadow-lg'
+                                    : 'bg-white border-gray-300 hover:border-green-400'
+                                  }`}
+                              >
+                                {option.isCorrect && (
+                                  <div className="w-3 h-3 bg-white rounded-full"></div>
+                                )}
+                              </button>
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const newOptions = (editedQuestion.multipleChoiceOptions || [
+                                    { label: 'A', text: '', isCorrect: false },
+                                    { label: 'B', text: '', isCorrect: false },
+                                    { label: 'C', text: '', isCorrect: false },
+                                    { label: 'D', text: '', isCorrect: false },
+                                  ]).map((opt, idx) =>
+                                    idx === optionIndex ? { ...opt, isCorrect: !opt.isCorrect } : opt
+                                  );
+                                  setEditedQuestion({ ...editedQuestion, multipleChoiceOptions: newOptions });
+                                }}
+                                className={`w-6 h-6 rounded-md border-3 flex items-center justify-center transition-all ${option.isCorrect
+                                    ? 'bg-green-500 border-green-600 shadow-lg'
+                                    : 'bg-white border-gray-300 hover:border-green-400'
+                                  }`}
+                              >
+                                {option.isCorrect && (
+                                  <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                                  </svg>
+                                )}
+                              </button>
+                            )}
+                          </div>
+
+                          {/* Label */}
+                          <div className="flex-shrink-0 w-10 h-10 bg-[#2ea062] rounded-lg flex items-center justify-center">
+                            <span className="text-white font-bold text-base">{label}</span>
+                          </div>
+
+                          {/* Input Text */}
+                          <input
+                            type="text"
+                            value={option.text}
+                            onChange={(e) => {
+                              const newOptions = (editedQuestion.multipleChoiceOptions || [
+                                { label: 'A', text: '', isCorrect: false },
+                                { label: 'B', text: '', isCorrect: false },
+                                { label: 'C', text: '', isCorrect: false },
+                                { label: 'D', text: '', isCorrect: false },
+                              ]).map((opt, idx) =>
+                                idx === optionIndex ? { ...opt, text: e.target.value } : opt
+                              );
+                              setEditedQuestion({ ...editedQuestion, multipleChoiceOptions: newOptions });
+                            }}
+                            placeholder={`Isi pilihan ${label}...`}
+                            className="flex-1 px-3 py-2 rounded-lg border-2 border-transparent bg-white text-gray-800 text-base font-medium focus:outline-none focus:border-[#2ea062] transition-all"
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* Input untuk isian_singkat */}
+              {editedQuestion.answerType === "isian_singkat" && (
                 <div className="relative">
                   <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#2ea062]">
                     {getAnswerIcon()}
                   </div>
                   <input
-                    type={editedQuestion.answerType === "angka" ? "number" : "text"}
+                    type="text"
                     value={editedQuestion.answerText}
                     onChange={(e) =>
                       setEditedQuestion({
@@ -268,11 +365,7 @@ export function QuestionEditModal({
                         answerText: e.target.value,
                       })
                     }
-                    placeholder={
-                      editedQuestion.answerType === "angka"
-                        ? "Masukkan jawaban dalam angka..."
-                        : "Masukkan jawaban isian singkat..."
-                    }
+                    placeholder="Masukkan jawaban isian singkat..."
                     className="w-full pl-14 pr-4 py-3 rounded-xl border-2 border-gray-300 focus:border-[#2ea062] focus:outline-none poppins-regular"
                   />
                 </div>

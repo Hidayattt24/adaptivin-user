@@ -122,7 +122,7 @@ const StudentCard: React.FC<StudentCardProps> = ({
       </div>
 
       {/* Action Buttons - Mobile: Horizontal Row, Tablet+: Vertical Column */}
-      <div className="flex flex-row sm:flex-col gap-2 sm:gap-2.5 lg:gap-3 flex-shrink-0 justify-center sm:justify-center">
+      {/* <div className="flex flex-row sm:flex-col gap-2 sm:gap-2.5 lg:gap-3 flex-shrink-0 justify-center sm:justify-center">
         <button
           onClick={onEdit}
           className="w-10 h-10 sm:w-11 sm:h-11 lg:w-[50px] lg:h-[50px] bg-white rounded-full flex items-center justify-center hover:bg-gray-50 active:bg-gray-100 transition-all hover:shadow-lg shadow-md"
@@ -137,7 +137,7 @@ const StudentCard: React.FC<StudentCardProps> = ({
         >
           <DeleteIcon className="text-[#336d82]" sx={{ fontSize: { xs: 20, sm: 22, lg: 24 } }} />
         </button>
-      </div>
+      </div> */}
     </div>
   );
 };

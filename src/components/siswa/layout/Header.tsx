@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import { useSiswaProfile } from "@/hooks/siswa/useSiswaProfile";
-import { getStudentAvatar } from "@/lib/api/user";
 
 interface HeaderProps {
   username?: string;
@@ -14,7 +13,7 @@ export default function Header({ username }: HeaderProps) {
 
   // Dapatkan nama dan gambar karakter dari database
   const namaLengkap = username || profile?.nama_lengkap || "Siswa";
-  const profileImage = getStudentAvatar(profile?.profil_siswa_index);
+  const profileImage = profile?.karakter?.poto_profil_url || "/siswa/foto-profil/kocheng-oren.svg";
 
   return (
     <div className="px-6 pt-[71px] pb-6">

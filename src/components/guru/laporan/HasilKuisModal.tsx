@@ -185,7 +185,7 @@ const HasilKuisModal: React.FC<HasilKuisModalProps> = ({
               </h3>
 
               <div className="grid grid-cols-3 md:grid-cols-6 gap-2 sm:gap-3">
-                {["C1", "C2", "C3", "C4", "C5", "C6"].map((level) => {
+                {["Level 1", "Level 2", "Level 3", "Level 4", "Level 5", "Level 6"].map((level) => {
                   const levelData = stats.byLevel[level] || { benar: 0, salah: 0, total: 0 };
                   const accuracy = levelData.total > 0
                     ? Math.round((levelData.benar / levelData.total) * 100)

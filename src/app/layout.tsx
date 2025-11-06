@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Poppins, Montserrat } from "next/font/google";
-import { AuthProvider } from "@/contexts/AuthContext";
+import { Providers } from "@/components/providers/Providers";
 import "./globals.css";
 
 const poppins = Poppins({
@@ -33,7 +33,7 @@ export default function RootLayout({
   return (
     <html lang="id" className={`${poppins.variable} ${montserrat.variable}`}>
       <body className={`${poppins.className} antialiased`}>
-        <AuthProvider>{children}</AuthProvider>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

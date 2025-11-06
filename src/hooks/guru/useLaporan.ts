@@ -11,12 +11,12 @@ const dummyClassReportData = {
       siswaId: "1",
       nama: "Ahmad Fauzi",
       performanceByLevel: [
-        { level: "C1" as const, benar: 8, salah: 2 },
-        { level: "C2" as const, benar: 7, salah: 3 },
-        { level: "C3" as const, benar: 6, salah: 4 },
-        { level: "C4" as const, benar: 5, salah: 5 },
-        { level: "C5" as const, benar: 4, salah: 6 },
-        { level: "C6" as const, benar: 3, salah: 7 },
+        { level: "Level 1" as const, benar: 8, salah: 2 },
+        { level: "Level 2" as const, benar: 7, salah: 3 },
+        { level: "Level 3" as const, benar: 6, salah: 4 },
+        { level: "Level 4" as const, benar: 5, salah: 5 },
+        { level: "Level 5" as const, benar: 4, salah: 6 },
+        { level: "Level 6" as const, benar: 3, salah: 7 },
       ],
       materiProgress: [
         {
@@ -85,12 +85,12 @@ export function useStudentReport(kelasId: string, siswaId: string) {
           siswaId,
           nama: "Siswa",
           performanceByLevel: [
-            { level: "C1" as const, benar: 0, salah: 0 },
-            { level: "C2" as const, benar: 0, salah: 0 },
-            { level: "C3" as const, benar: 0, salah: 0 },
-            { level: "C4" as const, benar: 0, salah: 0 },
-            { level: "C5" as const, benar: 0, salah: 0 },
-            { level: "C6" as const, benar: 0, salah: 0 },
+            { level: "Level 1" as const, benar: 0, salah: 0 },
+            { level: "Level 2" as const, benar: 0, salah: 0 },
+            { level: "Level 3" as const, benar: 0, salah: 0 },
+            { level: "Level 4" as const, benar: 0, salah: 0 },
+            { level: "Level 5" as const, benar: 0, salah: 0 },
+            { level: "Level 6" as const, benar: 0, salah: 0 },
           ],
           materiProgress: [],
         };

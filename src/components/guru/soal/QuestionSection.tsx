@@ -4,15 +4,20 @@ import React from "react";
 import {
   Delete,
   TextFields,
-  Numbers,
   Image as ImageIcon,
   AccessTime,
 } from "@mui/icons-material";
 import { CustomDropdown, FileUploadArea } from "@/components/guru";
 
-export type QuestionType = "C1" | "C2" | "C3" | "C4" | "C5" | "C6";
-export type AnswerType = "pilihan_ganda" | "isian_singkat" | "angka";
+export type QuestionType = "level1" | "level2" | "level3" | "level4" | "level5" | "level6";
+export type AnswerType = "pilihan_ganda" | "pilihan_ganda_kompleks" | "isian_singkat";
 export type TimeUnit = "Menit";
+
+export interface MultipleChoiceOption {
+  label: string;
+  text: string;
+  isCorrect: boolean;
+}
 
 export interface Question {
   id: string;
@@ -27,6 +32,7 @@ export interface Question {
   explanation: string;
   timeValue: number;
   timeUnit: TimeUnit;
+  multipleChoiceOptions?: MultipleChoiceOption[];
 }
 
 interface QuestionSectionProps {
@@ -48,18 +54,18 @@ interface QuestionSectionProps {
 }
 
 const questionTypeOptions = [
-  { value: "C1", label: "C1 - Mengingat" },
-  { value: "C2", label: "C2 - Memahami" },
-  { value: "C3", label: "C3 - Menerapkan" },
-  { value: "C4", label: "C4 - Menganalisis" },
-  { value: "C5", label: "C5 - Mengevaluasi" },
-  { value: "C6", label: "C6 - Mencipta" },
+  { value: "level1", label: "C1 - Mengingat" },
+  { value: "level2", label: "C2 - Memahami" },
+  { value: "level3", label: "C3 - Menerapkan" },
+  { value: "level4", label: "C4 - Menganalisis" },
+  { value: "level5", label: "C5 - Mengevaluasi" },
+  { value: "level6", label: "C6 - Mencipta" },
 ];
 
 const answerTypeOptions = [
   { value: "pilihan_ganda", label: "Pilihan Ganda" },
+  { value: "pilihan_ganda_kompleks", label: "Pilihan Ganda Kompleks" },
   { value: "isian_singkat", label: "Isian Singkat" },
-  { value: "angka", label: "Angka" },
 ];
 
 const timeUnitOptions = [
@@ -82,11 +88,10 @@ export default function QuestionSection({
     switch (question.answerType) {
       case "pilihan_ganda":
         return <TextFields sx={{ fontSize: 24, color: "#336d82" }} />;
+      case "pilihan_ganda_kompleks":
+        return <TextFields sx={{ fontSize: 24, color: "#336d82" }} />;
       case "isian_singkat":
         return <TextFields sx={{ fontSize: 24, color: "#336d82" }} />;
-      case "angka":
-        return <Numbers sx={{ fontSize: 24, color: "#336d82" }} />;
-
     }
   };
 
@@ -164,37 +169,123 @@ export default function QuestionSection({
 
         {/* Answer Text Input */}
         <div className="mb-6">
-          {/* Info untuk pilihan ganda */}
-          {question.answerType === "pilihan_ganda" && (
-            <div className="mb-3 bg-blue-50 border-l-4 border-blue-400 p-3 rounded-lg">
-              <p className="text-blue-800 text-xs sm:text-sm font-medium flex items-center gap-2">
-                <span className="text-lg">ℹ️</span>
-                <span>
-                  <strong>Untuk Pilihan Ganda:</strong> Pisahkan setiap pilihan dengan enter atau koma.
-                  Pilihan pertama akan menjadi jawaban yang benar.
-                </span>
-              </p>
-              <p className="text-blue-700 text-xs mt-1 ml-7">
-                Contoh: <code className="bg-blue-100 px-1 rounded">A. Jakarta, B. Bandung, C. Surabaya</code>
-              </p>
+          {/* Template A B C D untuk pilihan_ganda dan pilihan_ganda_kompleks */}
+          {(question.answerType === "pilihan_ganda" || question.answerType === "pilihan_ganda_kompleks") && (
+            <div className="space-y-4">
+              {/* Info Banner */}
+              <div className="mb-3 bg-blue-50 border-l-4 border-blue-400 p-3 rounded-lg">
+                <p className="text-blue-800 text-xs sm:text-sm font-medium flex items-center gap-2">
+                  <span className="text-lg">ℹ️</span>
+                  <span>
+                    {question.answerType === "pilihan_ganda" ? (
+                      <><strong>Pilihan Ganda:</strong> Pilih SATU jawaban yang benar dengan klik pada lingkaran.</>
+                    ) : (
+                      <><strong>Pilihan Ganda Kompleks:</strong> Pilih BEBERAPA jawaban yang benar dengan klik pada kotak.</>
+                    )}
+                  </span>
+                </p>
+              </div>
+
+              {/* Options A B C D */}
+              <div className="space-y-3">
+                {['A', 'B', 'C', 'D'].map((label) => {
+                  const optionIndex = label.charCodeAt(0) - 65; // A=0, B=1, C=2, D=3
+                  const option = question.multipleChoiceOptions?.[optionIndex] || { label, text: '', isCorrect: false };
+
+                  return (
+                    <div key={label} className="bg-white/95 backdrop-blur-sm rounded-xl border-2 border-white/30 shadow-md hover:shadow-lg transition-all">
+                      <div className="flex items-center gap-3 p-3 sm:p-4">
+                        {/* Radio/Checkbox */}
+                        <div className="flex-shrink-0">
+                          {question.answerType === "pilihan_ganda" ? (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const newOptions = (question.multipleChoiceOptions || [
+                                  { label: 'A', text: '', isCorrect: false },
+                                  { label: 'B', text: '', isCorrect: false },
+                                  { label: 'C', text: '', isCorrect: false },
+                                  { label: 'D', text: '', isCorrect: false },
+                                ]).map((opt, idx) => ({
+                                  ...opt,
+                                  isCorrect: idx === optionIndex
+                                }));
+                                onUpdate(question.id, "multipleChoiceOptions", newOptions);
+                              }}
+                              className={`w-6 h-6 sm:w-7 sm:h-7 rounded-full border-3 flex items-center justify-center transition-all ${option.isCorrect
+                                ? 'bg-green-500 border-green-600 shadow-lg'
+                                : 'bg-white border-gray-300 hover:border-green-400'
+                                }`}
+                            >
+                              {option.isCorrect && (
+                                <div className="w-3 h-3 sm:w-3.5 sm:h-3.5 bg-white rounded-full"></div>
+                              )}
+                            </button>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const newOptions = (question.multipleChoiceOptions || [
+                                  { label: 'A', text: '', isCorrect: false },
+                                  { label: 'B', text: '', isCorrect: false },
+                                  { label: 'C', text: '', isCorrect: false },
+                                  { label: 'D', text: '', isCorrect: false },
+                                ]).map((opt, idx) =>
+                                  idx === optionIndex ? { ...opt, isCorrect: !opt.isCorrect } : opt
+                                );
+                                onUpdate(question.id, "multipleChoiceOptions", newOptions);
+                              }}
+                              className={`w-6 h-6 sm:w-7 sm:h-7 rounded-md border-3 flex items-center justify-center transition-all ${option.isCorrect
+                                ? 'bg-green-500 border-green-600 shadow-lg'
+                                : 'bg-white border-gray-300 hover:border-green-400'
+                                }`}
+                            >
+                              {option.isCorrect && (
+                                <svg className="w-4 h-4 sm:w-5 sm:h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                                </svg>
+                              )}
+                            </button>
+                          )}
+                        </div>
+
+                        {/* Label */}
+                        <div className="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 bg-[#336d82] rounded-lg flex items-center justify-center">
+                          <span className="text-white font-bold text-base sm:text-lg">{label}</span>
+                        </div>
+
+                        {/* Input Text */}
+                        <input
+                          type="text"
+                          value={option.text}
+                          onChange={(e) => {
+                            const newOptions = (question.multipleChoiceOptions || [
+                              { label: 'A', text: '', isCorrect: false },
+                              { label: 'B', text: '', isCorrect: false },
+                              { label: 'C', text: '', isCorrect: false },
+                              { label: 'D', text: '', isCorrect: false },
+                            ]).map((opt, idx) =>
+                              idx === optionIndex ? { ...opt, text: e.target.value } : opt
+                            );
+                            onUpdate(question.id, "multipleChoiceOptions", newOptions);
+                          }}
+                          placeholder={`Isi pilihan ${label}...`}
+                          className="flex-1 px-3 py-2 sm:py-2.5 rounded-lg border-2 border-transparent bg-gray-50 text-gray-800 text-sm sm:text-base font-medium focus:outline-none focus:bg-white focus:border-[#336d82] transition-all"
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           )}
 
-          <div className="relative">
-            <div className="absolute left-4 top-4 pointer-events-none">
-              {getAnswerIcon()}
-            </div>
-            {question.answerType === "pilihan_ganda" ? (
-              <textarea
-                value={question.answerText}
-                onChange={(e) =>
-                  onUpdate(question.id, "answerText", e.target.value)
-                }
-                placeholder="Masukkan jawaban pilihan ganda...&#10;&#10;Pisahkan dengan enter atau koma:&#10;A. Pilihan 1&#10;B. Pilihan 2&#10;C. Pilihan 3&#10;&#10;Pilihan pertama akan menjadi jawaban yang benar."
-                className="w-full pl-11 sm:pl-14 pr-3 sm:pr-4 py-3 sm:py-4 rounded-xl sm:rounded-2xl border-2 border-white/30 bg-white/95 backdrop-blur-sm text-gray-800 text-sm sm:text-base font-medium focus:outline-none focus:ring-2 focus:ring-white focus:border-white shadow-lg hover:shadow-xl transition-all placeholder:text-gray-400 resize-none"
-                rows={5}
-              />
-            ) : question.answerType === "isian_singkat" ? (
+          {/* Input untuk isian_singkat */}
+          {question.answerType === "isian_singkat" && (
+            <div className="relative">
+              <div className="absolute left-4 top-4 pointer-events-none">
+                {getAnswerIcon()}
+              </div>
               <input
                 type="text"
                 value={question.answerText}
@@ -204,18 +295,8 @@ export default function QuestionSection({
                 placeholder="Masukkan jawaban isian singkat..."
                 className="w-full pl-11 sm:pl-14 pr-3 sm:pr-4 py-3 sm:py-4 rounded-xl sm:rounded-2xl border-2 border-white/30 bg-white/95 backdrop-blur-sm text-gray-800 text-sm sm:text-base font-medium focus:outline-none focus:ring-2 focus:ring-white focus:border-white shadow-lg hover:shadow-xl transition-all placeholder:text-gray-400"
               />
-            ) : (
-              <input
-                type="number"
-                value={question.answerText}
-                onChange={(e) =>
-                  onUpdate(question.id, "answerText", e.target.value)
-                }
-                placeholder="Masukkan jawaban dalam angka..."
-                className="w-full pl-11 sm:pl-14 pr-3 sm:pr-4 py-3 sm:py-4 rounded-xl sm:rounded-2xl border-2 border-white/30 bg-white/95 backdrop-blur-sm text-gray-800 text-sm sm:text-base font-medium focus:outline-none focus:ring-2 focus:ring-white focus:border-white shadow-lg hover:shadow-xl transition-all placeholder:text-gray-400"
-              />
-            )}
-          </div>
+            </div>
+          )}
         </div>
         {/* Explanation Section */}
         <div className="mb-6">

@@ -3,6 +3,7 @@ import {
   getMateriByKelas,
   getMateriById,
   getSubMateriByMateri,
+  getSubMateriById,
   type Materi,
   type MateriDetail,
   type SubMateri,
@@ -15,6 +16,7 @@ export const SISWA_MATERI_QUERY_KEYS = {
   byKelas: (kelasId: string) => ["siswa", "materi", "kelas", kelasId] as const,
   detail: (materiId: string) => ["siswa", "materi", materiId] as const,
   subMateri: (materiId: string) => ["siswa", "sub-materi", materiId] as const,
+  subMateriDetail: (subMateriId: string) => ["siswa", "sub-materi", "detail", subMateriId] as const,
 };
 
 /**
@@ -25,7 +27,7 @@ export function useMateriByKelas(kelasId: string | null) {
     queryKey: SISWA_MATERI_QUERY_KEYS.byKelas(kelasId || ""),
     queryFn: () => getMateriByKelas(kelasId!),
     enabled: !!kelasId, // Only run if kelasId exists
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 3 * 60 * 1000, // 5 minutes
   });
 }
 
@@ -37,7 +39,7 @@ export function useMateriById(materiId: string | null) {
     queryKey: SISWA_MATERI_QUERY_KEYS.detail(materiId || ""),
     queryFn: () => getMateriById(materiId!),
     enabled: !!materiId,
-    staleTime: 5 * 60 * 1000,
+    staleTime: 3 * 60 * 1000,
   });
 }
 
@@ -49,6 +51,18 @@ export function useSubMateriByMateri(materiId: string | null) {
     queryKey: SISWA_MATERI_QUERY_KEYS.subMateri(materiId || ""),
     queryFn: () => getSubMateriByMateri(materiId!),
     enabled: !!materiId,
-    staleTime: 5 * 60 * 1000,
+    staleTime: 3 * 60 * 1000,
+  });
+}
+
+/**
+ * Hook untuk mendapatkan detail single sub materi by ID
+ */
+export function useSubMateriById(subMateriId: string | null) {
+  return useQuery<SubMateri>({
+    queryKey: SISWA_MATERI_QUERY_KEYS.subMateriDetail(subMateriId || ""),
+    queryFn: () => getSubMateriById(subMateriId!),
+    enabled: !!subMateriId,
+    staleTime: 3 * 60 * 1000,
   });
 }

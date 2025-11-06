@@ -7,8 +7,9 @@ import { useRouter } from "next/navigation";
 import MobileWarning from "@/components/siswa/layout/MobileWarning";
 import MobileNavbar from "@/components/siswa/navigation/MobileNavbar";
 import { useSiswaProfile } from "@/hooks/siswa/useSiswaProfile";
-import { getStudentAvatar } from "@/lib/api/user";
+import { getCurrentUser } from "@/lib/api/user";
 import { clearAuth } from "@/lib/storage";
+import Swal from "sweetalert2";
 
 export default function ProfilSiswaPage() {
   const [isMobile, setIsMobile] = useState(true);
@@ -26,8 +27,18 @@ export default function ProfilSiswaPage() {
     return () => window.removeEventListener("resize", checkScreenSize);
   }, []);
 
-  const handleLogout = () => {
-    if (confirm("Apakah Anda yakin ingin keluar?")) {
+  const handleLogout = async () => {
+    const result = await Swal.fire({
+      title: "Yakin ingin keluar?",
+      text: "Kamu akan keluar dari akun ini.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Ya, keluar",
+      cancelButtonText: "Batal",
+      confirmButtonColor: "#336D82",
+      cancelButtonColor: "#6b7280",
+    });
+    if (result.isConfirmed) {
       // Clear all auth data
       clearAuth();
       router.push("/splash");
@@ -50,13 +61,17 @@ export default function ProfilSiswaPage() {
     );
   }
 
-  // Get profile data
-  const namaLengkap = profile?.nama_lengkap || "Siswa";
-  const tingkatKelas = profile?.kelas?.tingkat_kelas || "IV";
-  const namaSekolah = profile?.sekolah?.nama_sekolah || "";
+  // Fallback ke localStorage jika query masih loading atau data belum ada
+  const currentUser = getCurrentUser();
 
-  // Dapatkan gambar profil dari database untuk ditampilkan di card profil
-  const profileImage = getStudentAvatar(profile?.profil_siswa_index);
+  // Get profile data
+  const namaLengkap = profile?.nama_lengkap || currentUser?.nama_lengkap || "Siswa";
+  const tingkatKelas = profile?.kelas?.tingkat_kelas || currentUser?.kelas?.tingkat_kelas || "IV";
+  const namaSekolah = profile?.sekolah?.nama_sekolah || currentUser?.sekolah?.nama_sekolah || "";
+
+  // Dapatkan gambar profil dari database (poto_profil_url dari tabel pilih_karakter)
+  // Gunakan fallback ke localStorage untuk memastikan avatar tetap tampil saat navigasi
+  const profileImage = profile?.karakter?.poto_profil_url || currentUser?.karakter?.poto_profil_url || "/siswa/foto-profil/kocheng-oren.svg";
 
   return (
     <div className="relative w-full min-h-screen overflow-x-hidden bg-gradient-to-b from-slate-50 to-white">

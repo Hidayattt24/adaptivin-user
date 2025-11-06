@@ -61,13 +61,13 @@ const SoalListPage = () => {
 
   // Calculate statistics from backend data or from current soalList
   const totalSoal = soalList.length;
-  const bloomStats = {
-    C1: soalCount?.c1 || soalList.filter(s => s.level_soal === 'c1').length,
-    C2: soalCount?.c2 || soalList.filter(s => s.level_soal === 'c2').length,
-    C3: soalCount?.c3 || soalList.filter(s => s.level_soal === 'c3').length,
-    C4: soalCount?.c4 || soalList.filter(s => s.level_soal === 'c4').length,
-    C5: soalCount?.c5 || soalList.filter(s => s.level_soal === 'c5').length,
-    C6: soalCount?.c6 || soalList.filter(s => s.level_soal === 'c6').length,
+  const levelStats = {
+    Level1: soalCount?.level1 || soalList.filter(s => s.level_soal === 'level1').length,
+    Level2: soalCount?.level2 || soalList.filter(s => s.level_soal === 'level2').length,
+    Level3: soalCount?.level3 || soalList.filter(s => s.level_soal === 'level3').length,
+    Level4: soalCount?.level4 || soalList.filter(s => s.level_soal === 'level4').length,
+    Level5: soalCount?.level5 || soalList.filter(s => s.level_soal === 'level5').length,
+    Level6: soalCount?.level6 || soalList.filter(s => s.level_soal === 'level6').length,
   };
 
   // Pagination
@@ -89,7 +89,7 @@ const SoalListPage = () => {
 
     return {
       id: soal.soal_id,
-      questionType: soal.level_soal.toUpperCase() as "C1" | "C2" | "C3" | "C4" | "C5" | "C6",
+      questionType: soal.level_soal.toUpperCase() as "level1" | "level2" | "level3" | "level4" | "level5" | "level6",
       questionFile: null, // Backend returns URL string, not File
       questionFilePreview: soal.soal_gambar || null,
       questionText: soal.soal_teks,
@@ -221,7 +221,7 @@ const SoalListPage = () => {
           {/* Total Soal Cards */}
           <TotalSoalCards
             totalSoal={totalSoal}
-            bloomStats={bloomStats}
+            levelStats={levelStats}
             className="mb-6 sm:mb-7 md:mb-8"
           />
 
@@ -255,7 +255,7 @@ const SoalListPage = () => {
                     key={`soal-${soal.soal_id}-${index}`}
                     id={soal.soal_id}
                     question={soal.soal_teks}
-                    difficulty={soal.level_soal.toUpperCase() as "C1" | "C2" | "C3" | "C4" | "C5" | "C6"}
+                    difficulty={soal.level_soal.toUpperCase() as "Level 1" | "Level 2" | "Level 3" | "Level 4" | "Level 5" | "Level 6"}
                     normalTime={Math.floor(soal.durasi_soal / 60)}
                     onPreview={() => handlePreview(soal.soal_id)}
                     onEdit={() => handleEdit(soal.soal_id)}

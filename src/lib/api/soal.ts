@@ -26,8 +26,8 @@ export interface JawabanSoal {
 export interface Soal {
   soal_id: string;
   materi_id: string;
-  level_soal: "c1" | "c2" | "c3" | "c4" | "c5" | "c6";
-  tipe_jawaban: "pilihan_ganda" | "isian_singkat" | "angka";
+  level_soal: "level1" | "level2" | "level3" | "level4" | "level5" | "level6";
+  tipe_jawaban: "pilihan_ganda" | "pilihan_ganda_kompleks" | "isian_singkat";
   soal_teks: string;
   soal_gambar?: string;
   penjelasan?: string;
@@ -43,8 +43,8 @@ export interface Soal {
 
 export interface CreateSoalPayload {
   materi_id: string;
-  level_soal: "c1" | "c2" | "c3" | "c4" | "c5" | "c6";
-  tipe_jawaban: "pilihan_ganda" | "isian_singkat" | "angka";
+  level_soal: "level1" | "level2" | "level3" | "level4" | "level5" | "level6";
+  tipe_jawaban: "pilihan_ganda" | "pilihan_ganda_kompleks" | "isian_singkat";
   soal_teks: string;
   soal_gambar?: File;
   penjelasan?: string;
@@ -55,8 +55,8 @@ export interface CreateSoalPayload {
 
 export interface UpdateSoalPayload {
   materi_id?: string;
-  level_soal?: "c1" | "c2" | "c3" | "c4" | "c5" | "c6";
-  tipe_jawaban?: "pilihan_ganda" | "isian_singkat" | "angka";
+  level_soal?: "level1" | "level2" | "level3" | "level4" | "level5" | "level6";
+  tipe_jawaban?: "pilihan_ganda" | "pilihan_ganda_kompleks" | "isian_singkat";
   soal_teks?: string;
   soal_gambar?: File;
   hapus_soal_gambar?: boolean;
@@ -68,12 +68,12 @@ export interface UpdateSoalPayload {
 }
 
 export interface SoalCountByMateri {
-  c1: number;
-  c2: number;
-  c3: number;
-  c4: number;
-  c5: number;
-  c6: number;
+  level1: number;
+  level2: number;
+  level3: number;
+  level4: number;
+  level5: number;
+  level6: number;
   total: number;
 }
 

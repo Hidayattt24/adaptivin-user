@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Close, AccessTime, Image as ImageIcon } from "@mui/icons-material";
+import { Close, AccessTime, Image as ImageIcon, Info } from "@mui/icons-material";
 import { Question } from "./QuestionSection";
 import Image from "next/image";
 
@@ -12,13 +12,13 @@ interface QuestionPreviewModalProps {
   onClose: () => void;
 }
 
-const bloomLabels = {
-  C1: "C1 - Mengingat",
-  C2: "C2 - Memahami",
-  C3: "C3 - Menerapkan",
-  C4: "C4 - Menganalisis",
-  C5: "C5 - Mengevaluasi",
-  C6: "C6 - Mencipta",
+const bloomLabels: Record<Question["questionType"], string> = {
+  "level1": "Level 1 - Mengingat",
+  "level2": "Level 2 - Memahami",
+  "level3": "Level 3 - Menerapkan",
+  "level4": "Level 4 - Menganalisis",
+  "level5": "Level 5 - Mengevaluasi",
+  "level6": "Level 6 - Mencipta",
 };
 
 export function QuestionPreviewModal({
@@ -108,6 +108,15 @@ export function QuestionPreviewModal({
               </h3>
             </div>
 
+            {/* Answer Text */}
+            {question.answerText && (
+              <div className="bg-gradient-to-br from-[#2ea062]/5 to-white rounded-xl p-6 border-2 border-[#2ea062]/20">
+                <p className="text-gray-800 text-base poppins-medium leading-relaxed whitespace-pre-wrap">
+                  {question.answerText}
+                </p>
+              </div>
+            )}
+
             {/* Answer Image */}
             {question.answerFilePreview && (
               <div className="bg-gray-50 rounded-xl p-4 border-2 border-gray-200">
@@ -125,16 +134,23 @@ export function QuestionPreviewModal({
                 />
               </div>
             )}
-
-            {/* Answer Text */}
-            {question.answerText && (
-              <div className="bg-gradient-to-br from-[#2ea062]/5 to-white rounded-xl p-6 border-2 border-[#2ea062]/20">
-                <p className="text-gray-800 text-base poppins-medium leading-relaxed whitespace-pre-wrap">
-                  {question.answerText}
-                </p>
-              </div>
-            )}
           </div>
+
+          {/* Time Limit */}
+          {/* Explanation Section */}
+          {question.explanation && (
+            <div className="bg-gradient-to-br from-[#336d82]/5 to-white rounded-xl p-6 border-2 border-[#336d82]/20">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 bg-[#336d82] rounded-xl flex items-center justify-center">
+                  <Info sx={{ fontSize: 22, color: "white" }} />
+                </div>
+                <h3 className="text-[#336d82] text-xl poppins-semibold">Penjelasan</h3>
+              </div>
+              <p className="text-gray-800 text-base poppins-medium leading-relaxed whitespace-pre-wrap">
+                {question.explanation}
+              </p>
+            </div>
+          )}
 
           {/* Time Limit */}
           <div className="bg-gradient-to-r from-[#fcc61d]/10 to-[#f5b800]/10 rounded-xl p-6 border-2 border-[#fcc61d]/30">

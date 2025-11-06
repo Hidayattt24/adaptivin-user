@@ -22,7 +22,7 @@ function transformSiswaData(siswa: SiswaResponse[]) {
       ? "Perempuan"
       : "-") as "Laki-laki" | "Perempuan",
     email: s.email,
-    profilIndex: s.profil_siswa_index,
+    karakterUrl: s.karakter?.poto_profil_url || null,
   }));
 }
 
@@ -67,28 +67,3 @@ export function useSiswaDetail(kelasId: string, siswaId: string) {
     staleTime: 5 * 60 * 1000,
   });
 }
-
-// TODO: Implement create/update siswa when needed
-// export function useCreateSiswa(kelasId: string) {
-//   const queryClient = useQueryClient();
-//   return useMutation({
-//     mutationFn: (data) => createSiswa(kelasId, data),
-//     onSuccess: () => {
-//       queryClient.invalidateQueries({
-//         queryKey: ["guru", "siswa", kelasId, "list"],
-//       });
-//     },
-//   });
-// }
-
-// export function useUpdateSiswa(kelasId: string, siswaId: string) {
-//   const queryClient = useQueryClient();
-//   return useMutation({
-//     mutationFn: (data) => updateSiswa(kelasId, siswaId, data),
-//     onSuccess: () => {
-//       queryClient.invalidateQueries({
-//         queryKey: ["guru", "siswa", kelasId],
-//       });
-//     },
-//   });
-// }

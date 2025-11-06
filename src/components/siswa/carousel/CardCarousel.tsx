@@ -10,7 +10,7 @@ interface CardItem {
   subtitle?: string;
   imagePath: string;
   link: string;
-  displayTitle?: string; // Optional custom display title for overlay
+  displayTitle?: string;
 }
 
 interface CardCarouselProps {
@@ -103,7 +103,7 @@ export default function CardCarousel({ cards }: CardCarouselProps) {
                       }}
                     >
                       <div
-                        className="press-start-2p-regular text-white text-[18px] sm:text-[20px] leading-[28px] sm:leading-[32px]"
+                        className="press-start-2p-regular text-white text-[30px] sm:text-[20px] leading-[28px] sm:leading-[32px]"
                         style={{
                           fontFamily: '"Press Start 2P", system-ui',
                           fontWeight: 400

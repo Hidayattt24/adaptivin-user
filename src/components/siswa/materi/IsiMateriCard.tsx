@@ -1,9 +1,3 @@
-/**
- * Isi Materi Card Component
- *
- * Card untuk menampilkan file PDF dan Video materi
- */
-
 interface IsiMateriCardProps {
   type: "pdf" | "video";
   title: string;

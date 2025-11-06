@@ -15,6 +15,7 @@ import {
 } from "@/components/guru";
 import { Siswa, StudentReport } from "@/types/guru";
 import { useClassReport } from "@/hooks/guru/useLaporan";
+import { useSiswaList } from "@/hooks/guru/useSiswa";
 
 const LaporanKelasPage = () => {
   const params = useParams();
@@ -22,16 +23,8 @@ const LaporanKelasPage = () => {
 
   // Lazy load class report data with React Query
   const { isLoading, error, refetch } = useClassReport(kelasId);
-
-  // TODO: Replace with actual API data when backend is ready
-  // For now, use dummy data as fallback
-  const studentList: Siswa[] = [
-    { id: "1", nama: "FARHAN", nis: "001", tanggalLahir: "2010-05-15", tempatLahir: "Jakarta", jenisKelamin: "Laki-laki" },
-    { id: "2", nama: "SITI", nis: "002", tanggalLahir: "2010-08-20", tempatLahir: "Bandung", jenisKelamin: "Perempuan" },
-    { id: "3", nama: "BUDI", nis: "003", tanggalLahir: "2010-03-10", tempatLahir: "Surabaya", jenisKelamin: "Laki-laki" },
-    { id: "4", nama: "AISYAH", nis: "004", tanggalLahir: "2010-06-22", tempatLahir: "Medan", jenisKelamin: "Perempuan" },
-    { id: "5", nama: "DIMAS", nis: "005", tanggalLahir: "2010-09-18", tempatLahir: "Semarang", jenisKelamin: "Laki-laki" },
-  ];
+  const siswaQuery = useSiswaList(kelasId);
+  const siswaItems = siswaQuery.data?.items || [];
 
   // Dummy student reports data
   const studentReports: Record<string, StudentReport> = {
@@ -122,8 +115,14 @@ const LaporanKelasPage = () => {
     },
   };
 
-  const [selectedStudent, setSelectedStudent] = useState<string | null>("1");
+  const [selectedStudent, setSelectedStudent] = useState<string | null>(null);
   const [selectedCardMateri, setSelectedCardMateri] = useState<string | null>(null);
+  // Initialize selected student when data loads
+  React.useEffect(() => {
+    if (!selectedStudent && siswaItems.length > 0) {
+      setSelectedStudent(siswaItems[0].id);
+    }
+  }, [siswaItems, selectedStudent]);
   
   // Modal states
   const [showGrafikModal, setShowGrafikModal] = useState(false);
@@ -269,15 +268,35 @@ Mbah AdaptivAI 👴`;
           </h1>
 
           {/* Student Search Bar */}
-          {isLoading ? (
+          {isLoading || siswaQuery.isLoading ? (
             <div className="h-12 sm:h-14 lg:h-16 bg-white/20 rounded-lg animate-pulse"></div>
           ) : (
-            <StudentSearchBar
-              students={studentList.map(s => ({ id: s.id, nama: s.nama, nis: s.nis }))}
-              selectedStudent={selectedStudent}
-              onSelectStudent={setSelectedStudent}
-              aria-label="Pilih siswa untuk melihat laporan"
-            />
+            <div className="flex flex-col gap-3 sm:gap-4">
+              {/* Dropdown pilih siswa */}
+              <div>
+                <label className="block text-white/90 text-sm mb-1">Pilih Siswa</label>
+                <select
+                  value={selectedStudent ?? ""}
+                  onChange={(e) => setSelectedStudent(e.target.value || null)}
+                  className="w-full bg-white text-[#336D82] rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-white/60"
+                  aria-label="Dropdown pilih siswa"
+                >
+                  {siswaItems.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.nama} {s.nis ? `- ${s.nis}` : ""}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Search untuk mencari siswa */}
+              <StudentSearchBar
+                students={siswaItems.map(s => ({ id: s.id, nama: s.nama, nis: s.nis }))}
+                selectedStudent={selectedStudent}
+                onSelectStudent={setSelectedStudent}
+                aria-label="Cari siswa untuk memilih laporan"
+              />
+            </div>
           )}
         </div>
       </div>
@@ -309,15 +328,26 @@ Mbah AdaptivAI 👴`;
       ) : (
         <>
           {/* Performance Chart Section - Overall Performance */}
-          {currentReport && performanceData.length > 0 && (
-            <div className="mb-4 sm:mb-5 lg:mb-6">
+          <div className="mb-4 sm:mb-5 lg:mb-6">
+            {currentReport && performanceData.length > 0 ? (
               <PerformanceChart
                 data={performanceData}
                 materiTitle="Performa Pembelajaran Keseluruhan"
                 studentName={currentReport.nama}
               />
-            </div>
-          )}
+            ) : (
+              <div className="bg-white rounded-[20px] p-6 sm:p-8 shadow-lg">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-[#336d82] text-xl sm:text-2xl poppins-semibold">
+                    Performa Pembelajaran Keseluruhan
+                  </h3>
+                </div>
+                <div className="h-64 bg-gray-50 border border-dashed border-gray-200 rounded flex items-center justify-center">
+                  <p className="text-gray-400 poppins-medium">Data performa belum tersedia</p>
+                </div>
+              </div>
+            )}
+          </div>
 
           {/* Materials Section */}
           <div className="mb-4 sm:mb-5 lg:mb-6">

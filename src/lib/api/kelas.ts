@@ -23,6 +23,7 @@ export interface KelasResponse {
   updated_at: string;
   role_dalam_kelas?: "guru" | "siswa";
   jumlah_siswa?: number;
+  student_profiles?: string[];
 }
 
 export interface KelasPayload {

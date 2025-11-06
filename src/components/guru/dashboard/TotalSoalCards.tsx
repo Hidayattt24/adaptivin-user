@@ -3,33 +3,33 @@
 import React from "react";
 import { Quiz } from "@mui/icons-material";
 
-interface BloomStats {
-  C1: number;
-  C2: number;
-  C3: number;
-  C4: number;
-  C5: number;
-  C6: number;
+interface LevelStats {
+  Level1: number;
+  Level2: number;
+  Level3: number;
+  Level4: number;
+  Level5: number;
+  Level6: number;
 }
 
 interface TotalSoalCardsProps {
   totalSoal: number;
-  bloomStats: BloomStats;
+  levelStats: LevelStats;
   className?: string;
 }
 
-const bloomLabels = {
-  C1: "Pengetahuan Dasar",
-  C2: "Pemahaman",
-  C3: "Penerapan",
-  C4: "Analisis",
-  C5: "Evaluasi",
-  C6: "Kreasi",
+const levelLabels = {
+  Level1: "Pengetahuan Dasar",
+  Level2: "Pemahaman",
+  Level3: "Penerapan",
+  Level4: "Analisis",
+  Level5: "Evaluasi",
+  Level6: "Kreasi",
 };
 
 const TotalSoalCards: React.FC<TotalSoalCardsProps> = ({
   totalSoal,
-  bloomStats,
+  levelStats,
   className = "",
 }) => {
   return (
@@ -59,23 +59,23 @@ const TotalSoalCards: React.FC<TotalSoalCardsProps> = ({
       <div className="bg-white rounded-xl sm:rounded-2xl md:rounded-[20px] shadow-xl border-2 border-[#336d82]/20 overflow-hidden">
         <div className="bg-gradient-to-r from-[#336d82] to-[#2a5a6d] px-3 sm:px-4 md:px-6 py-2.5 sm:py-3 md:py-4">
           <h3 className="text-white text-sm sm:text-base md:text-lg poppins-semibold">
-            Distribusi Berdasarkan Taksonomi Bloom
+            Distribusi Soal Berdasarkan Level Kesulitan
           </h3>
         </div>
         <div className="grid grid-cols-3 sm:grid-cols-6 divide-x-2 divide-y-2 sm:divide-y-0 divide-[#336d82]/10">
-          {(Object.keys(bloomStats) as Array<keyof BloomStats>).map((level) => (
+          {(Object.keys(levelStats) as Array<keyof LevelStats>).map((level) => (
             <div
               key={level}
               className="px-2 sm:px-3 md:px-4 py-4 sm:py-5 md:py-6 text-center hover:bg-[#336d82]/5 transition-colors"
             >
-              <div className="w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 mx-auto mb-2 sm:mb-2.5 md:mb-3 bg-gradient-to-br from-[#336d82] to-[#2a5a6d] rounded-lg sm:rounded-xl flex items-center justify-center shadow-md">
+              <div className="w-14 h-10 sm:w-11 sm:h-11 md:w-20 md:h-12 mx-auto mb-2 sm:mb-2.5 md:mb-3 bg-gradient-to-br from-[#336d82] to-[#2a5a6d] rounded-lg sm:rounded-xl flex items-center justify-center shadow-md">
                 <span className="text-white text-base sm:text-lg poppins-bold">{level}</span>
               </div>
               <p className="text-[#336d82] text-2xl sm:text-2xl md:text-3xl poppins-bold mb-0.5 sm:mb-1">
-                {bloomStats[level]}
+                {levelStats[level]}
               </p>
               <p className="text-gray-600 text-[10px] sm:text-xs poppins-medium leading-tight">
-                {bloomLabels[level]}
+                {levelLabels[level]}
               </p>
             </div>
           ))}

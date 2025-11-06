@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSiswaProfile } from "@/hooks/siswa/useSiswaProfile";
-import { getStudentAvatar } from "@/lib/api/user";
+import { getCurrentUser } from "@/lib/api/user";
 
 interface MobileNavbarProps {
   characterImage?: string; // Optional: untuk override karakter (misal di halaman pilih karakter)
@@ -13,12 +13,19 @@ interface MobileNavbarProps {
 export default function MobileNavbar({ characterImage: overrideCharacterImage }: MobileNavbarProps = {}) {
   const pathname = usePathname();
 
-  // Ambil data profil dari database
+  // Ambil data profil dari database (dengan fallback ke localStorage)
   const { data: profile } = useSiswaProfile();
 
-  // Dapatkan gambar karakter dari database berdasarkan profil_siswa_index
+  // Fallback ke localStorage jika query masih loading atau data belum ada
+  // Ini memastikan avatar tetap tampil dengan benar saat navigasi
+  const currentUser = getCurrentUser();
+  const karakterUrl = profile?.karakter?.poto_profil_url ?? currentUser?.karakter?.poto_profil_url;
+
+  // Dapatkan gambar karakter dari database berdasarkan karakter_url
   // Jika ada override (misal di halaman pilih karakter), gunakan itu
-  const characterImage = overrideCharacterImage || getStudentAvatar(profile?.profil_siswa_index); const isActive = (path: string) => pathname === path;
+  const characterImage = overrideCharacterImage || karakterUrl || "/siswa/foto-profil/kocheng-oren.svg";
+
+  const isActive = (path: string) => pathname === path;
 
   return (
     <>

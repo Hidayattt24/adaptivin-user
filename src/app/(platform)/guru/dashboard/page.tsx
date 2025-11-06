@@ -14,6 +14,7 @@ import { useTeacherProfile } from "@/hooks/guru/useTeacherProfile";
 import { useDebounce } from "@/hooks/guru/useDebounce";
 import { Search, ChevronLeft, ChevronRight } from "@mui/icons-material";
 import { useAuth } from "@/contexts/AuthContext";
+import Swal from "sweetalert2";
 
 const DashboardGuruPage = () => {
   const { logout } = useAuth();
@@ -50,19 +51,28 @@ const DashboardGuruPage = () => {
     return filteredClasses.slice(startIndex, startIndex + itemsPerPage);
   }, [filteredClasses, currentPage, itemsPerPage]);
 
-  // Student profile images (first 3)
-  const studentProfiles = [
-    "/siswa/foto-profil/kocheng-oren.svg",
-    "/siswa/foto-profil/bro-kerbuz.svg",
-    "/siswa/foto-profil/sin-bunbun.svg",
-  ];
-
   const handleLogout = async () => {
-    try {
-      await logout();
-    } catch (error) {
-      console.error("Logout failed:", error);
-    }
+    const result = await Swal.fire({
+      title: "Yakin ingin keluar?",
+      text: "Kamu akan keluar dari akun ini.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Ya, keluar",
+      cancelButtonText: "Batal",
+      confirmButtonColor: "#336D82",
+      cancelButtonColor: "#6b7280",
+    });
+    if (result.isConfirmed)
+      try {
+        await logout();
+      } catch (error) {
+        console.error("Logout failed:", error);
+        Swal.fire({
+          title: "Gagal logout!",
+          text: "Terjadi kesalahan saat keluar.",
+          icon: "error",
+        });
+      }
   };
 
   return (
@@ -180,8 +190,6 @@ const DashboardGuruPage = () => {
               {/* Search Button - Icon only on mobile, with text on desktop */}
               <button
                 onClick={() => {
-                  // Search button - currently search is automatic via onChange
-                  // This button provides visual feedback
                   document
                     .querySelector<HTMLInputElement>(
                       'input[aria-label="Cari kelas"]'
@@ -269,7 +277,9 @@ const DashboardGuruPage = () => {
                   nama={kelas.nama}
                   jumlahSiswa={kelas.jumlahSiswa}
                   color={getCardColor(cardIndex)}
-                  studentProfiles={studentProfiles}
+                  studentProfiles={kelas.studentProfiles.length > 0
+                    ? kelas.studentProfiles
+                    : ["/siswa/foto-profil/kocheng-oren.svg"]} // Fallback jika belum ada siswa
                   index={cardIndex}
                 />
               ))}
@@ -328,11 +338,10 @@ const DashboardGuruPage = () => {
                         <button
                           key={pageNum}
                           onClick={() => setCurrentPage(pageNum)}
-                          className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg font-semibold font-poppins transition-all duration-300 text-sm sm:text-base ${
-                            currentPage === pageNum
-                              ? "bg-white text-[#336d82] shadow-lg scale-110"
-                              : "bg-white/20 text-white hover:bg-white/30"
-                          }`}
+                          className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg font-semibold font-poppins transition-all duration-300 text-sm sm:text-base ${currentPage === pageNum
+                            ? "bg-white text-[#336d82] shadow-lg scale-110"
+                            : "bg-white/20 text-white hover:bg-white/30"
+                            }`}
                           aria-label={`Halaman ${pageNum}`}
                           aria-current={
                             currentPage === pageNum ? "page" : undefined

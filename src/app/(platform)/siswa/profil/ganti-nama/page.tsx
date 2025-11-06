@@ -1,14 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
-import { updateMyProfile } from "@/lib/api/user";
+import { useSiswaProfile, useUpdateSiswaProfile } from "@/hooks/siswa/useSiswaProfile";
 
 export default function GantiNamaPage() {
-  const [nama, setNama] = useState("Farhan");
+  const [nama, setNama] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const { data: profile } = useSiswaProfile();
+  const updateProfileMutation = useUpdateSiswaProfile();
+
+  useEffect(() => {
+    if (profile?.nama_lengkap) {
+      setNama(profile.nama_lengkap);
+    }
+  }, [profile]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,7 +33,7 @@ export default function GantiNamaPage() {
 
     try {
       setIsLoading(true);
-      await updateMyProfile({ nama_lengkap: nama.trim() });
+      await updateProfileMutation.mutateAsync({ nama_lengkap: nama.trim() });
 
       Swal.fire({
         icon: "success",

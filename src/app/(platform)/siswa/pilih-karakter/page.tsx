@@ -2,109 +2,40 @@
 
 import { useState, useEffect } from "react";
 import confetti from "canvas-confetti";
+import Swal from "sweetalert2";
 import MobileNavbar from "@/components/siswa/navigation/MobileNavbar";
 import InfiniteCarousel from "@/components/siswa/carousel/InfiniteCarousel";
 import EmojiText from "@/components/common/EmojiText";
-import { useSiswaProfile, useUpdateSiswaProfile } from "@/hooks/siswa/useSiswaProfile";
+import { useSiswaProfile, useUpdateSiswaProfile, useKarakter } from "@/hooks/siswa/useSiswaProfile";
 
-// Character color mapping for borders
-const characterColors: Record<string, string> = {
-  "bro-kerbuz": "#0F61AD",
-  "kocheng-oren": "#832C4C",
-  "mas-gwebek": "#8FBD41",
-  "mas-pace": "#568C1C",
-  "mas-piggy": "#BB5D57",
-  "pak-bubu": "#5F3C32",
-  "sin-bunbun": "#F564A9",
+// Character color mapping for borders (by index)
+const characterColors: Record<number, string> = {
+  1: "#832C4C",  // kocheng-oren
+  2: "#0F61AD",  // bro-kerbuz
+  3: "#F564A9",  // sin-bunbun
+  4: "#8FBD41",  // mas-gwebek
+  5: "#5F3C32",  // pak-bubu
+  6: "#568C1C",  // mas-pace
+  7: "#BB5D57",  // mas-piggy
 };
 
-// Character ID to index mapping (hanya 5 karakter yang tersedia di STUDENT_AVATARS)
-const characterIdToIndex: Record<string, number> = {
-  "kocheng-oren": 0,
-  "bro-kerbuz": 1,
-  "sin-bunbun": 2,
-  "mas-gwebek": 3,
-  "pak-bubu": 4,
-  "mas-pace": 5,
-  "mas-piggy": 6,
+// Character descriptions (by index)
+const characterDescriptions: Record<number, string> = {
+  1: "Si raja santuy yang selalu hoki 🍊👑. Paling jago bikin suasana belajar jadi seru!",
+  2: "Petualang cerdas yang nggak pernah takut tantangan! 🦝✨ Siap bantu kamu menguasai matematika!",
+  3: "Kelinci cepat yang lompat dari soal ke soal! 🐰⚡ Spesialis dalam mengerjakan soal dengan cepat!",
+  4: "Bebek cerdas yang suka berpetualang! 🦆🌟 Ahli dalam memecahkan teka-teki matematika!",
+  5: "Teman setia yang selalu ceria! 🐻✨ Siap menemani perjalanan belajarmu dengan penuh semangat!",
+  6: "Pace yang bijak dan sabar! 🐢📚 Siap membantu kamu memahami konsep matematika dengan tenang.",
+  7: "Babi yang lucu dan menggemaskan! 🐷✨ Siap menemani kamu belajar dengan penuh keceriaan.",
 };
-
-// Index to character ID mapping
-const indexToCharacterId: Record<number, string> = {
-  0: "kocheng-oren",
-  1: "bro-kerbuz",
-  2: "sin-bunbun",
-  3: "mas-gwebek",
-  4: "pak-bubu",
-  5: "mas-pace",
-  6: "mas-piggy",
-};
-
-// Hanya tampilkan 5 karakter yang sesuai dengan database
-const characters = [
-  {
-    id: "kocheng-oren",
-    name: "KOCHENG OREN",
-    path: "/siswa/pilih-karakter/kocheng-oren.svg",
-    description:
-      "Si raja santuy yang selalu hoki 🍊👑. Paling jago bikin suasana belajar jadi seru!",
-    color: characterColors["kocheng-oren"],
-  },
-  {
-    id: "bro-kerbuz",
-    name: "BRO KERBUZ",
-    path: "/siswa/pilih-karakter/bro-kerbuz.svg",
-    description:
-      "Petualang cerdas yang nggak pernah takut tantangan! 🦝✨ Siap bantu kamu menguasai matematika!",
-    color: characterColors["bro-kerbuz"],
-  },
-  {
-    id: "sin-bunbun",
-    name: "SIN BUNBUN",
-    path: "/siswa/pilih-karakter/sin-bunbun.svg",
-    description:
-      "Kelinci cepat yang lompat dari soal ke soal! �⚡ Spesialis dalam mengerjakan soal dengan cepat!",
-    color: characterColors["sin-bunbun"],
-  },
-  {
-    id: "mas-gwebek",
-    name: "MAS GWEBEK",
-    path: "/siswa/pilih-karakter/mas-gwebek.svg",
-    description:
-      "Bebek cerdas yang suka berpetualang! 🦆🌟 Ahli dalam memecahkan teka-teki matematika!",
-    color: characterColors["mas-gwebek"],
-  },
-  {
-    id: "pak-bubu",
-    name: "PAK BUBU",
-    path: "/siswa/pilih-karakter/pak-bubu.svg",
-    description:
-      "Teman setia yang selalu ceria! 🐻✨ Siap menemani perjalanan belajarmu dengan penuh semangat!",
-    color: characterColors["pak-bubu"],
-  },
-  {
-    id: "mas-pace",
-    name: "MAS PACE",
-    path: "/siswa/pilih-karakter/mas-pace.svg",
-    description:
-      "Pace yang bijak dan sabar! 🐢📚 Siap membantu kamu memahami konsep matematika dengan tenang.",
-    color: characterColors["mas-pace"],
-  },
-  {
-    id: "mas-piggy",
-    name: "MAS PIGGY",
-    path: "/siswa/pilih-karakter/mas-piggy.svg",
-    description:
-      "Babi yang lucu dan menggemaskan! 🐷✨ Siap menemani kamu belajar dengan penuh keceriaan.",
-    color: characterColors["mas-piggy"],
-  }
-];
 
 export default function PilihKarakterPage() {
-  const [selectedCharacter, setSelectedCharacter] = useState("kocheng-oren");
-  const [centerCharacter, setCenterCharacter] = useState("kocheng-oren");
+  const [selectedCharacterId, setSelectedCharacterId] = useState<string>("");
+  const [centerCharacterId, setCenterCharacterId] = useState<string>("");
 
   const { data: profile } = useSiswaProfile();
+  const { data: karakterData, isLoading: isLoadingKarakter } = useKarakter();
   const { mutateAsync: updateProfile } = useUpdateSiswaProfile();
 
   useEffect(() => {
@@ -123,12 +54,25 @@ export default function PilihKarakterPage() {
 
   // Load current character from profile
   useEffect(() => {
-    if (profile?.profil_siswa_index !== undefined && profile.profil_siswa_index !== null) {
-      const characterId = indexToCharacterId[profile.profil_siswa_index] || "kocheng-oren";
-      setSelectedCharacter(characterId);
-      setCenterCharacter(characterId);
+    if (profile?.karakter_id) {
+      setSelectedCharacterId(profile.karakter_id);
+      setCenterCharacterId(profile.karakter_id);
+    } else if (karakterData && karakterData.karakter.length > 0) {
+      // Default to first character if no character selected
+      const firstChar = karakterData.karakter[0];
+      setSelectedCharacterId(firstChar.id);
+      setCenterCharacterId(firstChar.id);
     }
-  }, [profile]);
+  }, [profile, karakterData]);
+
+  // Map karakter data to carousel format
+  const characters = (karakterData?.karakter || []).map((karakter) => ({
+    id: karakter.id,
+    name: `Karakter ${karakter.index}`, // You can add nama field to database if needed
+    path: karakter.karakter_url,
+    description: characterDescriptions[karakter.index] || "Teman belajar yang seru!",
+    color: characterColors[karakter.index] || "#33A1E0",
+  }));
 
   // Confetti effect with stars
   const triggerConfetti = () => {
@@ -163,19 +107,57 @@ export default function PilihKarakterPage() {
   };
 
   const handleSelectCharacter = async (characterId: string) => {
-    setSelectedCharacter(characterId);
+    setSelectedCharacterId(characterId);
     triggerConfetti();
 
     // Simpan langsung ke database ketika card di-klik
-    const characterIndex = characterIdToIndex[characterId];
-    if (characterIndex !== undefined) {
-      try {
-        await updateProfile({ profil_siswa_index: characterIndex });
-      } catch (error) {
-        console.error("Gagal menyimpan karakter:", error);
-      }
+    try {
+      await updateProfile({ karakter_id: characterId });
+      // Success notification (optional - bisa di-comment jika terlalu banyak notif)
+      // Swal sudah di-handle oleh mutation hook yang update cache
+    } catch (error: unknown) {
+      console.error("Gagal menyimpan karakter:", error);
+
+      // Tampilkan error message yang user-friendly
+      const getErrorMessage = (err: unknown): string => {
+        if (err && typeof err === 'object') {
+          // AxiosError structure
+          if ('response' in err && err.response && typeof err.response === 'object' && 'data' in err.response) {
+            const data = err.response.data as { message?: string };
+            if (data?.message) return data.message;
+          }
+          // Generic Error
+          if ('message' in err && typeof err.message === 'string') {
+            return err.message;
+          }
+        }
+        return "Gagal menyimpan karakter. Silakan coba lagi.";
+      };
+
+      const errorMessage = getErrorMessage(error);
+
+      Swal.fire({
+        icon: "error",
+        title: "Gagal!",
+        text: errorMessage,
+        confirmButtonColor: "#336d82",
+      });
     }
   };
+
+  if (isLoadingKarakter) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="text-4xl mb-4">🎨</div>
+          <p className="text-gray-600">Memuat karakter...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const centerCharacter = characters.find(c => c.id === centerCharacterId);
+  const selectedCharacterUrl = characters.find(c => c.id === selectedCharacterId)?.path;
 
   return (
     <div className="relative w-full min-h-screen overflow-x-hidden bg-white">
@@ -291,7 +273,7 @@ export default function PilihKarakterPage() {
                 <div className="text-2xl sm:text-3xl md:text-3xl animate-bounce flex-shrink-0">🎯</div>
                 <div className="text-center flex-1 min-w-0">
                   <h3 className="text-base sm:text-lg md:text-lg font-bold text-[#4c859a] mb-1 truncate">
-                    {characters.find(c => c.id === centerCharacter)?.name || "Pilih Karaktermu!"}
+                    {centerCharacter?.name || "Pilih Karaktermu!"}
                   </h3>
                   <div className="flex items-center justify-center gap-1.5 sm:gap-2">
                     <div className="w-2 h-2 md:w-2 md:h-2 bg-green-400 rounded-full animate-pulse flex-shrink-0"></div>
@@ -309,8 +291,8 @@ export default function PilihKarakterPage() {
           <InfiniteCarousel
             items={characters}
             onSelect={handleSelectCharacter}
-            selectedId={selectedCharacter}
-            onCenterChange={setCenterCharacter}
+            selectedId={selectedCharacterId}
+            onCenterChange={setCenterCharacterId}
             showNavigationButtons={true}
           />
         </div>
@@ -319,7 +301,7 @@ export default function PilihKarakterPage() {
         <div className="flex justify-center mt-5 sm:mt-6 md:mt-5 px-4 sm:px-6 md:px-6">
           <button
             onClick={() => {
-              handleSelectCharacter(centerCharacter);
+              handleSelectCharacter(centerCharacterId);
               triggerConfetti();
             }}
             className="relative group bg-gradient-to-r from-[#33A1E0] via-[#2B7A9E] to-[#336d82] text-white text-sm sm:text-[15px] md:text-sm font-bold px-8 sm:px-10 md:px-10 py-2.5 sm:py-3 md:py-2.5 rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 active:scale-95 md:hover:scale-105 md:hover:-translate-y-1 overflow-hidden"
@@ -342,9 +324,7 @@ export default function PilihKarakterPage() {
 
         {/* Navigation Bar - All screen sizes */}
         <div className="mt-12 sm:mt-16 md:mt-12">
-          <MobileNavbar
-            characterImage={`/siswa/foto-profil/${selectedCharacter}.svg`}
-          />
+          <MobileNavbar characterImage={selectedCharacterUrl} />
         </div>
 
         {/* Bottom Spacing - Compact for Desktop */}

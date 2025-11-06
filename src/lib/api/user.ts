@@ -27,6 +27,14 @@ export interface SekolahInfo {
   nama_sekolah: string;
 }
 
+// Interface untuk Karakter
+export interface KarakterInfo {
+  id: string;
+  index: number;
+  karakter_url: string;
+  poto_profil_url: string;
+}
+
 // Interface untuk User (Guru/Siswa)
 export interface UserResponse {
   id: string;
@@ -39,35 +47,12 @@ export interface UserResponse {
   alamat?: string | null;
   tanggal_lahir?: string | null;
   sekolah_id?: string | null;
-  profil_siswa_index?: number | null;
+  karakter_id?: string | null;
   created_at?: string;
   updated_at?: string;
   kelas?: KelasInfo | null;
   sekolah?: SekolahInfo | null;
-}
-
-// Avatar options for siswa (5 avatars available)
-export const STUDENT_AVATARS = [
-  "/siswa/foto-profil/kocheng-oren.svg",
-  "/siswa/foto-profil/bro-kerbuz.svg",
-  "/siswa/foto-profil/sin-bunbun.svg",
-  "/siswa/foto-profil/mas-gwebek.svg",
-  "/siswa/foto-profil/pak-bubu.svg",
-  "/siswa/foto-profil/mas-pace.svg",
-  "/siswa/foto-profil/mas-piggy.svg",
-];
-
-// Get avatar path by index
-export function getStudentAvatar(index?: number | null): string {
-  if (
-    index === null ||
-    index === undefined ||
-    index < 0 ||
-    index >= STUDENT_AVATARS.length
-  ) {
-    return STUDENT_AVATARS[0]; // Default to first avatar
-  }
-  return STUDENT_AVATARS[index];
+  karakter?: KarakterInfo | null;
 }
 
 // Buat instance axios dengan konfigurasi default
@@ -106,7 +91,13 @@ export async function getUserById(id: string) {
 // Get current user's profile (refresh data dari server)
 export async function getMyProfile() {
   const res = await api.get(`/users/me`);
-  return res.data.user as UserResponse;
+  const userData = res.data.user as UserResponse;
+
+  // PENTING: Update localStorage dengan data terbaru dari server
+  // Ini memastikan getCurrentUser() selalu return data yang benar
+  setStorage(StorageKeys.USER, userData);
+
+  return userData;
 }
 
 // Update user profile
@@ -115,7 +106,7 @@ export async function updateMyProfile(payload: {
   jenis_kelamin?: string;
   alamat?: string;
   tanggal_lahir?: string;
-  profil_siswa_index?: number;
+  karakter_id?: string;
 }) {
   const res = await api.put(`/users/me`, payload);
 
@@ -144,9 +135,10 @@ export interface SiswaResponse {
   jenis_kelamin: string | null;
   tanggal_lahir: string | null;
   alamat: string | null;
-  profil_siswa_index: number | null;
+  karakter_id: string | null;
   created_at: string;
   updated_at: string;
+  karakter?: KarakterInfo | null;
 }
 
 // Get siswa list by kelas
@@ -154,6 +146,15 @@ export async function getSiswaByKelas(kelasId: string) {
   const res = await api.get(`/users/kelas/${kelasId}/siswa`);
   return {
     siswa: res.data.siswa as SiswaResponse[],
+    total: res.data.total as number,
+  };
+}
+
+// Get all available karakter (for pilih karakter page)
+export async function getAllKarakter() {
+  const res = await api.get(`/users/karakter`);
+  return {
+    karakter: res.data.karakter as KarakterInfo[],
     total: res.data.total as number,
   };
 }

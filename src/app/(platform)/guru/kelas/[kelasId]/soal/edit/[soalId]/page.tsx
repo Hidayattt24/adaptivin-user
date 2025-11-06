@@ -57,15 +57,36 @@ const EditSoalPage = () => {
 
       // Convert soal data to Question format
       let correctAnswer = "";
-      if (soalData.tipe_jawaban === "pilihan_ganda") {
-        correctAnswer = soalData.jawaban?.map((j) => j.isi_jawaban).join("\n") || "";
+      const multipleChoiceOptions: Array<{ label: string; text: string; isCorrect: boolean }> = [
+        { label: 'A', text: '', isCorrect: false },
+        { label: 'B', text: '', isCorrect: false },
+        { label: 'C', text: '', isCorrect: false },
+        { label: 'D', text: '', isCorrect: false },
+      ];
+
+      if (soalData.tipe_jawaban === "pilihan_ganda" || soalData.tipe_jawaban === "pilihan_ganda_kompleks") {
+        // Parse jawaban dari backend ke format multipleChoiceOptions
+        if (soalData.jawaban && soalData.jawaban.length > 0) {
+          soalData.jawaban.forEach((jawab, idx) => {
+            if (idx < 4) { // Maksimal 4 pilihan (A, B, C, D)
+              // Extract text dari format "A. text" atau langsung "text"
+              const text = jawab.isi_jawaban.replace(/^[A-D]\.\s*/, '');
+              multipleChoiceOptions[idx] = {
+                label: String.fromCharCode(65 + idx), // A, B, C, D
+                text: text,
+                isCorrect: jawab.is_benar,
+              };
+            }
+          });
+        }
+        correctAnswer = ""; // Tidak perlu answerText untuk pilihan ganda
       } else {
         correctAnswer = soalData.jawaban?.find((j) => j.is_benar)?.isi_jawaban || "";
       }
 
       setQuestion({
         id: soalData.soal_id,
-        questionType: soalData.level_soal.toUpperCase() as "C1" | "C2" | "C3" | "C4" | "C5" | "C6",
+        questionType: soalData.level_soal.toUpperCase() as "level1" | "level2" | "level3" | "level4" | "level5" | "level6",
         questionFile: null,
         questionFilePreview: soalData.soal_gambar || null,
         questionText: soalData.soal_teks,
@@ -76,6 +97,7 @@ const EditSoalPage = () => {
         explanation: soalData.penjelasan || "",
         timeValue: Math.floor(soalData.durasi_soal / 60),
         timeUnit: "Menit",
+        multipleChoiceOptions: multipleChoiceOptions,
       });
     }
   }, [soalData]);
@@ -182,15 +204,44 @@ const EditSoalPage = () => {
       });
       return false;
     }
-    if (!question.answerText.trim() && !question.answerFile && !question.answerFilePreview) {
-      Swal.fire({
-        icon: "warning",
-        title: "Jawaban Kosong",
-        text: "Soal harus memiliki jawaban (teks atau gambar)!",
-        confirmButtonColor: "#336d82",
-      });
-      return false;
+
+    // Validasi jawaban berdasarkan tipe
+    if (question.answerType === "pilihan_ganda" || question.answerType === "pilihan_ganda_kompleks") {
+      // Check apakah ada pilihan yang diisi
+      const hasOptions = question.multipleChoiceOptions?.some(opt => opt.text.trim().length > 0);
+      if (!hasOptions) {
+        Swal.fire({
+          icon: "warning",
+          title: "Pilihan Kosong",
+          text: "Soal harus memiliki minimal 1 pilihan jawaban!",
+          confirmButtonColor: "#336d82",
+        });
+        return false;
+      }
+
+      // Check apakah ada jawaban yang dipilih sebagai benar
+      const hasCorrectAnswer = question.multipleChoiceOptions?.some(opt => opt.isCorrect && opt.text.trim().length > 0);
+      if (!hasCorrectAnswer) {
+        Swal.fire({
+          icon: "warning",
+          title: "Jawaban Benar Belum Dipilih",
+          text: "Soal harus memiliki minimal 1 jawaban yang ditandai benar!",
+          confirmButtonColor: "#336d82",
+        });
+        return false;
+      }
+    } else if (question.answerType === "isian_singkat") {
+      if (!question.answerText.trim()) {
+        Swal.fire({
+          icon: "warning",
+          title: "Jawaban Kosong",
+          text: "Soal harus memiliki jawaban!",
+          confirmButtonColor: "#336d82",
+        });
+        return false;
+      }
     }
+
     if (question.timeValue <= 0) {
       Swal.fire({
         icon: "warning",
@@ -230,30 +281,50 @@ const EditSoalPage = () => {
       let jawaban: Array<{ isi_jawaban: string; is_benar: boolean }> = [];
 
       if (question.answerType === "pilihan_ganda") {
-        const answers = question.answerText
-          .split(/[\n,]/)
-          .map((a) => a.trim())
-          .filter((a) => a.length > 0);
-
-        if (answers.length === 0) {
-          throw new Error("Jawaban tidak valid");
+        // Gunakan multipleChoiceOptions untuk pilihan ganda
+        if (!question.multipleChoiceOptions || question.multipleChoiceOptions.every(opt => !opt.text.trim())) {
+          throw new Error("Jawaban pilihan ganda tidak valid");
         }
 
-        jawaban = answers.map((ans, idx) => ({
-          isi_jawaban: ans,
-          is_benar: idx === 0,
-        }));
+        // Filter options yang ada textnya dan map ke format jawaban
+        jawaban = question.multipleChoiceOptions
+          .filter(opt => opt.text.trim().length > 0)
+          .map((opt) => ({
+            isi_jawaban: `${opt.label}. ${opt.text}`,
+            is_benar: opt.isCorrect,
+          }));
+
+        // Validasi minimal ada 1 jawaban benar
+        if (!jawaban.some(j => j.is_benar)) {
+          throw new Error("Pilihan ganda harus memiliki minimal 1 jawaban benar");
+        }
+      } else if (question.answerType === "pilihan_ganda_kompleks") {
+        // Gunakan multipleChoiceOptions untuk pilihan ganda kompleks
+        if (!question.multipleChoiceOptions || question.multipleChoiceOptions.every(opt => !opt.text.trim())) {
+          throw new Error("Jawaban pilihan ganda kompleks tidak valid");
+        }
+
+        // Filter options yang ada textnya dan map ke format jawaban
+        jawaban = question.multipleChoiceOptions
+          .filter(opt => opt.text.trim().length > 0)
+          .map((opt) => ({
+            isi_jawaban: `${opt.label}. ${opt.text}`,
+            is_benar: opt.isCorrect,
+          }));
+
+        // Validasi minimal ada 1 jawaban benar
+        if (!jawaban.some(j => j.is_benar)) {
+          throw new Error("Pilihan ganda kompleks harus memiliki minimal 1 jawaban benar");
+        }
       } else if (question.answerType === "isian_singkat") {
-        jawaban = [{ isi_jawaban: question.answerText.trim(), is_benar: true }];
-      } else if (question.answerType === "angka") {
         jawaban = [{ isi_jawaban: question.answerText.trim(), is_benar: true }];
       }
 
       // Create update payload with proper typing
       const payload: {
         materi_id: string;
-        level_soal: "c1" | "c2" | "c3" | "c4" | "c5" | "c6";
-        tipe_jawaban: "pilihan_ganda" | "isian_singkat" | "angka";
+        level_soal: "level1" | "level2" | "level3" | "level4" | "level5" | "level6";
+        tipe_jawaban: "pilihan_ganda" | "pilihan_ganda_kompleks" | "isian_singkat";
         soal_teks: string;
         penjelasan?: string;
         durasi_soal: number;
@@ -264,7 +335,7 @@ const EditSoalPage = () => {
         hapus_gambar_pendukung?: boolean;
       } = {
         materi_id: selectedMateri!,
-        level_soal: question.questionType.toLowerCase() as "c1" | "c2" | "c3" | "c4" | "c5" | "c6",
+        level_soal: question.questionType.toLowerCase() as "level1" | "level2" | "level3" | "level4" | "level5" | "level6",
         tipe_jawaban: question.answerType,
         soal_teks: question.questionText,
         penjelasan: question.explanation || undefined,

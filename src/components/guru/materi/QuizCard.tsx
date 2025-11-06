@@ -6,7 +6,7 @@ import { Visibility, Delete, Edit } from "@mui/icons-material";
 interface QuizCardProps {
   id: string;
   question: string;
-  difficulty: "C1" | "C2" | "C3" | "C4" | "C5" | "C6";
+  difficulty: "Level 1" | "Level 2" | "Level 3" | "Level 4" | "Level 5" | "Level 6";
   normalTime: number; // in minutes
   onPreview?: () => void;
   onEdit?: () => void;

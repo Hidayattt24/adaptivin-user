@@ -8,6 +8,7 @@ import {
   getStorage,
   setCookie,
   clearAuth,
+  cleanupCorruptedStorage,
   StorageKeys,
 } from "@/lib/storage";
 
@@ -44,11 +45,24 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   // Load user dari storage saat mount (hanya sekali)
   useEffect(() => {
-    const savedUser = getStorage<User>(StorageKeys.USER);
-    if (savedUser) {
-      setUser(savedUser);
+    try {
+      // Clean up any corrupted data first
+      cleanupCorruptedStorage();
+
+      const savedUser = getStorage<User>(StorageKeys.USER);
+      if (savedUser && savedUser.role && savedUser.email) {
+        setUser(savedUser);
+      } else if (savedUser) {
+        // Data user tidak lengkap, clear storage
+        console.warn("Incomplete user data in storage, clearing...");
+        clearAuth();
+      }
+    } catch (error) {
+      console.error("Error loading user from storage:", error);
+      clearAuth();
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   }, []);
 
   const login = async (email: string, password: string) => {
@@ -64,11 +78,27 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         throw new Error(errorData.error || errorData.message || "Login gagal");
       }
 
-      const data = await res.json();
+      const responseData = await res.json();
+      const payload = responseData?.data;
+      const user = payload?.user;
+      const token = payload?.token;
+
+      // Validasi response structure
+      if (!user || !user.role || !user.email || !token) {
+        console.error("Response login tidak valid:", {
+          hasData: !!responseData,
+          hasPayload: !!payload,
+          hasUser: !!user,
+          hasRole: !!user?.role,
+          hasEmail: !!user?.email,
+          hasToken: !!token,
+        });
+        throw new Error("Response login tidak valid: data user tidak lengkap");
+      }
 
       // Validate role (hanya guru dan siswa)
       const allowedRoles = ["guru", "siswa"];
-      if (!allowedRoles.includes(data.user.role)) {
+      if (!allowedRoles.includes(user.role)) {
         throw new Error("Akses ditolak: role tidak sesuai");
       }
 
@@ -78,20 +108,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       clearAuth(); // Clear localStorage dan cookies lama
 
       // Update state dengan user baru
-      setUser(data.user);
+      setUser(user);
 
       // Simpan data user baru dengan prefix untuk menghindari collision dengan admin
-      setStorage(StorageKeys.USER, data.user);
-      setStorage(StorageKeys.TOKEN, data.token);
+      setStorage(StorageKeys.USER, user);
+      setStorage(StorageKeys.TOKEN, token);
 
       // Simpan ke cookie dengan prefix untuk middleware
-      setCookie("token", data.token, { maxAge: 86400 }); // 1 day
-      setCookie("role", data.user.role, { maxAge: 86400 });
+      setCookie("token", token, { maxAge: 86400 }); // 1 day
+      setCookie("role", user.role, { maxAge: 86400 });
 
       // Redirect berdasarkan role
-      if (data.user.role === "guru") {
+      if (user.role === "guru") {
         router.push("/guru/dashboard");
-      } else if (data.user.role === "siswa") {
+      } else if (user.role === "siswa") {
         router.push("/siswa/beranda");
       }
     } catch (error) {

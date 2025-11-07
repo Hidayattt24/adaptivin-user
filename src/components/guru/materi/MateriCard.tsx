@@ -90,7 +90,7 @@ const MateriCard: React.FC<MateriCardProps> = ({
             </span>
           </button>
         </Link>
-        <Link href={`/guru/kelas/${kelasId}/materi/${id}/edit-kuis`}>
+        <Link href={`/guru/kelas/${kelasId}/materi/${id}/kelola-kuis`}>
           <button className="bg-[#336d82] text-white px-4 py-2 rounded-[15px] flex items-center gap-2 hover:bg-[#2a5a6a] transition-all hover:shadow-lg h-[44px]">
             <div className="w-7 h-7 bg-white/20 rounded-full flex items-center justify-center">
               <EditIcon className="text-white" sx={{ fontSize: 16 }} />

@@ -1,5 +1,6 @@
 import axios from "axios";
 import { getCookie, StorageKeys } from "@/lib/storage";
+import { unwrapApiResponse } from "./helpers";
 
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
@@ -91,24 +92,33 @@ api.interceptors.request.use(
  * Get all materi by kelas
  */
 export async function getMateriByKelas(kelasId: string): Promise<Materi[]> {
-  const response = await api.get(`/materi/materi/kelas/${kelasId}`);
-  return response.data.materi || [];
+  const res = await api.get(`/materi/materi/kelas/${kelasId}`);
+  const data = unwrapApiResponse<{ materi?: Materi[] }>(res);
+  return data.materi ?? [];
 }
 
 /**
  * Get single materi by ID with all sub_materi
  */
 export async function getMateriById(materiId: string): Promise<MateriDetail> {
-  const response = await api.get(`/materi/materi/${materiId}`);
-  return response.data.materi;
+  const res = await api.get(`/materi/materi/${materiId}`);
+  const data = unwrapApiResponse<{ materi?: MateriDetail }>(res);
+  if (!data.materi) {
+    throw new Error("Materi tidak ditemukan");
+  }
+  return data.materi;
 }
 
 /**
  * Create new materi
  */
 export async function createMateri(data: CreateMateriDto): Promise<Materi> {
-  const response = await api.post("/materi/materi", data);
-  return response.data.materi;
+  const res = await api.post("/materi/materi", data);
+  const payload = unwrapApiResponse<{ materi?: Materi }>(res);
+  if (!payload.materi) {
+    throw new Error("Response tidak mengandung materi");
+  }
+  return payload.materi;
 }
 
 /**
@@ -118,8 +128,12 @@ export async function updateMateri(
   materiId: string,
   data: UpdateMateriDto
 ): Promise<Materi> {
-  const response = await api.put(`/materi/materi/${materiId}`, data);
-  return response.data.materi;
+  const res = await api.put(`/materi/materi/${materiId}`, data);
+  const payload = unwrapApiResponse<{ materi?: Materi }>(res);
+  if (!payload.materi) {
+    throw new Error("Response tidak mengandung materi");
+  }
+  return payload.materi;
 }
 
 /**
@@ -137,8 +151,9 @@ export async function deleteMateri(materiId: string): Promise<void> {
 export async function getSubMateriByMateri(
   materiId: string
 ): Promise<SubMateri[]> {
-  const response = await api.get(`/materi/sub-materi/materi/${materiId}`);
-  return response.data.sub_materi || [];
+  const res = await api.get(`/materi/sub-materi/materi/${materiId}`);
+  const data = unwrapApiResponse<{ sub_materi?: SubMateri[] }>(res);
+  return data.sub_materi ?? [];
 }
 
 /**
@@ -147,8 +162,12 @@ export async function getSubMateriByMateri(
 export async function getSubMateriById(
   subMateriId: string
 ): Promise<SubMateri> {
-  const response = await api.get(`/materi/sub-materi/${subMateriId}`);
-  return response.data.sub_materi;
+  const res = await api.get(`/materi/sub-materi/${subMateriId}`);
+  const data = unwrapApiResponse<{ sub_materi?: SubMateri }>(res);
+  if (!data.sub_materi) {
+    throw new Error("Sub materi tidak ditemukan");
+  }
+  return data.sub_materi;
 }
 
 /**
@@ -176,12 +195,16 @@ export async function createSubMateri(
     });
   }
 
-  const response = await api.post("/materi/sub-materi", formData, {
+  const res = await api.post("/materi/sub-materi", formData, {
     headers: {
       "Content-Type": "multipart/form-data",
     },
   });
-  return response.data.sub_materi;
+  const payload = unwrapApiResponse<{ sub_materi?: SubMateri }>(res);
+  if (!payload.sub_materi) {
+    throw new Error("Response tidak mengandung sub materi");
+  }
+  return payload.sub_materi;
 }
 
 /**
@@ -191,8 +214,12 @@ export async function updateSubMateri(
   subMateriId: string,
   data: UpdateSubMateriDto
 ): Promise<SubMateri> {
-  const response = await api.put(`/materi/sub-materi/${subMateriId}`, data);
-  return response.data.sub_materi;
+  const res = await api.put(`/materi/sub-materi/${subMateriId}`, data);
+  const payload = unwrapApiResponse<{ sub_materi?: SubMateri }>(res);
+  if (!payload.sub_materi) {
+    throw new Error("Response tidak mengandung sub materi");
+  }
+  return payload.sub_materi;
 }
 
 /**
@@ -216,7 +243,7 @@ export async function uploadMedia(
   formData.append("file", file);
   formData.append("tipe_media", tipeMedia);
 
-  const response = await api.post(
+  const res = await api.post(
     `/materi/media/sub-materi/${subMateriId}`,
     formData,
     {
@@ -225,7 +252,11 @@ export async function uploadMedia(
       },
     }
   );
-  return response.data.media;
+  const data = unwrapApiResponse<{ media?: SubMateriMedia }>(res);
+  if (!data.media) {
+    throw new Error("Response tidak mengandung media");
+  }
+  return data.media;
 }
 
 /**
@@ -241,6 +272,7 @@ export async function deleteMedia(mediaId: string): Promise<void> {
 export async function getMediaBySubMateri(
   subMateriId: string
 ): Promise<SubMateriMedia[]> {
-  const response = await api.get(`/materi/media/sub-materi/${subMateriId}`);
-  return response.data.media || [];
+  const res = await api.get(`/materi/media/sub-materi/${subMateriId}`);
+  const data = unwrapApiResponse<{ media?: SubMateriMedia[] }>(res);
+  return data.media ?? [];
 }

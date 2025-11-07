@@ -1,5 +1,6 @@
 import axios from "axios";
 import { getCookie, StorageKeys } from "../storage";
+import { unwrapApiResponse } from "./helpers";
 
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
@@ -78,21 +79,39 @@ export interface SoalCountByMateri {
 }
 
 // Axios instance with auth
-const getAuthHeaders = () => {
-  const token = getTokenFromCookie();
-  return {
-    Authorization: token ? `Bearer ${token}` : "",
-  };
-};
+const api = axios.create({
+  baseURL: API_BASE_URL,
+  withCredentials: true,
+});
+
+api.interceptors.request.use(
+  (config) => {
+    const token = getTokenFromCookie();
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+const mapSoalResponse = (rawData: Array<Record<string, unknown>>): Soal[] =>
+  rawData.map((soal) => ({
+    ...soal,
+    soal_id: soal.id as string,
+    jawaban: (soal.jawaban as Array<Record<string, unknown>>)?.map((j) => ({
+      ...j,
+      jawaban_id: j.id as string,
+    })),
+  })) as Soal[];
 
 // API Functions
 export const soalAPI = {
   // Get materi dropdown list
   getMateriDropdown: async (): Promise<MateriDropdownItem[]> => {
-    const { data } = await axios.get(`${API_BASE_URL}/soal/materi-dropdown`, {
-      headers: getAuthHeaders(),
-    });
-    return data.data;
+    const res = await api.get(`/soal/materi-dropdown`);
+    const payload = unwrapApiResponse<{ data?: MateriDropdownItem[] }>(res);
+    return payload.data ?? [];
   },
 
   // Get all soal with optional filters
@@ -101,62 +120,41 @@ export const soalAPI = {
     level_soal?: string;
     tipe_jawaban?: string;
   }): Promise<Soal[]> => {
-    const params = new URLSearchParams();
-    if (filters?.materi_id) params.append("materi_id", filters.materi_id);
-    if (filters?.level_soal) params.append("level_soal", filters.level_soal);
-    if (filters?.tipe_jawaban)
-      params.append("tipe_jawaban", filters.tipe_jawaban);
+    const params: Record<string, string> = {};
+    if (filters?.materi_id) params.materi_id = filters.materi_id;
+    if (filters?.level_soal) params.level_soal = filters.level_soal;
+    if (filters?.tipe_jawaban) params.tipe_jawaban = filters.tipe_jawaban;
 
-    const { data } = await axios.get(
-      `${API_BASE_URL}/soal?${params.toString()}`,
-      {
-        headers: getAuthHeaders(),
-      }
-    );
-
-    // Map response: backend returns 'id', frontend expects 'soal_id'
-    const rawData = data.data as Array<Record<string, unknown>>;
-    return rawData.map((soal) => ({
-      ...soal,
-      soal_id: soal.id as string,
-      jawaban: (soal.jawaban as Array<Record<string, unknown>>)?.map((j) => ({
-        ...j,
-        jawaban_id: j.id as string,
-      })),
-    })) as Soal[];
+    const res = await api.get(`/soal`, { params });
+    const payload = unwrapApiResponse<{
+      data?: Array<Record<string, unknown>>;
+    }>(res);
+    const rawData = payload.data ?? [];
+    return mapSoalResponse(rawData);
   },
 
   // Get soal count by materi
   getSoalCountByMateri: async (
     materi_id: string
   ): Promise<SoalCountByMateri> => {
-    const { data } = await axios.get(
-      `${API_BASE_URL}/soal/materi/${materi_id}/count`,
-      {
-        headers: getAuthHeaders(),
-      }
-    );
-    return data.data;
+    const res = await api.get(`/soal/materi/${materi_id}/count`);
+    const payload = unwrapApiResponse<{ data?: SoalCountByMateri }>(res);
+    if (!payload.data) {
+      throw new Error("Response tidak mengandung data jumlah soal");
+    }
+    return payload.data;
   },
 
   // Get soal by ID
   getSoalById: async (soal_id: string): Promise<Soal> => {
-    const { data } = await axios.get(`${API_BASE_URL}/soal/${soal_id}`, {
-      headers: getAuthHeaders(),
-    });
-
-    // Map response: backend returns 'id', frontend expects 'soal_id'
-    const rawData = data.data as Record<string, unknown>;
-    return {
-      ...rawData,
-      soal_id: rawData.id as string,
-      jawaban: (rawData.jawaban as Array<Record<string, unknown>>)?.map(
-        (j) => ({
-          ...j,
-          jawaban_id: j.id as string,
-        })
-      ),
-    } as Soal;
+    const res = await api.get(`/soal/${soal_id}`);
+    const responsePayload = unwrapApiResponse<{
+      data?: Record<string, unknown>;
+    }>(res);
+    if (!responsePayload.data) {
+      throw new Error("Soal tidak ditemukan");
+    }
+    return mapSoalResponse([responsePayload.data])[0];
   },
 
   // Create new soal
@@ -182,25 +180,19 @@ export const soalAPI = {
       );
     }
 
-    const { data } = await axios.post(`${API_BASE_URL}/soal`, formData, {
+    const res = await api.post(`/soal`, formData, {
       headers: {
-        ...getAuthHeaders(),
         "Content-Type": "multipart/form-data",
       },
     });
 
-    // Map response: backend returns 'id', frontend expects 'soal_id'
-    const rawData = data.data as Record<string, unknown>;
-    return {
-      ...rawData,
-      soal_id: rawData.id as string,
-      jawaban: (rawData.jawaban as Array<Record<string, unknown>>)?.map(
-        (j) => ({
-          ...j,
-          jawaban_id: j.id as string,
-        })
-      ),
-    } as Soal;
+    const responsePayload = unwrapApiResponse<{
+      data?: Record<string, unknown>;
+    }>(res);
+    if (!responsePayload.data) {
+      throw new Error("Response tidak mengandung soal");
+    }
+    return mapSoalResponse([responsePayload.data])[0];
   },
 
   // Update soal
@@ -238,35 +230,23 @@ export const soalAPI = {
       formData.append("hapus_gambar_pendukung", "true");
     }
 
-    const { data } = await axios.put(
-      `${API_BASE_URL}/soal/${soal_id}`,
-      formData,
-      {
-        headers: {
-          ...getAuthHeaders(),
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
+    const res = await api.put(`/soal/${soal_id}`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
 
-    // Map response: backend returns 'id', frontend expects 'soal_id'
-    const rawData = data.data as Record<string, unknown>;
-    return {
-      ...rawData,
-      soal_id: rawData.id as string,
-      jawaban: (rawData.jawaban as Array<Record<string, unknown>>)?.map(
-        (j) => ({
-          ...j,
-          jawaban_id: j.id as string,
-        })
-      ),
-    } as Soal;
+    const responsePayload = unwrapApiResponse<{
+      data?: Record<string, unknown>;
+    }>(res);
+    if (!responsePayload.data) {
+      throw new Error("Response tidak mengandung soal");
+    }
+    return mapSoalResponse([responsePayload.data])[0];
   },
 
   // Delete soal
   deleteSoal: async (soal_id: string): Promise<void> => {
-    await axios.delete(`${API_BASE_URL}/soal/${soal_id}`, {
-      headers: getAuthHeaders(),
-    });
+    await api.delete(`/soal/${soal_id}`);
   },
 };

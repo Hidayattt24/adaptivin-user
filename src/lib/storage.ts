@@ -53,11 +53,22 @@ export const getStorage = <T = unknown>(key: string): T | null => {
     const prefixedKey = `${prefix}${key}`;
     const item = localStorage.getItem(prefixedKey);
 
-    if (!item) return null;
+    // Check if item exists and is not "undefined" string
+    if (!item || item === "undefined" || item === "null") {
+      return null;
+    }
 
     return JSON.parse(item) as T;
   } catch (error) {
     console.error(`Failed to read from localStorage (key: ${key}):`, error);
+    // Clear corrupted data
+    try {
+      const prefix = getPrefix();
+      const prefixedKey = `${prefix}${key}`;
+      localStorage.removeItem(prefixedKey);
+    } catch (e) {
+      // Ignore cleanup errors
+    }
     return null;
   }
 };
@@ -241,4 +252,34 @@ export const clearAuth = (): void => {
   removeStorage(StorageKeys.TOKEN);
   removeCookie("token");
   removeCookie("role");
+};
+
+/**
+ * Clean up corrupted localStorage data
+ * Call this on app initialization
+ */
+export const cleanupCorruptedStorage = (): void => {
+  try {
+    const prefix = getPrefix();
+    const keys = Object.keys(localStorage);
+    
+    keys.forEach((key) => {
+      if (key.startsWith(prefix)) {
+        try {
+          const value = localStorage.getItem(key);
+          // Remove if value is "undefined" or "null" string
+          if (value === "undefined" || value === "null") {
+            console.warn(`Removing corrupted localStorage key: ${key}`);
+            localStorage.removeItem(key);
+          }
+        } catch {
+          // If we can't read it, remove it
+          console.warn(`Removing unreadable localStorage key: ${key}`);
+          localStorage.removeItem(key);
+        }
+      }
+    });
+  } catch (error) {
+    console.error("Failed to cleanup corrupted storage:", error);
+  }
 };

@@ -54,12 +54,12 @@ interface QuestionSectionProps {
 }
 
 const questionTypeOptions = [
-  { value: "level1", label: "C1 - Mengingat" },
-  { value: "level2", label: "C2 - Memahami" },
-  { value: "level3", label: "C3 - Menerapkan" },
-  { value: "level4", label: "C4 - Menganalisis" },
-  { value: "level5", label: "C5 - Mengevaluasi" },
-  { value: "level6", label: "C6 - Mencipta" },
+  { value: "level1", label: "Level 1" },
+  { value: "level2", label: "Level 2" },
+  { value: "level3", label: "Level 3" },
+  { value: "level4", label: "Level 4" },
+  { value: "level5", label: "Level 5" },
+  { value: "level6", label: "Level 6" },
 ];
 
 const answerTypeOptions = [

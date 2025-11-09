@@ -79,21 +79,25 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
 
       const responseData = await res.json();
-      const payload = responseData?.data;
-      const user = payload?.user;
-      const token = payload?.token;
 
+      // Backend response: { success: true, status: "success", data: { token, user }, message }
       // Validasi response structure
+      if (!responseData.success || !responseData.data) {
+        console.error("Response login tidak valid:", responseData);
+        throw new Error(responseData.message || "Response login tidak valid");
+      }
+
+      const { token, user } = responseData.data;
+
+      // Validasi user data
       if (!user || !user.role || !user.email || !token) {
-        console.error("Response login tidak valid:", {
-          hasData: !!responseData,
-          hasPayload: !!payload,
+        console.error("Data user tidak lengkap:", {
           hasUser: !!user,
           hasRole: !!user?.role,
           hasEmail: !!user?.email,
           hasToken: !!token,
         });
-        throw new Error("Response login tidak valid: data user tidak lengkap");
+        throw new Error("Data user tidak lengkap");
       }
 
       // Validate role (hanya guru dan siswa)

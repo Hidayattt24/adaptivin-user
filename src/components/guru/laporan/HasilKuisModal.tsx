@@ -4,6 +4,7 @@ import React, { useMemo, useState } from "react";
 import { Close, CheckCircle, Cancel, Timer, ExpandMore, ExpandLess } from "@mui/icons-material";
 
 interface QuizResult {
+  id?: string; // Unique identifier from backend
   soalId: string;
   pertanyaan: string;
   tipesoal: string;
@@ -246,10 +247,10 @@ const HasilKuisModal: React.FC<HasilKuisModalProps> = ({
 
                 {results.map((result, index) => (
                   <div
-                    key={result.soalId}
+                    key={result.id || `${result.soalId}-${index}`}
                     className={`rounded-xl sm:rounded-2xl p-4 sm:p-5 border-2 transition-all ${result.isCorrect
-                        ? "bg-emerald-50 border-emerald-200"
-                        : "bg-rose-50 border-rose-200"
+                      ? "bg-emerald-50 border-emerald-200"
+                      : "bg-rose-50 border-rose-200"
                       }`}
                   >
                     {/* Question Header */}

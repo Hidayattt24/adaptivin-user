@@ -14,17 +14,15 @@ interface AnswerInputProps {
  * - Colorful design dengan gradient
  * - Icon yang fun
  * - Animasi saat focus
- * - Hanya accept angka
+ * - Accept semua jenis text (bukan hanya angka)
  */
 export default function AnswerInput({ value, onChange }: AnswerInputProps) {
   const [isFocused, setIsFocused] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
-    // Only allow numbers
-    if (newValue === "" || /^\d+$/.test(newValue)) {
-      onChange(newValue);
-    }
+    // Accept all text, no restrictions
+    onChange(newValue);
   };
 
   return (
@@ -43,11 +41,10 @@ export default function AnswerInput({ value, onChange }: AnswerInputProps) {
 
       {/* Input Container */}
       <div
-        className={`relative bg-white rounded-[20px] overflow-hidden transition-all duration-300 ${
-          isFocused
+        className={`relative bg-white rounded-[20px] overflow-hidden transition-all duration-300 ${isFocused
             ? "shadow-2xl scale-[1.02]"
             : "shadow-lg"
-        }`}
+          }`}
       >
         {/* Colorful Top Border - Static, no change on focus */}
         <div className="h-[4px] bg-gradient-to-r from-[#FF6B9D] via-[#FFD93D] to-[#4ECDC4]" />
@@ -65,13 +62,11 @@ export default function AnswerInput({ value, onChange }: AnswerInputProps) {
             {/* Input */}
             <input
               type="text"
-              inputMode="numeric"
-              pattern="[0-9]*"
               value={value}
               onChange={handleChange}
               onFocus={() => setIsFocused(true)}
               onBlur={() => setIsFocused(false)}
-              placeholder="Ketik angka..."
+              placeholder="Ketik jawabanmu..."
               className="flex-1 text-[#336D82] text-[32px] font-bold focus:outline-none bg-transparent placeholder:text-[#B8D8E0] placeholder:text-[20px]"
             />
 
@@ -91,7 +86,7 @@ export default function AnswerInput({ value, onChange }: AnswerInputProps) {
             <p className="text-[#7BACC4] text-[10px] italic font-medium">
               {value
                 ? `Jawabanmu: ${value} 🎯`
-                : "Hanya bisa ketik angka yaa... ✏️"}
+                : "Ketik jawaban dengan huruf atau angka... ✏️"}
             </p>
             <div className="flex-1 h-[2px] bg-gradient-to-r from-transparent via-[#FFD93D] to-transparent" />
           </div>

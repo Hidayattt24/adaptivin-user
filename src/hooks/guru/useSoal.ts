@@ -3,9 +3,6 @@ import { soalAPI } from "@/lib/api/soal";
 import type {
   CreateSoalPayload,
   UpdateSoalPayload,
-  Soal,
-  MateriDropdownItem,
-  SoalCountByMateri,
 } from "@/lib/api/soal";
 
 // Get materi dropdown for soal creation

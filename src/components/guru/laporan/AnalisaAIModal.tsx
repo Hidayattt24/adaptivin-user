@@ -19,6 +19,17 @@ interface VideoRecommendation {
   videoUrl?: string;
 }
 
+interface AnalisisData {
+  id: string;
+  analisis: string;
+  kelebihan: string;
+  kelemahan: string;
+  level_tertinggi: string;
+  level_terendah: string;
+  rekomendasi_belajar: string;
+  rekomendasi_video: string | object;
+}
+
 interface AnalisaAIModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -28,6 +39,7 @@ interface AnalisaAIModalProps {
   materiId?: string;
   quizId?: string;
   quizSummary: QuizSummary;
+  analisisData?: AnalisisData | null; // Add analisis data from backend
 }
 
 const AnalisaAIModal: React.FC<AnalisaAIModalProps> = ({
@@ -44,6 +56,7 @@ const AnalisaAIModal: React.FC<AnalisaAIModalProps> = ({
     incorrectAnswers: 0,
     score: 0,
   },
+  analisisData, // Receive analisis data from parent
 }) => {
   // State for AI analysis result
   const [resultMessage, setResultMessage] = useState<string>("");
@@ -61,7 +74,8 @@ const AnalisaAIModal: React.FC<AnalisaAIModalProps> = ({
     if (isOpen) {
       fetchResultData();
     }
-  }, [isOpen]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, analisisData]);
 
   // Fetch the AI analysis result
   const fetchResultData = async () => {
@@ -69,28 +83,50 @@ const AnalisaAIModal: React.FC<AnalisaAIModalProps> = ({
     setError("");
 
     try {
-      // TODO: Replace with actual API endpoint
-      // const response = await fetch(`/api/hasil-ai?studentId=${studentId}&materiId=${materiId}&quizId=${quizId}`);
-      // const data = await response.json();
-      // setResultMessage(data.message);
-      // setVideoRecommendations(data.videoRecommendations);
+      // Use analisisData from backend if available
+      if (analisisData) {
+        // Parse video recommendations from backend
+        let videos: VideoRecommendation[] = [];
 
-      // Mock data - simulating API call
+        if (typeof analisisData.rekomendasi_video === 'string') {
+          try {
+            const parsed = JSON.parse(analisisData.rekomendasi_video);
+            videos = Array.isArray(parsed) ? parsed : [];
+          } catch (e) {
+            console.error("Failed to parse video recommendations:", e);
+            videos = [];
+          }
+        } else if (Array.isArray(analisisData.rekomendasi_video)) {
+          videos = analisisData.rekomendasi_video;
+        }
+
+        // Ensure each video has a unique id
+        videos = videos.map((video, index) => ({
+          ...video,
+          id: video.id || `video-${index}-${Date.now()}`,
+        }));
+
+        // Use analisis from backend
+        setResultMessage(analisisData.analisis);
+        setVideoRecommendations(videos);
+        setIsLoading(false);
+        return;
+      }
+
+      // Fallback to mock data if no analisisData available
       await new Promise((resolve) => setTimeout(resolve, 1500));
 
       const message = `Hai Adik! Mbah AdaptivAI senang sekali melihat usaha kamu dalam mengerjakan kuis tentang ${materiTitle}.
 
-Kamu berhasil menjawab ${quizSummary.correctAnswers} dari ${quizSummary.totalQuestions} pertanyaan dengan benar. ${
-        quizSummary.score < 60
+Kamu berhasil menjawab ${quizSummary.correctAnswers} dari ${quizSummary.totalQuestions} pertanyaan dengan benar. ${quizSummary.score < 60
           ? "Tidak apa-apa! Belajar matematika memang butuh waktu dan latihan. Yang penting kamu sudah berani mencoba! 💪"
           : "Bagus sekali! Terus pertahankan semangat belajarmu! 🎉"
-      }
+        }
 
-${
-  quizSummary.incorrectAnswers > 0
-    ? `Untuk soal yang masih salah, yuk kita pelajari lagi konsep dasarnya. Ingat, memahami ${materiTitle.toLowerCase()} itu seperti membagi kue - semakin banyak potongan, semakin kecil ukuran setiap potongannya! Jangan ragu untuk bertanya kepada guru atau orang tua jika ada yang belum dipahami.`
-    : ""
-}
+${quizSummary.incorrectAnswers > 0
+          ? `Untuk soal yang masih salah, yuk kita pelajari lagi konsep dasarnya. Ingat, memahami ${materiTitle.toLowerCase()} itu seperti membagi kue - semakin banyak potongan, semakin kecil ukuran setiap potongannya! Jangan ragu untuk bertanya kepada guru atau orang tua jika ada yang belum dipahami.`
+          : ""
+        }
 
 Mbah AdaptivAI menyarankan kamu untuk menonton video pembelajaran yang sudah disiapkan di bawah. Video ini akan membantu kamu memahami materi dengan cara yang lebih menarik dan mudah dipahami. Jangan lupa untuk terus berlatih ya!`;
 
@@ -272,9 +308,9 @@ Mbah AdaptivAI menyarankan kamu untuk menonton video pembelajaran yang sudah dis
                     Rekomendasi Video Pembelajaran
                   </h3>
                   <div className="space-y-4">
-                    {videoRecommendations.map((video) => (
+                    {videoRecommendations.map((video, index) => (
                       <div
-                        key={video.id}
+                        key={video.id || `video-${index}`}
                         className="bg-white border border-gray-200 rounded-2xl overflow-hidden hover:shadow-lg hover:border-[#336d82]/30 transition-all duration-200"
                       >
                         <div className="px-4 py-4">

@@ -104,35 +104,62 @@ export function QuestionPreviewModal({
                 <span className="text-white poppins-bold">✓</span>
               </div>
               <h3 className="text-[#2ea062] text-xl poppins-semibold">
-                Jawaban ({question.answerType})
+                Jawaban ({question.answerType === "pilihan_ganda" ? "Pilihan Ganda" : 
+                         question.answerType === "pilihan_ganda_kompleks" ? "Pilihan Ganda Kompleks" : 
+                         "Isian Singkat"})
               </h3>
             </div>
 
-            {/* Answer Text */}
-            {question.answerText && (
-              <div className="bg-gradient-to-br from-[#2ea062]/5 to-white rounded-xl p-6 border-2 border-[#2ea062]/20">
-                <p className="text-gray-800 text-base poppins-medium leading-relaxed whitespace-pre-wrap">
-                  {question.answerText}
-                </p>
+            {/* Multiple Correct Answers for Pilihan Ganda Kompleks */}
+            {question.answerType === "pilihan_ganda_kompleks" && question.multipleChoiceOptions ? (
+              <div className="space-y-3">
+                {question.multipleChoiceOptions
+                  .filter(opt => opt.isCorrect && opt.text.trim())
+                  .map((option, index) => (
+                    <div 
+                      key={index}
+                      className="bg-gradient-to-br from-[#2ea062]/5 to-white rounded-xl p-5 border-2 border-[#2ea062]/20"
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className="w-8 h-8 bg-[#2ea062] rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <span className="text-white poppins-bold text-sm">{option.label}</span>
+                        </div>
+                        <p className="text-gray-800 text-base poppins-medium leading-relaxed flex-1">
+                          {option.text}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
               </div>
-            )}
+            ) : (
+              <>
+                {/* Answer Text for Single Answer Types */}
+                {question.answerText && (
+                  <div className="bg-gradient-to-br from-[#2ea062]/5 to-white rounded-xl p-6 border-2 border-[#2ea062]/20">
+                    <p className="text-gray-800 text-base poppins-medium leading-relaxed whitespace-pre-wrap">
+                      {question.answerText}
+                    </p>
+                  </div>
+                )}
 
-            {/* Answer Image */}
-            {question.answerFilePreview && (
-              <div className="bg-gray-50 rounded-xl p-4 border-2 border-gray-200">
-                <div className="flex items-center gap-2 mb-3 text-gray-600">
-                  <ImageIcon sx={{ fontSize: 20 }} />
-                  <span className="text-sm poppins-medium">Gambar Jawaban</span>
-                </div>
-                <Image
-                  src={question.answerFilePreview}
-                  alt="Answer"
-                  width={0}
-                  height={0}
-                  sizes="100vw"
-                  className="w-full h-auto rounded-lg shadow-md"
-                />
-              </div>
+                {/* Answer Image */}
+                {question.answerFilePreview && (
+                  <div className="bg-gray-50 rounded-xl p-4 border-2 border-gray-200">
+                    <div className="flex items-center gap-2 mb-3 text-gray-600">
+                      <ImageIcon sx={{ fontSize: 20 }} />
+                      <span className="text-sm poppins-medium">Gambar Jawaban</span>
+                    </div>
+                    <Image
+                      src={question.answerFilePreview}
+                      alt="Answer"
+                      width={0}
+                      height={0}
+                      sizes="100vw"
+                      className="w-full h-auto rounded-lg shadow-md"
+                    />
+                  </div>
+                )}
+              </>
             )}
           </div>
 

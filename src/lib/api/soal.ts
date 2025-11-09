@@ -1,6 +1,6 @@
 import axios from "axios";
 import { getCookie, StorageKeys } from "../storage";
-import { unwrapApiResponse } from "./helpers";
+import { extractData } from "./responseHelper";
 
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
@@ -110,7 +110,7 @@ export const soalAPI = {
   // Get materi dropdown list
   getMateriDropdown: async (): Promise<MateriDropdownItem[]> => {
     const res = await api.get(`/soal/materi-dropdown`);
-    const payload = unwrapApiResponse<{ data?: MateriDropdownItem[] }>(res);
+    const payload = extractData<{ data?: MateriDropdownItem[] }>(res);
     return payload.data ?? [];
   },
 
@@ -126,7 +126,7 @@ export const soalAPI = {
     if (filters?.tipe_jawaban) params.tipe_jawaban = filters.tipe_jawaban;
 
     const res = await api.get(`/soal`, { params });
-    const payload = unwrapApiResponse<{
+    const payload = extractData<{
       data?: Array<Record<string, unknown>>;
     }>(res);
     const rawData = payload.data ?? [];
@@ -138,7 +138,7 @@ export const soalAPI = {
     materi_id: string
   ): Promise<SoalCountByMateri> => {
     const res = await api.get(`/soal/materi/${materi_id}/count`);
-    const payload = unwrapApiResponse<{ data?: SoalCountByMateri }>(res);
+    const payload = extractData<{ data?: SoalCountByMateri }>(res);
     if (!payload.data) {
       throw new Error("Response tidak mengandung data jumlah soal");
     }
@@ -148,7 +148,7 @@ export const soalAPI = {
   // Get soal by ID
   getSoalById: async (soal_id: string): Promise<Soal> => {
     const res = await api.get(`/soal/${soal_id}`);
-    const responsePayload = unwrapApiResponse<{
+    const responsePayload = extractData<{
       data?: Record<string, unknown>;
     }>(res);
     if (!responsePayload.data) {
@@ -186,7 +186,7 @@ export const soalAPI = {
       },
     });
 
-    const responsePayload = unwrapApiResponse<{
+    const responsePayload = extractData<{
       data?: Record<string, unknown>;
     }>(res);
     if (!responsePayload.data) {
@@ -236,7 +236,7 @@ export const soalAPI = {
       },
     });
 
-    const responsePayload = unwrapApiResponse<{
+    const responsePayload = extractData<{
       data?: Record<string, unknown>;
     }>(res);
     if (!responsePayload.data) {

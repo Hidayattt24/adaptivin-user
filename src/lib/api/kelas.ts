@@ -1,6 +1,6 @@
 import axios from "axios";
 import { getCookie, StorageKeys } from "@/lib/storage";
-import { unwrapApiResponse } from "./helpers";
+import { extractData } from "./responseHelper";
 
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
@@ -60,42 +60,25 @@ export async function getAllKelas(options?: { sekolahId?: string }) {
     ? { sekolah_id: options.sekolahId }
     : undefined;
   const res = await api.get("/kelas", { params });
-  const data = unwrapApiResponse<{ kelas?: KelasResponse[] }>(res);
-  return data.kelas ?? [];
+  return extractData<KelasResponse[]>(res);
 }
 
 export async function createKelas(payload: KelasPayload) {
   const res = await api.post("/kelas", payload);
-  const data = unwrapApiResponse<{ kelas?: KelasResponse }>(res);
-  if (!data.kelas) {
-    throw new Error("Kelas payload missing from response");
-  }
-  return data.kelas;
+  return extractData<KelasResponse>(res);
 }
 
 export async function getKelasById(id: string) {
   const res = await api.get(`/kelas/${id}`);
-  const data = unwrapApiResponse<{ kelas?: KelasResponse }>(res);
-  if (!data.kelas) {
-    throw new Error("Kelas not found in response");
-  }
-  return data.kelas;
+  return extractData<KelasResponse>(res);
 }
 
 export async function updateKelas(id: string, payload: Partial<KelasPayload>) {
   const res = await api.put(`/kelas/${id}`, payload);
-  const data = unwrapApiResponse<{ kelas?: KelasResponse }>(res);
-  if (!data.kelas) {
-    throw new Error("Kelas payload missing from response");
-  }
-  return data.kelas;
+  return extractData<KelasResponse>(res);
 }
 
 export async function deleteKelas(id: string) {
   const res = await api.delete(`/kelas/${id}`);
-  const data = unwrapApiResponse<{ kelas?: KelasResponse }>(res);
-  if (!data.kelas) {
-    throw new Error("Kelas payload missing from response");
-  }
-  return data.kelas;
+  return extractData<KelasResponse>(res);
 }

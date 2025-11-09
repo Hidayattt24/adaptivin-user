@@ -2,6 +2,7 @@
 
 import React from "react";
 import { Close } from "@mui/icons-material";
+import Image from "next/image";
 
 interface ImagePreviewCardProps {
   previews: string[];
@@ -18,7 +19,7 @@ export function ImagePreviewCard({ previews, onRemove }: ImagePreviewCardProps) 
           key={index}
           className="relative bg-white rounded-xl p-3 shadow-md hover:shadow-lg transition-all"
         >
-          <img
+          <Image
             src={preview}
             alt={`Preview ${index + 1}`}
             className="w-full h-auto max-h-[350px] object-contain rounded-lg"

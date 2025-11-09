@@ -13,127 +13,68 @@ import {
   HasilKuisModal,
   AnalisaAIModal,
 } from "@/components/guru";
-import { Siswa, StudentReport } from "@/types/guru";
-import { useClassReport } from "@/hooks/guru/useLaporan";
+import { useStudentReport, useHasilKuisDetail } from "@/hooks/guru/useLaporan";
 import { useSiswaList } from "@/hooks/guru/useSiswa";
 
 const LaporanKelasPage = () => {
   const params = useParams();
   const kelasId = params.kelasId as string;
 
-  // Lazy load class report data with React Query
-  const { isLoading, error, refetch } = useClassReport(kelasId);
-  const siswaQuery = useSiswaList(kelasId);
-  const siswaItems = siswaQuery.data?.items || [];
-
-  // Dummy student reports data
-  const studentReports: Record<string, StudentReport> = {
-    "1": {
-      siswaId: "1",
-      nama: "FARHAN",
-      performanceByLevel: [
-        { level: "C1", benar: 25, salah: 20 },
-        { level: "C2", benar: 30, salah: 15 },
-        { level: "C3", benar: 22, salah: 18 },
-        { level: "C4", benar: 28, salah: 12 },
-        { level: "C5", benar: 30, salah: 10 },
-        { level: "C6", benar: 27, salah: 13 },
-      ],
-      materiProgress: [
-        { materiId: "m1", judul: "Pecahan biasa & Campuran", progress: 100, status: "completed" },
-        { materiId: "m2", judul: "Aljabar Dasar", progress: 75, status: "in_progress" },
-        { materiId: "m3", judul: "Geometri Bidang", progress: 60, status: "in_progress" },
-      ],
-    },
-    "2": {
-      siswaId: "2",
-      nama: "SITI",
-      performanceByLevel: [
-        { level: "C1", benar: 30, salah: 15 },
-        { level: "C2", benar: 32, salah: 13 },
-        { level: "C3", benar: 28, salah: 17 },
-        { level: "C4", benar: 31, salah: 14 },
-        { level: "C5", benar: 33, salah: 12 },
-        { level: "C6", benar: 29, salah: 16 },
-      ],
-      materiProgress: [
-        { materiId: "m1", judul: "Pecahan biasa & Campuran", progress: 100, status: "completed" },
-        { materiId: "m2", judul: "Aljabar Dasar", progress: 100, status: "completed" },
-        { materiId: "m3", judul: "Geometri Bidang", progress: 70, status: "in_progress" },
-      ],
-    },
-    "3": {
-      siswaId: "3",
-      nama: "BUDI",
-      performanceByLevel: [
-        { level: "C1", benar: 20, salah: 25 },
-        { level: "C2", benar: 22, salah: 23 },
-        { level: "C3", benar: 18, salah: 27 },
-        { level: "C4", benar: 24, salah: 21 },
-        { level: "C5", benar: 26, salah: 19 },
-        { level: "C6", benar: 23, salah: 22 },
-      ],
-      materiProgress: [
-        { materiId: "m1", judul: "Pecahan biasa & Campuran", progress: 65, status: "in_progress" },
-        { materiId: "m2", judul: "Aljabar Dasar", progress: 0, status: "not_started" },
-        { materiId: "m3", judul: "Geometri Bidang", progress: 0, status: "not_started" },
-      ],
-    },
-    "4": {
-      siswaId: "4",
-      nama: "AISYAH",
-      performanceByLevel: [
-        { level: "C1", benar: 28, salah: 17 },
-        { level: "C2", benar: 31, salah: 14 },
-        { level: "C3", benar: 26, salah: 19 },
-        { level: "C4", benar: 29, salah: 16 },
-        { level: "C5", benar: 32, salah: 13 },
-        { level: "C6", benar: 30, salah: 15 },
-      ],
-      materiProgress: [
-        { materiId: "m1", judul: "Pecahan biasa & Campuran", progress: 88, status: "in_progress" },
-        { materiId: "m2", judul: "Aljabar Dasar", progress: 72, status: "in_progress" },
-        { materiId: "m3", judul: "Geometri Bidang", progress: 55, status: "in_progress" },
-      ],
-    },
-    "5": {
-      siswaId: "5",
-      nama: "DIMAS",
-      performanceByLevel: [
-        { level: "C1", benar: 23, salah: 22 },
-        { level: "C2", benar: 25, salah: 20 },
-        { level: "C3", benar: 21, salah: 24 },
-        { level: "C4", benar: 27, salah: 18 },
-        { level: "C5", benar: 29, salah: 16 },
-        { level: "C6", benar: 26, salah: 19 },
-      ],
-      materiProgress: [
-        { materiId: "m1", judul: "Pecahan biasa & Campuran", progress: 78, status: "in_progress" },
-        { materiId: "m2", judul: "Aljabar Dasar", progress: 63, status: "in_progress" },
-        { materiId: "m3", judul: "Geometri Bidang", progress: 48, status: "in_progress" },
-      ],
-    },
-  };
-
+  // States
   const [selectedStudent, setSelectedStudent] = useState<string | null>(null);
   const [selectedCardMateri, setSelectedCardMateri] = useState<string | null>(null);
+  const [showGrafikModal, setShowGrafikModal] = useState(false);
+  const [showKuisModal, setShowKuisModal] = useState(false);
+  const [showAnalisaModal, setShowAnalisaModal] = useState(false);
+
+  // Queries
+  const siswaQuery = useSiswaList(kelasId);
+  const siswaItems = useMemo(() => siswaQuery.data?.items || [], [siswaQuery.data?.items]);
+
   // Initialize selected student when data loads
   React.useEffect(() => {
     if (!selectedStudent && siswaItems.length > 0) {
       setSelectedStudent(siswaItems[0].id);
     }
   }, [siswaItems, selectedStudent]);
-  
-  // Modal states
-  const [showGrafikModal, setShowGrafikModal] = useState(false);
-  const [showKuisModal, setShowKuisModal] = useState(false);
-  const [showAnalisaModal, setShowAnalisaModal] = useState(false);
 
-  // Get current student report
-  const currentReport = selectedStudent ? studentReports[selectedStudent] : null;
+  // Get student report
+  const studentReport = useStudentReport(
+    kelasId,
+    selectedStudent || ""
+  );
+
+  // Get hasil kuis detail for selected material
+  const hasilKuisDetail = useHasilKuisDetail(
+    kelasId,
+    selectedStudent || "",
+    selectedCardMateri || ""
+  );
+
+  const currentReport = studentReport.data;
+  const isLoading = siswaQuery.isLoading || studentReport.isLoading;
+  const error = siswaQuery.error || studentReport.error;
 
   // Get performance data for chart - shows overall performance
-  const performanceData = currentReport?.performanceByLevel || [];
+  // Transform level names from "level1" to "C1" format for chart compatibility
+  const performanceData = useMemo(() => {
+    if (!currentReport) return [];
+
+    const levelMap: Record<string, string> = {
+      level1: "C1",
+      level2: "C2",
+      level3: "C3",
+      level4: "C4",
+      level5: "C5",
+      level6: "C6",
+    };
+
+    return currentReport.performanceByLevel.map((item) => ({
+      level: levelMap[item.level] || item.level,
+      benar: item.benar,
+      salah: item.salah,
+    })) as Array<{ level: "C1" | "C2" | "C3" | "C4" | "C5" | "C6"; benar: number; salah: number }>;
+  }, [currentReport]);
 
   // Get all materials for the selected student
   const studentMaterials = useMemo(() => {
@@ -166,97 +107,40 @@ const LaporanKelasPage = () => {
     if (studentMaterials.length > 0) {
       setSelectedCardMateri(studentMaterials[0].materiId);
     }
-  }, [selectedStudent]);
+  }, [selectedStudent, studentMaterials]);
 
-  // Dummy data for modals
-  const dummyQuizResults = [
-    {
-      soalId: "1",
-      pertanyaan: "Sebuah kue dipotong menjadi 12 bagian yang sama. Jika Ani mengambil 3 bagian, berapa pecahan yang diambil Ani?",
-      tipesoal: "C1 - Mengingat",
-      jawabanSiswa: "3/12",
-      jawabanBenar: "3/12 atau 1/4",
-      isCorrect: true,
-      waktuJawab: 45,
-    },
-    {
-      soalId: "2",
-      pertanyaan: "Ubahlah pecahan 2/5 menjadi pecahan desimal!",
-      tipesoal: "C2 - Memahami",
-      jawabanSiswa: "0.4",
-      jawabanBenar: "0.4",
-      isCorrect: true,
-      waktuJawab: 62,
-    },
-    {
-      soalId: "3",
-      pertanyaan: "Hitunglah hasil dari 1/2 + 1/4!",
-      tipesoal: "C3 - Menerapkan",
-      jawabanSiswa: "2/6",
-      jawabanBenar: "3/4",
-      isCorrect: false,
-      waktuJawab: 120,
-    },
-    {
-      soalId: "4",
-      pertanyaan: "Bandingkan pecahan 2/3 dan 3/4, mana yang lebih besar?",
-      tipesoal: "C4 - Menganalisis",
-      jawabanSiswa: "3/4",
-      jawabanBenar: "3/4",
-      isCorrect: true,
-      waktuJawab: 90,
-    },
-    {
-      soalId: "5",
-      pertanyaan: "Jika 1/3 dari sebuah pizza dimakan, berapa persen pizza yang tersisa?",
-      tipesoal: "C5 - Mengevaluasi",
-      jawabanSiswa: "66%",
-      jawabanBenar: "66.67% atau 2/3",
-      isCorrect: true,
-      waktuJawab: 105,
-    },
-  ];
+  // Prepare data for modals based on selected material
+  const currentMaterialData = useMemo(() => {
+    if (!currentCardMateri) return null;
+    return {
+      performanceByLevel: currentCardMateri.performanceByLevel || [],
+      analisis: currentCardMateri.analisis,
+    };
+  }, [currentCardMateri]);
 
-  const dummyAIAnalysis = `Halo Guru! Saya Mbah AdaptivAI, dan saya sudah menganalisis hasil belajar ${currentReport?.nama || 'siswa'} pada materi "${currentCardMateri?.judul || 'ini'}". Berikut adalah hasil analisis saya:
+  // Prepare quiz results for modal
+  const quizResults = useMemo(() => {
+    if (!hasilKuisDetail.data || hasilKuisDetail.data.length === 0) return [];
 
-📊 PERFORMA KESELURUHAN
-Siswa menunjukkan pemahaman yang baik terhadap materi pecahan dengan skor rata-rata 80%. Kemampuan dasar sudah cukup kuat, namun masih ada beberapa area yang perlu ditingkatkan.
+    // Get the latest quiz result
+    const latestQuiz = hasilKuisDetail.data[0];
 
-✅ KEKUATAN SISWA
-1. Sangat baik dalam mengidentifikasi dan membaca pecahan sederhana (C1)
-2. Mampu mengubah pecahan ke bentuk desimal dengan akurat (C2)
-3. Kecepatan menjawab soal tingkat dasar di atas rata-rata
-4. Konsisten dalam menjawab soal pemahaman konsep
-5. Menunjukkan antusiasme yang baik dalam belajar
+    return latestQuiz.detailJawaban.map((detail) => ({
+      id: detail.id, // Add unique id for React key
+      soalId: detail.soalId,
+      pertanyaan: detail.pertanyaan,
+      tipesoal: detail.tipeSoal,
+      jawabanSiswa: detail.jawabanSiswa,
+      jawabanBenar: detail.jawabanBenar, // Use actual correct answer from backend
+      isCorrect: detail.isCorrect,
+      waktuJawab: detail.waktuJawab,
+    }));
+  }, [hasilKuisDetail.data]);
 
-⚠️ AREA YANG PERLU DIPERBAIKI
-1. Kesulitan dalam operasi penjumlahan pecahan dengan penyebut berbeda
-2. Membutuhkan waktu lebih lama untuk soal analisis (C4-C6)
-3. Terkadang terburu-buru dalam menghitung tanpa menyederhanakan hasil
-4. Perlu lebih teliti dalam membaca soal cerita
-
-💡 REKOMENDASI UNTUK GURU
-Berdasarkan analisis saya, berikut beberapa saran untuk membantu siswa:
-
-1. Berikan latihan tambahan untuk operasi pecahan dengan penyebut berbeda, gunakan pendekatan visual seperti diagram lingkaran atau batang pecahan
-2. Latih siswa untuk selalu menyederhanakan hasil akhir sebelum menjawab
-3. Berikan soal cerita yang lebih bervariasi untuk meningkatkan kemampuan analisis
-4. Dorong siswa untuk mengecek kembali jawaban sebelum submit
-5. Berikan apresiasi untuk setiap kemajuan yang dicapai siswa
-
-🎯 POLA PEMBELAJARAN
-- Topik Tercepat: Membaca Pecahan (C1) - rata-rata 30 detik per soal
-- Topik Terlambat: Operasi Pecahan Campuran (C3) - rata-rata 120 detik per soal
-- Paling Akurat: Konversi Pecahan ke Desimal (C2) - 90% benar
-- Kurang Akurat: Penjumlahan Pecahan Berbeda Penyebut (C3) - 60% benar
-
-🔮 PREDIKSI & KESIMPULAN
-Dengan latihan yang konsisten dan pendekatan yang tepat, siswa diprediksi akan mencapai tingkat mahir dalam 2-3 minggu ke depan. Fokus pada operasi pecahan akan mempercepat progress. Potensi untuk mencapai skor 90+ sangat tinggi jika area perbaikan ditangani dengan baik.
-
-Siswa ini memiliki fondasi yang kuat dan dengan bimbingan yang tepat, akan mampu menguasai materi dengan baik. Terus berikan dukungan dan motivasi ya, Guru! 💪
-
-Salam hangat,
-Mbah AdaptivAI 👴`;
+  const refetch = () => {
+    siswaQuery.refetch();
+    studentReport.refetch();
+  };
 
   return (
     <div className="min-h-screen bg-white p-3 sm:p-4 lg:p-6 pb-20 sm:pb-20 lg:pb-6">
@@ -394,23 +278,28 @@ Mbah AdaptivAI 👴`;
             onClose={() => setShowKuisModal(false)}
             studentName={currentReport.nama}
             materiTitle={currentCardMateri.judul}
-            results={dummyQuizResults}
+            results={quizResults.length > 0 ? quizResults : []}
           />
 
           <AnalisaAIModal
             isOpen={showAnalisaModal}
             onClose={() => setShowAnalisaModal(false)}
             studentName={currentReport.nama}
+            studentId={currentReport.siswaId}
             materiTitle={currentCardMateri.judul}
+            materiId={currentCardMateri.materiId}
+            analisisData={currentCardMateri.analisis} // Pass analisis data from backend
             quizSummary={{
-              totalQuestions: performanceData.reduce((sum, d) => sum + d.benar + d.salah, 0),
-              correctAnswers: performanceData.reduce((sum, d) => sum + d.benar, 0),
-              incorrectAnswers: performanceData.reduce((sum, d) => sum + d.salah, 0),
-              score: Math.round(
-                (performanceData.reduce((sum, d) => sum + d.benar, 0) /
-                  performanceData.reduce((sum, d) => sum + d.benar + d.salah, 0)) *
+              totalQuestions: currentMaterialData?.performanceByLevel.reduce((sum, d) => sum + d.benar + d.salah, 0) || 0,
+              correctAnswers: currentMaterialData?.performanceByLevel.reduce((sum, d) => sum + d.benar, 0) || 0,
+              incorrectAnswers: currentMaterialData?.performanceByLevel.reduce((sum, d) => sum + d.salah, 0) || 0,
+              score: currentMaterialData?.performanceByLevel.reduce((sum, d) => sum + d.benar + d.salah, 0)
+                ? Math.round(
+                  (currentMaterialData.performanceByLevel.reduce((sum, d) => sum + d.benar, 0) /
+                    currentMaterialData.performanceByLevel.reduce((sum, d) => sum + d.benar + d.salah, 0)) *
                   100
-              ),
+                )
+                : 0,
             }}
           />
         </>

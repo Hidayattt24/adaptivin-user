@@ -1,6 +1,6 @@
 import axios from "axios";
 import { getCookie, StorageKeys, getStorage, setStorage } from "@/lib/storage";
-import { unwrapApiResponse } from "./helpers";
+import { extractData } from "./responseHelper";
 
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
@@ -86,21 +86,13 @@ export function getCurrentUser(): UserResponse | null {
 // Get user by ID
 export async function getUserById(id: string) {
   const res = await api.get(`/users/${id}`);
-  const data = unwrapApiResponse<{ user?: UserResponse }>(res);
-  if (!data.user) {
-    throw new Error("User not found in response");
-  }
-  return data.user;
+  return extractData<UserResponse>(res);
 }
 
 // Get current user's profile (refresh data dari server)
 export async function getMyProfile() {
   const res = await api.get(`/users/me`);
-  const data = unwrapApiResponse<{ user?: UserResponse }>(res);
-  if (!data.user) {
-    throw new Error("User not found in response");
-  }
-  const userData = data.user;
+  const userData = extractData<UserResponse>(res);
 
   // PENTING: Update localStorage dengan data terbaru dari server
   // Ini memastikan getCurrentUser() selalu return data yang benar
@@ -120,14 +112,10 @@ export async function updateMyProfile(payload: {
   const res = await api.put(`/users/me`, payload);
 
   // Update storage dengan prefix
-  const data = unwrapApiResponse<{ user?: UserResponse }>(res);
-  if (!data.user) {
-    throw new Error("User not found in response");
-  }
-  const updatedUser = data.user;
+  const updatedUser = extractData<UserResponse>(res);
   setStorage(StorageKeys.USER, updatedUser);
 
-  return updatedUser as UserResponse;
+  return updatedUser;
 }
 
 // Update password
@@ -136,7 +124,7 @@ export async function updateMyPassword(payload: {
   newPassword: string;
 }) {
   const res = await api.put(`/users/me/password`, payload);
-  return unwrapApiResponse<Record<string, unknown>>(res);
+  return extractData<Record<string, unknown>>(res);
 }
 
 // Interface untuk Siswa di kelas
@@ -157,9 +145,7 @@ export interface SiswaResponse {
 // Get siswa list by kelas
 export async function getSiswaByKelas(kelasId: string) {
   const res = await api.get(`/users/kelas/${kelasId}/siswa`);
-  const data = unwrapApiResponse<{ siswa?: SiswaResponse[]; total?: number }>(
-    res
-  );
+  const data = extractData<{ siswa?: SiswaResponse[]; total?: number }>(res);
 
   return {
     siswa: data.siswa ?? [],
@@ -170,7 +156,7 @@ export async function getSiswaByKelas(kelasId: string) {
 // Get all available karakter (for pilih karakter page)
 export async function getAllKarakter() {
   const res = await api.get(`/users/karakter`);
-  const data = unwrapApiResponse<{
+  const data = extractData<{
     karakter?: KarakterInfo[];
     total?: number;
   }>(res);

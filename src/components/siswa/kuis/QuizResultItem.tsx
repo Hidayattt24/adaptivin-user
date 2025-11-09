@@ -15,7 +15,6 @@ interface QuizResultItemProps {
  * - Icon info untuk melihat detail
  */
 export default function QuizResultItem({
-  questionNumber,
   question,
   isCorrect,
   onInfoClick,

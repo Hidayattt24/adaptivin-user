@@ -1,6 +1,6 @@
 import axios from "axios";
 import { getCookie, StorageKeys } from "@/lib/storage";
-import { unwrapApiResponse } from "./helpers";
+import { extractData } from "./responseHelper";
 
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
@@ -68,7 +68,7 @@ api.interceptors.request.use(
 export async function getAllKuis(materiId?: string) {
   const params = materiId ? { materi_id: materiId } : undefined;
   const res = await api.get("/kuis", { params });
-  return unwrapApiResponse<Kuis[]>(res);
+  return extractData<Kuis[]>(res);
 }
 
 /**
@@ -77,7 +77,7 @@ export async function getAllKuis(materiId?: string) {
  */
 export async function getKuisById(kuisId: string) {
   const res = await api.get(`/kuis/${kuisId}`);
-  return unwrapApiResponse<Kuis>(res);
+  return extractData<Kuis>(res);
 }
 
 /**
@@ -87,7 +87,7 @@ export async function getKuisById(kuisId: string) {
  */
 export async function getKuisByMateri(materiId: string) {
   const res = await api.get("/kuis", { params: { materi_id: materiId } });
-  const kuis = unwrapApiResponse<Kuis[]>(res);
+  const kuis = extractData<Kuis[]>(res);
   return kuis.length > 0 ? kuis[0] : null;
 }
 
@@ -97,7 +97,7 @@ export async function getKuisByMateri(materiId: string) {
  */
 export async function createKuis(payload: CreateKuisPayload) {
   const res = await api.post(`/kuis`, payload);
-  return unwrapApiResponse<Kuis>(res);
+  return extractData<Kuis>(res);
 }
 
 /**
@@ -107,7 +107,7 @@ export async function createKuis(payload: CreateKuisPayload) {
  */
 export async function updateKuis(kuisId: string, payload: UpdateKuisPayload) {
   const res = await api.put(`/kuis/${kuisId}`, payload);
-  return unwrapApiResponse<Kuis>(res);
+  return extractData<Kuis>(res);
 }
 
 /**
@@ -116,5 +116,173 @@ export async function updateKuis(kuisId: string, payload: UpdateKuisPayload) {
  */
 export async function deleteKuis(kuisId: string) {
   const res = await api.delete(`/kuis/${kuisId}`);
-  return unwrapApiResponse<null>(res);
+  return extractData<null>(res);
+}
+
+// ==================== ADAPTIVE QUIZ ====================
+
+export interface JawabanSoal {
+  id: string;
+  soal_id: string;
+  isi_jawaban: string;
+  is_benar: boolean;
+  gambar_jawaban?: string;
+  label?: string;
+}
+
+export interface SoalAdaptif {
+  id: string;
+  soal_teks?: string;
+  soal_gambar?: string;
+  level_soal: string;
+  tipe_jawaban: "pilihan_ganda" | "pilihan_ganda_kompleks" | "isian_singkat";
+  durasi_soal: number;
+  penjelasan?: string;
+  gambar_pendukung_jawaban?: string;
+  jawaban: JawabanSoal[];
+}
+
+/**
+ * Mengambil soal adaptif untuk kuis
+ * @param kuisId - ID kuis
+ * @param currentLevel - Level soal saat ini (optional, default: level3)
+ * @param hasilKuisId - ID hasil kuis untuk tracking soal yang sudah muncul (optional)
+ */
+export async function getSoalForKuis(
+  kuisId: string,
+  currentLevel?: string,
+  hasilKuisId?: string
+) {
+  const params: Record<string, string> = {};
+  if (currentLevel) params.current_level = currentLevel;
+  if (hasilKuisId) params.hasil_kuis_id = hasilKuisId;
+
+  const res = await api.get(`/kuis/${kuisId}/soal`, {
+    params: Object.keys(params).length > 0 ? params : undefined,
+  });
+  return extractData<SoalAdaptif>(res);
+}
+
+// ==================== DETAIL JAWABAN SISWA ====================
+
+export interface DetailJawabanSiswa {
+  id: string;
+  hasil_kuis_id: string;
+  soal_id: string;
+  jawaban_id?: string;
+  level_soal: string;
+  tipe_jawaban: string;
+  jawaban_siswa: string;
+  benar: boolean;
+  waktu_dijawab: number;
+  created_at: string;
+}
+
+export interface CreateJawabanPayload {
+  hasil_kuis_id: string;
+  soal_id: string;
+  jawaban_id?: string;
+  jawaban_siswa: string;
+  waktu_dijawab: number;
+}
+
+export interface JawabanFeedback {
+  is_correct: boolean;
+  is_fast: boolean;
+  speed: "cepat" | "sedang" | "lambat";
+  next_level: string;
+  level_change: "naik" | "tetap" | "turun";
+  reasoning: string;
+  points: number;
+  analysis: {
+    totalPoints: number;
+    consecutiveCorrect: number;
+    consecutiveWrong: number;
+    consecutiveFastCorrect: number;
+    consecutiveMediumCorrect: number;
+    consecutiveSlowCorrect: number;
+    recentAnswers: Array<{
+      index: number;
+      correct: boolean;
+      speed: string;
+      points: number;
+      questionLevel: number;
+      timeTaken: number;
+      medianTime: number;
+    }>;
+  };
+}
+
+export interface CreateJawabanResponse {
+  detail_jawaban: DetailJawabanSiswa;
+  feedback: JawabanFeedback;
+}
+
+/**
+ * Simpan jawaban siswa untuk satu soal
+ * @param payload - Data jawaban siswa
+ */
+export async function createJawabanSiswa(payload: CreateJawabanPayload) {
+  const res = await api.post("/jawaban", payload);
+  return extractData<CreateJawabanResponse>(res);
+}
+
+/**
+ * Ambil semua jawaban dalam satu sesi kuis
+ * @param hasilKuisId - ID hasil kuis
+ */
+export async function getJawabanByHasilKuis(hasilKuisId: string) {
+  const res = await api.get(`/jawaban/${hasilKuisId}`);
+  return extractData<DetailJawabanSiswa[]>(res);
+}
+
+// ==================== HASIL KUIS SISWA ====================
+
+export interface HasilKuisSiswa {
+  id: string;
+  kuis_id: string;
+  siswa_id: string;
+  total_benar: number;
+  total_salah: number;
+  total_waktu: number;
+  selesai: boolean;
+  poin_akumulatif?: number;
+  created_at: string;
+  updated_at: string;
+}
+
+/**
+ * Buat hasil kuis baru (saat siswa mulai kuis)
+ * @param kuisId - ID kuis
+ */
+export async function createHasilKuis(kuisId: string) {
+  const res = await api.post("/hasil-kuis", { kuis_id: kuisId });
+  return extractData<HasilKuisSiswa>(res);
+}
+
+/**
+ * Tandai kuis selesai
+ * @param hasilKuisId - ID hasil kuis
+ */
+export async function finishHasilKuis(hasilKuisId: string) {
+  const res = await api.put(`/hasil-kuis/${hasilKuisId}/selesai`);
+  return extractData<HasilKuisSiswa>(res);
+}
+
+/**
+ * Ambil detail hasil kuis
+ * @param hasilKuisId - ID hasil kuis
+ */
+export async function getHasilKuisById(hasilKuisId: string) {
+  const res = await api.get(`/hasil-kuis/${hasilKuisId}`);
+  return extractData<HasilKuisSiswa>(res);
+}
+
+/**
+ * Ambil riwayat kuis siswa untuk materi tertentu
+ * @param materiId - ID materi
+ */
+export async function getRiwayatKuisByMateri(materiId: string) {
+  const res = await api.get(`/hasil-kuis/riwayat/materi/${materiId}`);
+  return extractData<HasilKuisSiswa[]>(res);
 }

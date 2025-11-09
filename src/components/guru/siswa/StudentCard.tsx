@@ -1,8 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
 import MaleIcon from "@mui/icons-material/Male";
 import FemaleIcon from "@mui/icons-material/Female";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
@@ -24,8 +22,6 @@ const StudentCard: React.FC<StudentCardProps> = ({
   tanggalLahir,
   tempatLahir,
   jenisKelamin,
-  onEdit,
-  onDelete,
 }) => {
   const [copiedField, setCopiedField] = useState<string | null>(null);
 
@@ -120,24 +116,6 @@ const StudentCard: React.FC<StudentCardProps> = ({
           </div>
         </div>
       </div>
-
-      {/* Action Buttons - Mobile: Horizontal Row, Tablet+: Vertical Column */}
-      {/* <div className="flex flex-row sm:flex-col gap-2 sm:gap-2.5 lg:gap-3 flex-shrink-0 justify-center sm:justify-center">
-        <button
-          onClick={onEdit}
-          className="w-10 h-10 sm:w-11 sm:h-11 lg:w-[50px] lg:h-[50px] bg-white rounded-full flex items-center justify-center hover:bg-gray-50 active:bg-gray-100 transition-all hover:shadow-lg shadow-md"
-          aria-label="Edit student"
-        >
-          <EditIcon className="text-[#336d82]" sx={{ fontSize: { xs: 20, sm: 22, lg: 24 } }} />
-        </button>
-        <button
-          onClick={onDelete}
-          className="w-10 h-10 sm:w-11 sm:h-11 lg:w-[50px] lg:h-[50px] bg-white rounded-full flex items-center justify-center hover:bg-gray-50 active:bg-gray-100 transition-all hover:shadow-lg shadow-md"
-          aria-label="Delete student"
-        >
-          <DeleteIcon className="text-[#336d82]" sx={{ fontSize: { xs: 20, sm: 22, lg: 24 } }} />
-        </button>
-      </div> */}
     </div>
   );
 };

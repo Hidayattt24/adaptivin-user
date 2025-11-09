@@ -13,22 +13,6 @@ export interface MateriCardProps {
 
 /**
  * MateriCard Component
- *
- * New design with:
- * - Rectangle: 326x129px
- * - Icon circle (left) from pixelarticons
- * - Text content (right)
- * - Theme-aware colors
- *
- * Usage:
- * ```tsx
- * <MateriCard
- *   id="pecahan-biasa"
- *   title="Pecahan Biasa & Campuran"
- *   description="Belajar membagi pizza..."
- *   icon="book"
- * />
- * ```
  */
 export default function MateriCard({
   id,

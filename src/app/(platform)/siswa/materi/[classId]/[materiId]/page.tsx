@@ -1,9 +1,12 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useClassTheme } from "@/contexts/ClassThemeContext";
 import { useMateriById } from "@/hooks/siswa/useMateri";
+import QuizHistoryCard from "@/components/siswa/kuis/QuizHistoryCard";
+import { getRiwayatKuisByMateri, HasilKuisSiswa } from "@/lib/api/kuis";
 
 export default function SubMateriListPage() {
   const params = useParams();
@@ -15,6 +18,37 @@ export default function SubMateriListPage() {
 
   // Fetch materi with sub_materi
   const { data: materi, isLoading, error } = useMateriById(materiId);
+
+  // State untuk riwayat kuis
+  const [riwayatKuis, setRiwayatKuis] = useState<HasilKuisSiswa[]>([]);
+  const [isLoadingRiwayat, setIsLoadingRiwayat] = useState(false);
+
+  // Load riwayat kuis
+  useEffect(() => {
+    async function loadRiwayat() {
+      try {
+        setIsLoadingRiwayat(true);
+        const riwayat = await getRiwayatKuisByMateri(materiId);
+        setRiwayatKuis(riwayat);
+      } catch (error) {
+        console.error("Error loading riwayat:", error);
+        // Tidak perlu alert, riwayat tidak wajib ada
+      } finally {
+        setIsLoadingRiwayat(false);
+      }
+    }
+
+    if (materiId) {
+      loadRiwayat();
+    }
+  }, [materiId]);
+
+  // Handler untuk melihat detail hasil kuis
+  const handleViewDetail = (hasilKuisId: string) => {
+    router.push(
+      `/siswa/materi/${classId}/${materiId}/kuis/hasil?hasilKuisId=${hasilKuisId}`
+    );
+  };
 
   // Sort sub_materi by urutan
   const sortedSubMateri = materi?.sub_materi
@@ -202,17 +236,33 @@ export default function SubMateriListPage() {
 
           {/* Quiz Button */}
           {sortedSubMateri.length > 0 && (
-            <div className="flex justify-center">
-              <Link
-                href={`/siswa/materi/${classId}/${materiId}/kuis`}
-                className="px-8 py-4 rounded-2xl font-semibold text-white text-center shadow-lg hover:scale-[1.05] active:scale-[0.95] transition-all flex items-center gap-3"
-                style={{ background: theme.colors.primary }}
-              >
-                <span className="material-symbols-outlined text-2xl">
-                  quiz
-                </span>
-                <span>Mulai Kuis 🎯</span>
-              </Link>
+            <div className="space-y-6">
+              <div className="flex justify-center">
+                <Link
+                  href={`/siswa/materi/${classId}/${materiId}/kuis`}
+                  className="px-8 py-4 rounded-2xl font-semibold text-white text-center shadow-lg hover:scale-[1.05] active:scale-[0.95] transition-all flex items-center gap-3"
+                  style={{ background: theme.colors.primary }}
+                >
+                  <span className="material-symbols-outlined text-2xl">
+                    quiz
+                  </span>
+                  <span>
+                    {riwayatKuis.length > 0 ? "Ulangi Kuis 🎯" : "Mulai Kuis 🎯"}
+                  </span>
+                </Link>
+              </div>
+
+              {/* Riwayat Kuis */}
+              {isLoadingRiwayat ? (
+                <div className="flex justify-center py-4">
+                  <div className="w-8 h-8 border-4 border-gray-300 border-t-transparent rounded-full animate-spin" style={{ borderTopColor: theme.colors.primary }} />
+                </div>
+              ) : riwayatKuis.length > 0 ? (
+                <QuizHistoryCard
+                  riwayat={riwayatKuis}
+                  onViewDetail={handleViewDetail}
+                />
+              ) : null}
             </div>
           )}
         </div>

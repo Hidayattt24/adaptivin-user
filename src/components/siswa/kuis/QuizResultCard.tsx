@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 
 interface QuizResultCardProps {
   isCorrect: boolean;
@@ -26,7 +27,6 @@ export default function QuizResultCard({
   isCorrect,
   userAnswer,
   correctAnswer,
-  question,
   explanation,
   explanationImage,
   onNext,
@@ -198,7 +198,7 @@ export default function QuizResultCard({
               {/* Explanation Image/Formula */}
               {explanationImage && (
                 <div className="bg-white/95 backdrop-blur-sm rounded-[20px] p-4 shadow-inner">
-                  <img
+                  <Image
                     src={explanationImage}
                     alt="Penjelasan"
                     className="w-full h-auto rounded-lg"

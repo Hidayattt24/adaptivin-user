@@ -138,5 +138,12 @@ export async function getAnalisisByMateri(materiId: string) {
  */
 export async function deleteAnalisis(analisisId: string) {
   const res = await api.delete(`/analisis/${analisisId}`);
-  return extractData<null>(res);
+  // DELETE operation mengembalikan null data, jadi kita cek success saja
+  const body = res.data as { success: boolean; status: string; message: string; data: null };
+
+  if (body.success && body.status === "success") {
+    return true; // Return true jika berhasil
+  }
+
+  throw new Error(body.message || "Gagal menghapus analisis");
 }

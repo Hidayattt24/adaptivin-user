@@ -68,7 +68,7 @@ const QuizHistoryCard: React.FC<QuizHistoryCardProps> = ({
             <div className="relative flex-shrink-0">
               <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-white p-2 shadow-lg">
                 <Image
-                  src="/mascot/mascot-2.svg"
+                  src="/mascot/mbah-adaptivin.svg"
                   alt="Mbah Adaptivin"
                   width={64}
                   height={64}
@@ -126,9 +126,7 @@ const QuizHistoryCard: React.FC<QuizHistoryCardProps> = ({
             className="w-full bg-white hover:bg-gray-50 text-[#336D82] py-3 md:py-4 rounded-2xl font-bold text-base md:text-lg transition-all active:scale-95 shadow-lg flex items-center justify-center gap-2"
           >
             <span className="text-xl">{isExpanded ? "📤" : "👀"}</span>
-            {isExpanded
-              ? "Sembunyikan Riwayat"
-              : "Lihat Riwayat Bersama Mbah"}
+            {isExpanded ? "Sembunyikan Riwayat" : "Lihat Riwayat Bersama Mbah"}
             <span
               className={`material-symbols-outlined transition-transform duration-300 ${
                 isExpanded ? "rotate-180" : ""
@@ -198,7 +196,9 @@ const QuizHistoryCard: React.FC<QuizHistoryCardProps> = ({
 
                     <div className="bg-red-50 rounded-xl p-3 border border-red-200">
                       <div className="flex items-center gap-2 mb-1">
-                        <CancelIcon sx={{ color: "#ef4444", fontSize: "18px" }} />
+                        <CancelIcon
+                          sx={{ color: "#ef4444", fontSize: "18px" }}
+                        />
                         <p className="text-xs text-red-700 font-semibold">
                           Salah
                         </p>
@@ -210,7 +210,9 @@ const QuizHistoryCard: React.FC<QuizHistoryCardProps> = ({
 
                     <div className="bg-blue-50 rounded-xl p-3 border border-blue-200">
                       <div className="flex items-center gap-2 mb-1">
-                        <TimerIcon sx={{ color: "#3b82f6", fontSize: "18px" }} />
+                        <TimerIcon
+                          sx={{ color: "#3b82f6", fontSize: "18px" }}
+                        />
                         <p className="text-xs text-blue-700 font-semibold">
                           Waktu
                         </p>
@@ -223,7 +225,8 @@ const QuizHistoryCard: React.FC<QuizHistoryCardProps> = ({
                     <div
                       className="rounded-xl p-3 border-2"
                       style={{
-                        background: "linear-gradient(135deg, #336D82 0%, #7AB0C4 100%)",
+                        background:
+                          "linear-gradient(135deg, #336D82 0%, #7AB0C4 100%)",
                         borderColor: "#336D82",
                       }}
                     >

@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -14,8 +14,12 @@ import {
   Video,
   Loader2,
   RefreshCw,
+  Play,
+  ExternalLink,
+  X,
 } from "lucide-react";
 import { AnalisisAI, RekomendasiVideo } from "@/lib/api/analisis";
+import { MarkdownRenderer } from "./MarkdownRenderer";
 
 interface AnalisisAICardProps {
   analisis: AnalisisAI;
@@ -28,6 +32,33 @@ export function AnalisisAICard({
   onReanalyze,
   isReanalyzing,
 }: AnalisisAICardProps) {
+  const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
+
+  // Helper function to extract YouTube video ID from URL
+  const extractYouTubeId = (url: string): string | null => {
+    const patterns = [
+      /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
+      /^([a-zA-Z0-9_-]{11})$/, // Direct video ID
+    ];
+
+    for (const pattern of patterns) {
+      const match = url.match(pattern);
+      if (match && match[1]) {
+        return match[1];
+      }
+    }
+    return null;
+  };
+
+  // Helper function to get YouTube thumbnail URL
+  const getYouTubeThumbnail = (url: string): string => {
+    const videoId = extractYouTubeId(url);
+    if (!videoId) return "/placeholder-video.png"; // Fallback image
+
+    // Using maxresdefault for best quality, fallback to hqdefault if not available
+    return `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+  };
+
   const renderRekomendasiVideo = () => {
     if (!analisis.rekomendasi_video) return null;
 
@@ -48,35 +79,130 @@ export function AnalisisAICard({
 
     return (
       <div className="space-y-2">
-        <div className="flex items-center gap-2 mb-3">
-          <Video className="w-4 h-4 text-[#336D82]" />
-          <h4 className="font-semibold text-sm text-[#336D82]">
-            Rekomendasi Video
-          </h4>
+        <div className="bg-gradient-to-r from-[#336D82] to-[#7AB0C4] rounded-lg p-4 mb-3">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-2xl">🎬</span>
+            <h4 className="font-bold text-base text-white">
+              Video Seru Buat Kamu!
+            </h4>
+          </div>
+          <p className="text-white/90 text-sm">
+            Mbah pilihkan video yang asyik buat kamu tonton! Klik aja langsung!
+            👇
+          </p>
         </div>
-        <div className="space-y-2">
-          {videos.map((video, index) => (
-            <a
-              key={index}
-              href={video.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-start gap-3 p-3 rounded-lg bg-[#F0F7F9] hover:bg-[#E1EEF2] transition-colors border border-[#336D82]/20 hover:border-[#336D82]/40"
-            >
-              <Video className="w-4 h-4 text-[#336D82] mt-0.5 flex-shrink-0" />
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-[#336D82]">
-                  {video.judul || `Video ${index + 1}`}
-                </p>
-                {video.durasi && (
-                  <p className="text-xs text-[#7AB0C4] mt-1">
-                    Durasi: {video.durasi}
+        <div className="space-y-3">
+          {videos.map((video, index) => {
+            // Handle undefined url
+            if (!video.url) return null;
+
+            const videoId = extractYouTubeId(video.url);
+            const thumbnail = getYouTubeThumbnail(video.url);
+
+            return (
+              <div
+                key={index}
+                className="group rounded-xl overflow-hidden bg-white border-2 border-red-200 hover:border-red-400 transition-all duration-200 hover:shadow-lg"
+              >
+                {/* Thumbnail Section */}
+                <div className="relative aspect-video bg-gray-900">
+                  <Image
+                    src={thumbnail}
+                    alt={video.judul || `Video ${index + 1}`}
+                    fill
+                    className="object-cover"
+                    unoptimized // YouTube thumbnails are external
+                  />
+                  {/* Overlay gradient */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+
+                  {/* Play button overlay */}
+                  <button
+                    onClick={() => setSelectedVideo(videoId)}
+                    className="absolute inset-0 flex items-center justify-center group/play hover:bg-black/20 transition-colors"
+                  >
+                    <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center shadow-xl group-hover/play:scale-110 group-hover/play:bg-red-700 transition-transform">
+                      <Play className="w-8 h-8 text-white ml-1" fill="white" />
+                    </div>
+                  </button>
+
+                  {/* Duration badge */}
+                  {video.durasi && (
+                    <div className="absolute bottom-2 right-2 px-2 py-1 bg-black/80 text-white text-xs font-semibold rounded">
+                      {video.durasi}
+                    </div>
+                  )}
+                </div>
+
+                {/* Info Section */}
+                <div className="p-4 bg-gradient-to-br from-red-50 to-orange-50">
+                  <p className="text-sm md:text-base font-bold text-gray-800 mb-3 line-clamp-2">
+                    {video.judul || `Video Pembelajaran ${index + 1}`}
                   </p>
-                )}
+
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setSelectedVideo(videoId)}
+                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-red-500 to-orange-500 text-white rounded-lg font-semibold text-sm hover:from-red-600 hover:to-orange-600 transition-all active:scale-95 shadow-md"
+                    >
+                      <Play className="w-4 h-4" />
+                      Tonton di Sini
+                    </button>
+
+                    <a
+                      href={video.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center gap-2 px-4 py-2 bg-white text-red-600 border-2 border-red-500 rounded-lg font-semibold text-sm hover:bg-red-50 transition-all active:scale-95"
+                    >
+                      <ExternalLink className="w-4 h-4" />
+                      YouTube
+                    </a>
+                  </div>
+                </div>
               </div>
-            </a>
-          ))}
+            );
+          })}
         </div>
+        <div className="bg-yellow-50 border-2 border-yellow-300 rounded-lg p-3 flex items-start gap-2">
+          <span className="text-xl flex-shrink-0">💡</span>
+          <p className="text-xs text-yellow-800 font-medium">
+            <strong>Tips Mbah:</strong> Tonton video sambil catat hal penting
+            ya! Biar makin nempel di otak! 🧠✨
+          </p>
+        </div>
+
+        {/* Video Player Modal */}
+        {selectedVideo && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 animate-in fade-in duration-200"
+            onClick={() => setSelectedVideo(null)}
+          >
+            <div
+              className="relative w-full max-w-5xl bg-black rounded-lg overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Close button */}
+              <button
+                onClick={() => setSelectedVideo(null)}
+                className="absolute top-4 right-4 z-10 w-10 h-10 bg-black/50 hover:bg-black/70 text-white rounded-full flex items-center justify-center transition-colors backdrop-blur-sm"
+              >
+                <X className="w-5 h-5" />
+              </button>
+
+              {/* YouTube Iframe */}
+              <div className="relative aspect-video">
+                <iframe
+                  src={`https://www.youtube.com/embed/${selectedVideo}?autoplay=1&rel=0`}
+                  title="YouTube video player"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowFullScreen
+                  className="w-full h-full"
+                />
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     );
   };
@@ -89,7 +215,7 @@ export function AnalisisAICard({
             {/* Mbah Adaptivin Avatar */}
             <div className="w-12 h-12 rounded-full bg-white p-1 flex items-center justify-center flex-shrink-0 shadow-lg">
               <Image
-                src="/mascot/mascot-2.svg"
+                src="/mascot/mbah-adaptivin.svg"
                 alt="Mbah Adaptivin"
                 width={40}
                 height={40}
@@ -123,25 +249,49 @@ export function AnalisisAICard({
             </Badge>
 
             {onReanalyze && (
-              <Button
+              <button
                 onClick={onReanalyze}
                 disabled={isReanalyzing}
-                size="sm"
-                variant="outline"
-                className="text-xs whitespace-nowrap border-white/30 text-white hover:bg-white/20 hover:text-white bg-white/10 backdrop-blur-sm"
+                className={`relative group overflow-hidden px-4 py-2 rounded-xl font-bold text-xs md:text-sm transition-all duration-300 ${
+                  isReanalyzing
+                    ? "bg-purple-500/90 cursor-wait"
+                    : "bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 active:scale-95 hover:shadow-lg"
+                } text-white border-2 border-white/30 shadow-md`}
               >
-                {isReanalyzing ? (
+                {/* Sparkle effects */}
+                {!isReanalyzing && (
                   <>
-                    <Loader2 className="w-3 h-3 mr-1 animate-spin" />
-                    Menganalisis...
-                  </>
-                ) : (
-                  <>
-                    <RefreshCw className="w-3 h-3 mr-1" />
-                    Analisis Ulang
+                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-300 rounded-full animate-ping opacity-75"></div>
+                    <div className="absolute -bottom-1 -left-1 w-2 h-2 bg-pink-300 rounded-full animate-ping opacity-75 delay-75"></div>
                   </>
                 )}
-              </Button>
+
+                <span className="relative z-10 flex items-center gap-1.5">
+                  {isReanalyzing ? (
+                    <>
+                      <span className="inline-block animate-spin">🔮</span>
+                      <span>Mbah Meramal Ulang...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="inline-block group-hover:rotate-180 transition-transform duration-500">
+                        🔮
+                      </span>
+                      <span>Mau Mbah Ramal Ulang?</span>
+                      <span className="inline-block group-hover:scale-125 transition-transform">
+                        ✨
+                      </span>
+                    </>
+                  )}
+                </span>
+
+                {/* Shine effect on hover */}
+                {!isReanalyzing && (
+                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+                  </div>
+                )}
+              </button>
             )}
           </div>
         </div>
@@ -179,13 +329,11 @@ export function AnalisisAICard({
         {/* Analisis Utama */}
         {analisis.analisis && (
           <div className="bg-[#F0F7F9] rounded-lg p-4 border border-[#336D82]/20">
-            <div className="flex items-center gap-2 mb-2">
+            <div className="flex items-center gap-2 mb-3">
               <Sparkles className="w-4 h-4 text-[#336D82]" />
               <h4 className="font-semibold text-sm text-[#336D82]">Analisis</h4>
             </div>
-            <p className="text-sm text-gray-700 whitespace-pre-wrap">
-              {analisis.analisis}
-            </p>
+            <MarkdownRenderer content={analisis.analisis} />
           </div>
         )}
 
@@ -225,45 +373,39 @@ export function AnalisisAICard({
         {/* Kelebihan */}
         {analisis.kelebihan && (
           <div className="bg-[#F0F7F9] rounded-lg p-4 border border-green-300">
-            <div className="flex items-center gap-2 mb-2">
+            <div className="flex items-center gap-2 mb-3">
               <TrendingUp className="w-4 h-4 text-green-600" />
               <h4 className="font-semibold text-sm text-[#336D82]">
                 Kelebihan
               </h4>
             </div>
-            <p className="text-sm text-gray-700 whitespace-pre-wrap">
-              {analisis.kelebihan}
-            </p>
+            <MarkdownRenderer content={analisis.kelebihan} />
           </div>
         )}
 
         {/* Kelemahan */}
         {analisis.kelemahan && (
           <div className="bg-[#F0F7F9] rounded-lg p-4 border border-orange-300">
-            <div className="flex items-center gap-2 mb-2">
+            <div className="flex items-center gap-2 mb-3">
               <AlertCircle className="w-4 h-4 text-orange-600" />
               <h4 className="font-semibold text-sm text-[#336D82]">
                 Kelemahan
               </h4>
             </div>
-            <p className="text-sm text-gray-700 whitespace-pre-wrap">
-              {analisis.kelemahan}
-            </p>
+            <MarkdownRenderer content={analisis.kelemahan} />
           </div>
         )}
 
         {/* Rekomendasi Belajar */}
         {analisis.rekomendasi_belajar && (
           <div className="bg-[#F0F7F9] rounded-lg p-4 border border-[#336D82]/20">
-            <div className="flex items-center gap-2 mb-2">
+            <div className="flex items-center gap-2 mb-3">
               <BookOpen className="w-4 h-4 text-[#336D82]" />
               <h4 className="font-semibold text-sm text-[#336D82]">
                 Rekomendasi Belajar
               </h4>
             </div>
-            <p className="text-sm text-gray-700 whitespace-pre-wrap">
-              {analisis.rekomendasi_belajar}
-            </p>
+            <MarkdownRenderer content={analisis.rekomendasi_belajar} />
           </div>
         )}
 
@@ -322,7 +464,7 @@ export function AnalisisAIButton({
             <div className="relative w-24 h-24 rounded-full bg-gradient-to-br from-[#336D82] to-[#7AB0C4] p-2 flex items-center justify-center shadow-xl">
               <div className="w-full h-full rounded-full bg-white p-2 flex items-center justify-center">
                 <Image
-                  src="/mascot/mascot-2.svg"
+                  src="/mascot/mbah-adaptivin.svg"
                   alt="Mbah Adaptivin"
                   width={64}
                   height={64}
@@ -360,16 +502,21 @@ export function AnalisisAIButton({
             data-analisis-button
           >
             {isLoading ? (
-              <>
-                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                Mbah Adaptivin sedang berpikir...
-              </>
+              <div className="flex flex-col items-center gap-2">
+                <div className="flex items-center gap-2">
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <span>Mbah Adaptivin sedang bekerja...</span>
+                </div>
+                <span className="text-xs text-white/90 font-normal">
+                  Menganalisis hasil kuis & mencari video terbaik untukmu 🔍
+                </span>
+              </div>
             ) : (
               <>
                 <Sparkles className="w-5 h-5 mr-2" />
                 {isReAnalyze
-                  ? "Analisis Lagi dengan Mbah"
-                  : "Analisis dengan Mbah Adaptivin"}
+                  ? "Analisis Ulang dengan Mbah"
+                  : "Ramal Hasil Belajarmu!"}
               </>
             )}
           </Button>

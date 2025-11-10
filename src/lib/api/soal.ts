@@ -107,20 +107,28 @@ const mapSoalResponse = (rawData: Array<Record<string, unknown>>): Soal[] =>
 
 // API Functions
 export const soalAPI = {
-  // Get materi dropdown list
-  getMateriDropdown: async (): Promise<MateriDropdownItem[]> => {
-    const res = await api.get(`/soal/materi-dropdown`);
+  // Get materi dropdown list filtered by kelas_id
+  getMateriDropdown: async (
+    kelas_id: string
+  ): Promise<MateriDropdownItem[]> => {
+    const res = await api.get(`/soal/materi-dropdown`, {
+      params: { kelas_id },
+    });
     const payload = extractData<{ data?: MateriDropdownItem[] }>(res);
     return payload.data ?? [];
   },
 
-  // Get all soal with optional filters
-  getAllSoal: async (filters?: {
-    materi_id?: string;
-    level_soal?: string;
-    tipe_jawaban?: string;
-  }): Promise<Soal[]> => {
-    const params: Record<string, string> = {};
+  // Get all soal with required kelas_id and optional filters
+  getAllSoal: async (
+    kelas_id: string,
+    filters?: {
+      materi_id?: string;
+      level_soal?: string;
+      tipe_jawaban?: string;
+    }
+  ): Promise<Soal[]> => {
+    const params: Record<string, string> = { kelas_id };
+
     if (filters?.materi_id) params.materi_id = filters.materi_id;
     if (filters?.level_soal) params.level_soal = filters.level_soal;
     if (filters?.tipe_jawaban) params.tipe_jawaban = filters.tipe_jawaban;

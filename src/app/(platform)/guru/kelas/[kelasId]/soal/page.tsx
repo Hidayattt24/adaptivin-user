@@ -34,16 +34,17 @@ const SoalListPage = () => {
   const [previewQuestion, setPreviewQuestion] = useState<Question | null>(null);
   const [previewNumber, setPreviewNumber] = useState(0);
 
-  // Fetch materi dropdown
-  const { data: materiList = [], isLoading: isLoadingMateri } = useMateriDropdown();
+  // Fetch materi dropdown filtered by kelas_id
+  const { data: materiList = [], isLoading: isLoadingMateri } = useMateriDropdown(kelasId);
 
-  // Fetch soal list with filters
+  // Fetch soal list with kelas_id and filters
   const {
     data: soalList = [],
     isLoading: isLoadingSoal,
     error,
     refetch,
   } = useSoalList(
+    kelasId,
     selectedMateri
       ? {
         materi_id: selectedMateri,

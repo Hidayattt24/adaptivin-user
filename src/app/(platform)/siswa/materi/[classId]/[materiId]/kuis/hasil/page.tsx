@@ -35,9 +35,9 @@ interface DetailJawabanSiswaExtended extends DetailJawabanSiswa {
     is_benar: boolean;
   }>;
   jawaban_siswa_object?:
-    | Array<{ id: string; isi_jawaban: string; is_benar: boolean }>
-    | { id: string; isi_jawaban: string; is_benar: boolean }
-    | null;
+  | Array<{ id: string; isi_jawaban: string; is_benar: boolean }>
+  | { id: string; isi_jawaban: string; is_benar: boolean }
+  | null;
 }
 
 interface JawabanDetail {
@@ -62,9 +62,9 @@ interface JawabanDetail {
     is_benar: boolean;
   }>;
   jawaban_siswa_object:
-    | Array<{ id: string; isi_jawaban: string; is_benar: boolean }>
-    | { id: string; isi_jawaban: string; is_benar: boolean }
-    | null;
+  | Array<{ id: string; isi_jawaban: string; is_benar: boolean }>
+  | { id: string; isi_jawaban: string; is_benar: boolean }
+  | null;
 }
 
 /**
@@ -429,8 +429,8 @@ export default function HasilKuisPage() {
     // pilihan_ganda (single choice)
     const selectedId =
       typeof jawaban_siswa_object === "object" &&
-      jawaban_siswa_object !== null &&
-      !Array.isArray(jawaban_siswa_object)
+        jawaban_siswa_object !== null &&
+        !Array.isArray(jawaban_siswa_object)
         ? jawaban_siswa_object.id
         : item.jawaban_id;
 
@@ -567,9 +567,8 @@ export default function HasilKuisPage() {
               className="bg-[#336D82] rounded-[20px] h-[34px] md:h-[44px] w-[69px] md:w-[80px] flex items-center justify-center shadow-md hover:shadow-lg active:scale-95 transition-all"
             >
               <span
-                className={`material-symbols-outlined text-white text-[24px] md:text-[28px] transition-transform duration-300 ${
-                  showResults ? "rotate-180" : ""
-                }`}
+                className={`material-symbols-outlined text-white text-[24px] md:text-[28px] transition-transform duration-300 ${showResults ? "rotate-180" : ""
+                  }`}
               >
                 expand_more
               </span>
@@ -699,10 +698,10 @@ export default function HasilKuisPage() {
                     <div className="relative flex-shrink-0">
                       {/* Outer Glow Ring */}
                       <div className="absolute inset-0 rounded-full bg-yellow-300/30 blur-xl animate-pulse"></div>
-                      
+
                       {/* Rotating Ring */}
                       <div className="absolute inset-0 rounded-full border-4 border-dashed border-white/30 animate-spin-slow"></div>
-                      
+
                       {/* Main Avatar */}
                       <div className="relative w-24 h-24 md:w-28 md:h-28 rounded-full bg-white p-3 shadow-2xl">
                         <Image
@@ -713,7 +712,7 @@ export default function HasilKuisPage() {
                           className="w-full h-full object-contain"
                         />
                       </div>
-                      
+
                       {/* Sparkle Effects */}
                       <div className="absolute -top-2 -right-2 w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center shadow-lg animate-bounce">
                         <span className="text-lg">✨</span>
@@ -744,7 +743,7 @@ export default function HasilKuisPage() {
                       <span className="text-3xl flex-shrink-0">🌟</span>
                       <div>
                         <p className="text-white text-sm md:text-base leading-relaxed">
-                          Dengan kekuatan AI-ku, aku bisa tau kelebihan dan kelemahan kamu, 
+                          Dengan kekuatan AI-ku, aku bisa tau kelebihan dan kelemahan kamu,
                           terus kasih saran belajar yang cocok buat kamu! Keren kan? 😎
                         </p>
                       </div>
@@ -774,7 +773,7 @@ export default function HasilKuisPage() {
 
                   {/* Fun Fact */}
                   <p className="text-white/80 text-xs md:text-sm text-center mt-4 italic">
-                    💡 Psst... Hasil ramalan Mbah sangat akurat lho! 
+                    💡 Psst... Hasil ramalan Mbah sangat akurat lho!
                   </p>
                 </div>
               </div>
@@ -815,9 +814,8 @@ export default function HasilKuisPage() {
 
               <div className="flex items-center gap-4 mb-4">
                 <div
-                  className={`w-16 h-16 rounded-full flex items-center justify-center ${
-                    selectedQuestion.benar ? "bg-green-100" : "bg-red-100"
-                  }`}
+                  className={`w-16 h-16 rounded-full flex items-center justify-center ${selectedQuestion.benar ? "bg-green-100" : "bg-red-100"
+                    }`}
                 >
                   {selectedQuestion.benar ? (
                     <CheckCircle2 className="w-10 h-10 text-green-600" />
@@ -878,8 +876,8 @@ export default function HasilKuisPage() {
                       ? "Pilihan Ganda"
                       : selectedQuestion.soal.tipe_jawaban ===
                         "pilihan_ganda_kompleks"
-                      ? "Pilihan Ganda Kompleks"
-                      : "Isian Singkat"}
+                        ? "Pilihan Ganda Kompleks"
+                        : "Isian Singkat"}
                   </span>
                 </div>
                 <div className="px-4 py-2 bg-purple-50 border border-purple-200 rounded-lg">

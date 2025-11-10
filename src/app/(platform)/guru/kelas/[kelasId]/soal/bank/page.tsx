@@ -64,8 +64,10 @@ const BankSoalPage = () => {
   const router = useRouter();
   const kelasId = params.kelasId as string;
 
-  // Fetch all soal from API (no filters = all soal)
-  const { data: soalList = [] } = useSoalList();  // Mutations
+  // Fetch all soal from API filtered by kelas_id
+  const { data: soalList = [] } = useSoalList(kelasId);
+
+  // Mutations
   const updateSoalMutation = useUpdateSoal();
   const deleteSoalMutation = useDeleteSoal();
 

@@ -340,6 +340,13 @@ const TambahSoalPage = () => {
             jawaban = [{ isi_jawaban: q.answerText.trim(), is_benar: true }];
           }
 
+          // ⭐ Convert durasi_soal to minutes if input is in seconds
+          let durasiMenit = q.timeValue;
+          if (q.timeUnit === "Detik") {
+            // Convert detik ke menit (backend expects minutes)
+            durasiMenit = q.timeValue / 60;
+          }
+
           // Create soal payload
           const payload = {
             materi_id: selectedMateri!,
@@ -349,7 +356,7 @@ const TambahSoalPage = () => {
             soal_gambar: q.questionFile || undefined,
             penjelasan: q.explanation || undefined,
             gambar_pendukung_jawaban: q.answerFile || undefined,
-            durasi_soal: q.timeValue, // Already in minutes, backend will convert
+            durasi_soal: durasiMenit, // ⭐ Already converted to minutes if needed
             jawaban: jawaban,
           };
 

@@ -20,6 +20,15 @@ export function SoalClusterCard({
   onEdit,
   onDelete,
 }: SoalClusterCardProps) {
+  // ⭐ Helper function to format time display
+  const getTimeDisplay = () => {
+    if (question.timeUnit === "Detik") {
+      const minutes = (question.timeValue / 60).toFixed(2);
+      return `${minutes} menit`;
+    }
+    return `${question.timeValue} ${question.timeUnit.toLowerCase()}`;
+  };
+
   return (
     <div className="bg-white rounded-lg border-2 border-[#336d82]/20 hover:border-[#336d82] hover:shadow-xl transition-all p-4 h-full flex flex-col">
       {/* Header - Compact */}
@@ -38,7 +47,7 @@ export function SoalClusterCard({
           </div>
         </div>
         <span className="px-2 py-1 bg-[#fcc61d]/20 text-[#f5b800] text-[10px] poppins-semibold rounded">
-          {question.timeValue} {question.timeUnit}
+          {getTimeDisplay()}
         </span>
       </div>
 

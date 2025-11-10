@@ -11,7 +11,7 @@ import { CustomDropdown, FileUploadArea } from "@/components/guru";
 
 export type QuestionType = "level1" | "level2" | "level3" | "level4" | "level5" | "level6";
 export type AnswerType = "pilihan_ganda" | "pilihan_ganda_kompleks" | "isian_singkat";
-export type TimeUnit = "Menit";
+export type TimeUnit = "Menit" | "Detik"; // ⭐ Update to include Detik
 
 export interface MultipleChoiceOption {
   label: string;
@@ -93,6 +93,22 @@ export default function QuestionSection({
       case "isian_singkat":
         return <TextFields sx={{ fontSize: 24, color: "#336d82" }} />;
     }
+  };
+
+  // ⭐ Helper function to format time display
+  const getTimeDisplay = () => {
+    if (question.timeUnit === "Detik") {
+      const minutes = (question.timeValue / 60).toFixed(2);
+      return `${question.timeValue} detik = ${minutes} menit`;
+    }
+    return `${question.timeValue} ${question.timeUnit.toLowerCase()}`;
+  };
+
+  // ⭐ Helper function to get placeholder text
+  const getTimePlaceholder = () => {
+    return question.timeUnit === "Detik"
+      ? "Masukkan dalam detik"
+      : "Masukkan dalam menit";
   };
 
   return (
@@ -357,6 +373,7 @@ export default function QuestionSection({
                   parseInt(e.target.value) || 1
                 )
               }
+              placeholder={getTimePlaceholder()}
               className="w-full px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl border-2 border-white/30 bg-white/95 backdrop-blur-sm text-gray-800 font-bold text-center text-xl sm:text-2xl focus:outline-none focus:ring-2 focus:ring-white focus:border-white shadow-lg hover:shadow-xl transition-all"
             />
           </div>
@@ -374,6 +391,17 @@ export default function QuestionSection({
             />
           </div>
         </div>
+
+        {/* ⭐ Time Conversion Display - Show when Detik is selected */}
+        {question.timeUnit === "Detik" && question.timeValue > 0 && (
+          <div className="mt-3 bg-white/20 backdrop-blur-sm rounded-xl px-4 py-2 border border-white/30">
+            <p className="text-white text-sm sm:text-base font-poppins flex items-center gap-2">
+              <span className="text-yellow-300">💡</span>
+              <span className="font-semibold">Konversi:</span>
+              <span className="font-bold text-yellow-200">{getTimeDisplay()}</span>
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Delete Button */}

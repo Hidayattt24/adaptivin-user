@@ -6,48 +6,52 @@ import Swal from "sweetalert2";
 import MobileNavbar from "@/components/siswa/navigation/MobileNavbar";
 import InfiniteCarousel from "@/components/siswa/carousel/InfiniteCarousel";
 import EmojiText from "@/components/common/EmojiText";
-import { useSiswaProfile, useUpdateSiswaProfile, useKarakter } from "@/hooks/siswa/useSiswaProfile";
+import {
+  useSiswaProfile,
+  useUpdateSiswaProfile,
+  useKarakter,
+} from "@/hooks/siswa/useSiswaProfile";
 
 // Character color mapping for borders (by index)
 const characterColors: Record<number, string> = {
-  1: "#832C4C",  // kocheng-oren
-  2: "#0F61AD",  // bro-kerbuz
-  3: "#F564A9",  // sin-bunbun
-  4: "#8FBD41",  // mas-gwebek
-  5: "#5F3C32",  // pak-bubu
-  6: "#568C1C",  // mas-pace
-  7: "#BB5D57",  // mas-piggy
+  1: "#832C4C", // kocheng-oren
+  2: "#0F61AD", // bro-kerbuz
+  3: "#F564A9", // sin-bunbun
+  4: "#8FBD41", // mas-gwebek
+  5: "#5F3C32", // pak-bubu
+  6: "#568C1C", // mas-pace
+  7: "#BB5D57", // mas-piggy
 };
 
 // Character descriptions (by index)
 const characterDescriptions: Record<number, string> = {
-  1: "Si raja santuy yang selalu hoki 🍊👑. Paling jago bikin suasana belajar jadi seru!",
-  2: "Petualang cerdas yang nggak pernah takut tantangan! 🦝✨ Siap bantu kamu menguasai matematika!",
-  3: "Kelinci cepat yang lompat dari soal ke soal! 🐰⚡ Spesialis dalam mengerjakan soal dengan cepat!",
-  4: "Bebek cerdas yang suka berpetualang! 🦆🌟 Ahli dalam memecahkan teka-teki matematika!",
-  5: "Teman setia yang selalu ceria! 🐻✨ Siap menemani perjalanan belajarmu dengan penuh semangat!",
-  6: "Pace yang bijak dan sabar! 🐢📚 Siap membantu kamu memahami konsep matematika dengan tenang.",
-  7: "Babi yang lucu dan menggemaskan! 🐷✨ Siap menemani kamu belajar dengan penuh keceriaan.",
+  1: "Petualang cerdas yang nggak pernah takut tantangan! 🐮✨ Siap bantu kamu menguasai matematika!",
+  2: "Si raja santuy yang selalu hoki 😾👑. Paling jago bikin suasana belajar jadi seru!",
+  3: "Kodok hijau yang lincah dan ceria! 🐸💚 Expert dalam menjelaskan konsep rumit dengan mudah!",
+  4: "Kura kura pekerja keras yang nggak pernah menyerah! 🐢💪 Motivator terbaik buat kamu tetap semangat!",
+  5: "Babi pintar yang suka ngitung duit... eh, maksudnya angka! 🐷💰 Ahli dalam soal-soal logika!",
+  6: "Beruang hantu bijaksana yang tahu segalanya! 🐻📚 Guru sabar yang selalu ada buat kamu!",
+  7: "Kelinci cepat yang lompat dari soal ke soal! 🐰⚡ Spesialis dalam mengerjakan soal dengan cepat!",
 };
 
 export default function PilihKarakterPage() {
   const [selectedCharacterId, setSelectedCharacterId] = useState<string>("");
   const [centerCharacterId, setCenterCharacterId] = useState<string>("");
 
-  const { data: profile } = useSiswaProfile();
+  const { data: profile, isLoading: isLoadingProfile } = useSiswaProfile();
   const { data: karakterData, isLoading: isLoadingKarakter } = useKarakter();
   const { mutateAsync: updateProfile } = useUpdateSiswaProfile();
 
   useEffect(() => {
     // Disable scroll restoration for this page
-    if ('scrollRestoration' in window.history) {
-      window.history.scrollRestoration = 'manual';
+    if ("scrollRestoration" in window.history) {
+      window.history.scrollRestoration = "manual";
     }
 
     return () => {
       // Restore default scroll behavior when leaving page
-      if ('scrollRestoration' in window.history) {
-        window.history.scrollRestoration = 'auto';
+      if ("scrollRestoration" in window.history) {
+        window.history.scrollRestoration = "auto";
       }
     };
   }, []);
@@ -70,7 +74,8 @@ export default function PilihKarakterPage() {
     id: karakter.id,
     name: `Karakter ${karakter.index}`, // You can add nama field to database if needed
     path: karakter.karakter_url,
-    description: characterDescriptions[karakter.index] || "Teman belajar yang seru!",
+    description:
+      characterDescriptions[karakter.index] || "Teman belajar yang seru!",
     color: characterColors[karakter.index] || "#33A1E0",
   }));
 
@@ -120,14 +125,19 @@ export default function PilihKarakterPage() {
 
       // Tampilkan error message yang user-friendly
       const getErrorMessage = (err: unknown): string => {
-        if (err && typeof err === 'object') {
+        if (err && typeof err === "object") {
           // AxiosError structure
-          if ('response' in err && err.response && typeof err.response === 'object' && 'data' in err.response) {
+          if (
+            "response" in err &&
+            err.response &&
+            typeof err.response === "object" &&
+            "data" in err.response
+          ) {
             const data = err.response.data as { message?: string };
             if (data?.message) return data.message;
           }
           // Generic Error
-          if ('message' in err && typeof err.message === 'string') {
+          if ("message" in err && typeof err.message === "string") {
             return err.message;
           }
         }
@@ -145,19 +155,46 @@ export default function PilihKarakterPage() {
     }
   };
 
-  if (isLoadingKarakter) {
+  if (isLoadingProfile || isLoadingKarakter) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="text-4xl mb-4">🎨</div>
-          <p className="text-gray-600">Memuat karakter...</p>
+      <div className="flex items-center justify-center min-h-screen bg-white">
+        <div className="text-center px-4">
+          {/* Simple Loading Spinner */}
+          <div className="w-16 h-16 mx-auto mb-6">
+            <div className="w-full h-full border-4 border-[#33A1E0]/20 border-t-[#33A1E0] rounded-full animate-spin"></div>
+          </div>
+
+          {/* Loading Text */}
+          <div className="space-y-2">
+            <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-[#0A3D60]">
+              Memuat Karakter
+            </h3>
+            <p className="text-sm sm:text-base text-gray-500 font-medium">
+              Tunggu sebentar ya, teman belajarmu sedang bersiap! ✨
+            </p>
+          </div>
+
+          {/* Animated Dots */}
+          <div className="flex items-center justify-center gap-2 mt-4">
+            <div className="w-2 h-2 bg-[#33A1E0] rounded-full animate-bounce"></div>
+            <div
+              className="w-2 h-2 bg-[#FF6B9D] rounded-full animate-bounce"
+              style={{ animationDelay: "0.2s" }}
+            ></div>
+            <div
+              className="w-2 h-2 bg-[#FFB347] rounded-full animate-bounce"
+              style={{ animationDelay: "0.4s" }}
+            ></div>
+          </div>
         </div>
       </div>
     );
   }
 
-  const centerCharacter = characters.find(c => c.id === centerCharacterId);
-  const selectedCharacterUrl = characters.find(c => c.id === selectedCharacterId)?.path;
+  const centerCharacter = characters.find((c) => c.id === centerCharacterId);
+
+  // Use local mascot for pilih-karakter page instead of selected character
+  const mascotImageForNavbar = "/mascot/mascot-2.svg";
 
   return (
     <div className="relative w-full min-h-screen overflow-x-hidden bg-white">
@@ -167,12 +204,36 @@ export default function PilihKarakterPage() {
         <div className="absolute top-0 left-0 right-0 h-[300px] md:h-[400px] bg-gradient-to-b from-[#E8F6FF]/40 via-[#FFE8F5]/20 to-transparent"></div>
 
         {/* Floating stars */}
-        <div className="absolute top-[80px] right-[40px] text-4xl animate-float">⭐</div>
-        <div className="absolute top-[150px] left-[30px] text-3xl animate-float-delayed">✨</div>
-        <div className="absolute hidden md:block top-[200px] right-[120px] text-5xl animate-float" style={{ animationDelay: '0.5s' }}>🌟</div>
-        <div className="absolute hidden lg:block top-[120px] left-[100px] text-4xl animate-float-delayed" style={{ animationDelay: '1s' }}>💫</div>
-        <div className="absolute hidden lg:block bottom-[200px] right-[80px] text-3xl animate-float" style={{ animationDelay: '1.5s' }}>⭐</div>
-        <div className="absolute hidden lg:block bottom-[250px] left-[120px] text-4xl animate-float-delayed" style={{ animationDelay: '2s' }}>✨</div>
+        <div className="absolute top-[80px] right-[40px] text-4xl animate-float">
+          ⭐
+        </div>
+        <div className="absolute top-[150px] left-[30px] text-3xl animate-float-delayed">
+          ✨
+        </div>
+        <div
+          className="absolute hidden md:block top-[200px] right-[120px] text-5xl animate-float"
+          style={{ animationDelay: "0.5s" }}
+        >
+          🌟
+        </div>
+        <div
+          className="absolute hidden lg:block top-[120px] left-[100px] text-4xl animate-float-delayed"
+          style={{ animationDelay: "1s" }}
+        >
+          💫
+        </div>
+        <div
+          className="absolute hidden lg:block bottom-[200px] right-[80px] text-3xl animate-float"
+          style={{ animationDelay: "1.5s" }}
+        >
+          ⭐
+        </div>
+        <div
+          className="absolute hidden lg:block bottom-[250px] left-[120px] text-4xl animate-float-delayed"
+          style={{ animationDelay: "2s" }}
+        >
+          ✨
+        </div>
 
         {/* Colorful geometric shapes */}
         <div className="absolute top-[120px] right-[30px] w-16 h-16 border-4 border-[#FFB347]/30 rounded-2xl rotate-12 animate-float"></div>
@@ -236,7 +297,8 @@ export default function PilihKarakterPage() {
         }
         /* Gradient animation for title */
         @keyframes gradient {
-          0%, 100% {
+          0%,
+          100% {
             background-position: 0% 50%;
           }
           50% {
@@ -256,10 +318,12 @@ export default function PilihKarakterPage() {
           <div className="max-w-2xl mx-auto">
             {/* Fun animated title */}
             <div className="relative inline-block w-full">
-              <h1 className="text-[26px] sm:text-[30px] md:text-xl lg:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#33A1E0] via-[#FF6B9D] to-[#FFB347] text-center drop-shadow-lg leading-tight animate-gradient">
+              <h1 className="text-[26px] sm:text-[30px] md:text-xl lg:text-2xl font-bold text-[#0A3D60] text-center drop-shadow-lg leading-tight">
                 Pilih Teman
                 <br />
-                <EmojiText tag="span" size={18}>Belajarmu 🐾</EmojiText>
+                <EmojiText tag="span" size={18}>
+                  Belajarmu 🐾
+                </EmojiText>
               </h1>
             </div>
           </div>
@@ -270,17 +334,26 @@ export default function PilihKarakterPage() {
           <div className="max-w-lg mx-auto">
             <div className="bg-gradient-to-r from-[#E8F6FF] via-white to-[#FFE8F5] rounded-2xl sm:rounded-2xl p-3 sm:p-3 md:p-3 shadow-xl border-2 border-[#33A1E0]/20">
               <div className="flex items-center justify-center gap-2 sm:gap-3 md:gap-3">
-                <div className="text-2xl sm:text-3xl md:text-3xl animate-bounce flex-shrink-0">🎯</div>
+                <div className="text-2xl sm:text-3xl md:text-3xl animate-bounce flex-shrink-0">
+                  🎯
+                </div>
                 <div className="text-center flex-1 min-w-0">
                   <h3 className="text-base sm:text-lg md:text-lg font-bold text-[#4c859a] mb-1 truncate">
                     {centerCharacter?.name || "Pilih Karaktermu!"}
                   </h3>
                   <div className="flex items-center justify-center gap-1.5 sm:gap-2">
                     <div className="w-2 h-2 md:w-2 md:h-2 bg-green-400 rounded-full animate-pulse flex-shrink-0"></div>
-                    <p className="text-[11px] sm:text-xs md:text-xs text-gray-600 font-medium">Siap menemanimu belajar!</p>
+                    <p className="text-[11px] sm:text-xs md:text-xs text-gray-600 font-medium">
+                      Siap menemanimu belajar!
+                    </p>
                   </div>
                 </div>
-                <div className="text-2xl sm:text-3xl md:text-3xl animate-bounce flex-shrink-0" style={{ animationDelay: '0.5s' }}>🎉</div>
+                <div
+                  className="text-2xl sm:text-3xl md:text-3xl animate-bounce flex-shrink-0"
+                  style={{ animationDelay: "0.5s" }}
+                >
+                  🎉
+                </div>
               </div>
             </div>
           </div>
@@ -311,20 +384,30 @@ export default function PilihKarakterPage() {
 
             {/* Button text */}
             <span className="relative z-10 flex items-center gap-2 md:gap-2">
-              <span className="text-xl sm:text-2xl md:text-2xl animate-bounce">🎮</span>
+              <span className="text-xl sm:text-2xl md:text-2xl animate-bounce">
+                🎮
+              </span>
               <span>Pilih Teman Ini!</span>
-              <span className="text-xl sm:text-2xl md:text-2xl animate-bounce" style={{ animationDelay: '0.3s' }}>✨</span>
+              <span
+                className="text-xl sm:text-2xl md:text-2xl animate-bounce"
+                style={{ animationDelay: "0.3s" }}
+              >
+                ✨
+              </span>
             </span>
 
             {/* Sparkle effects */}
             <div className="absolute -top-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 bg-yellow-300 rounded-full animate-ping"></div>
-            <div className="absolute -bottom-1 -left-1 w-3 h-3 sm:w-4 sm:h-4 bg-pink-300 rounded-full animate-ping" style={{ animationDelay: '0.5s' }}></div>
+            <div
+              className="absolute -bottom-1 -left-1 w-3 h-3 sm:w-4 sm:h-4 bg-pink-300 rounded-full animate-ping"
+              style={{ animationDelay: "0.5s" }}
+            ></div>
           </button>
         </div>
 
         {/* Navigation Bar - All screen sizes */}
         <div className="mt-12 sm:mt-16 md:mt-12">
-          <MobileNavbar characterImage={selectedCharacterUrl} />
+          <MobileNavbar characterImage={mascotImageForNavbar} />
         </div>
 
         {/* Bottom Spacing - Compact for Desktop */}

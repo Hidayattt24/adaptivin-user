@@ -24,6 +24,7 @@ export interface MateriProgress {
   performanceByLevel: PerformanceByLevel[];
   analisis: {
     id: string;
+    hasil_kuis_id: string; // IMPORTANT: Added for teacher analysis API
     analisis: string;
     kelebihan: string;
     kelemahan: string;

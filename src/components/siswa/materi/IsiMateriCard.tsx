@@ -1,3 +1,7 @@
+import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
+import PlayCircleIcon from "@mui/icons-material/PlayCircle";
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+
 interface IsiMateriCardProps {
   type: "pdf" | "video";
   title: string;
@@ -25,13 +29,9 @@ export default function IsiMateriCard({
         style={{ backgroundColor: classColor }}
       >
         {type === "pdf" ? (
-          <span className="material-symbols-outlined text-white text-[27px]">
-            picture_as_pdf
-          </span>
+          <PictureAsPdfIcon sx={{ color: "white", fontSize: "27px" }} />
         ) : (
-          <span className="material-symbols-outlined text-white text-[28px]">
-            play_circle
-          </span>
+          <PlayCircleIcon sx={{ color: "white", fontSize: "28px" }} />
         )}
       </div>
 
@@ -44,12 +44,12 @@ export default function IsiMateriCard({
 
       {/* Arrow Indicator */}
       <div className="flex-shrink-0 ml-2">
-        <span
-          className="material-symbols-outlined text-[20px]"
-          style={{ color: classColor }}
-        >
-          arrow_forward
-        </span>
+        <ArrowForwardIcon
+          sx={{
+            color: classColor,
+            fontSize: "20px",
+          }}
+        />
       </div>
     </div>
   );

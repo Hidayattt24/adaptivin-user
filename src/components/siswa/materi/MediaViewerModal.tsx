@@ -1,6 +1,10 @@
 "use client";
 
 import { useEffect } from "react";
+import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
+import PlayCircleIcon from "@mui/icons-material/PlayCircle";
+import CloseIcon from "@mui/icons-material/Close";
+import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 
 interface MediaViewerModalProps {
   isOpen: boolean;
@@ -47,9 +51,11 @@ export default function MediaViewerModal({
         {/* Header */}
         <div className="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <span className="material-symbols-outlined text-white text-2xl">
-              {type === "pdf" ? "picture_as_pdf" : "play_circle"}
-            </span>
+            {type === "pdf" ? (
+              <PictureAsPdfIcon sx={{ color: "white", fontSize: "24px" }} />
+            ) : (
+              <PlayCircleIcon sx={{ color: "white", fontSize: "24px" }} />
+            )}
             <h2 className="text-white font-bold text-lg line-clamp-1">
               {title}
             </h2>
@@ -58,9 +64,7 @@ export default function MediaViewerModal({
             onClick={onClose}
             className="w-10 h-10 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-all"
           >
-            <span className="material-symbols-outlined text-white text-xl">
-              close
-            </span>
+            <CloseIcon sx={{ color: "white", fontSize: "20px" }} />
           </button>
         </div>
 
@@ -100,9 +104,7 @@ export default function MediaViewerModal({
             rel="noopener noreferrer"
             className="px-4 py-2 bg-blue-500 text-white rounded-lg text-sm font-semibold hover:bg-blue-600 transition-all flex items-center gap-2"
           >
-            <span className="material-symbols-outlined text-base">
-              open_in_new
-            </span>
+            <OpenInNewIcon sx={{ fontSize: "16px" }} />
             Buka di Tab Baru
           </a>
         </div>

@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 
 interface SlideToAnswerProps {
   onSlideComplete: () => void;
@@ -44,40 +46,47 @@ export default function SlideToAnswer({
     };
   }, [disabled]);
 
-  const handleStart = useCallback((clientX: number) => {
-    if (disabled || isComplete) return;
-    setIsDragging(true);
-  }, [disabled, isComplete]);
+  const handleStart = useCallback(
+    (clientX: number) => {
+      if (disabled || isComplete) return;
+      setIsDragging(true);
+    },
+    [disabled, isComplete]
+  );
 
-  const handleMove = useCallback((clientX: number) => {
-    if (!isDragging || !containerRef.current || disabled || isComplete) return;
+  const handleMove = useCallback(
+    (clientX: number) => {
+      if (!isDragging || !containerRef.current || disabled || isComplete)
+        return;
 
-    const containerRect = containerRef.current.getBoundingClientRect();
-    const maxPosition = containerRect.width - SLIDER_WIDTH;
-    const newPosition = Math.min(
-      Math.max(0, clientX - containerRect.left - SLIDER_WIDTH / 2),
-      maxPosition
-    );
+      const containerRect = containerRef.current.getBoundingClientRect();
+      const maxPosition = containerRect.width - SLIDER_WIDTH;
+      const newPosition = Math.min(
+        Math.max(0, clientX - containerRect.left - SLIDER_WIDTH / 2),
+        maxPosition
+      );
 
-    setSliderPosition(newPosition);
+      setSliderPosition(newPosition);
 
-    // Check if slide is complete
-    if (newPosition / maxPosition >= COMPLETE_THRESHOLD) {
-      setIsComplete(true);
-      setIsDragging(false);
-      setSliderPosition(maxPosition);
+      // Check if slide is complete
+      if (newPosition / maxPosition >= COMPLETE_THRESHOLD) {
+        setIsComplete(true);
+        setIsDragging(false);
+        setSliderPosition(maxPosition);
 
-      // Trigger callback after animation
-      setTimeout(() => {
-        onSlideComplete();
-        // Reset after completion
+        // Trigger callback after animation
         setTimeout(() => {
-          setSliderPosition(0);
-          setIsComplete(false);
-        }, 300);
-      }, 200);
-    }
-  }, [isDragging, disabled, isComplete, onSlideComplete]);
+          onSlideComplete();
+          // Reset after completion
+          setTimeout(() => {
+            setSliderPosition(0);
+            setIsComplete(false);
+          }, 300);
+        }, 200);
+      }
+    },
+    [isDragging, disabled, isComplete, onSlideComplete]
+  );
 
   const handleEnd = useCallback(() => {
     if (isComplete) return;
@@ -90,26 +99,38 @@ export default function SlideToAnswer({
   }, [isComplete]);
 
   // Mouse events
-  const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    handleStart(e.clientX);
-  }, [handleStart]);
+  const handleMouseDown = useCallback(
+    (e: React.MouseEvent) => {
+      handleStart(e.clientX);
+    },
+    [handleStart]
+  );
 
-  const handleMouseMove = useCallback((e: MouseEvent) => {
-    handleMove(e.clientX);
-  }, [handleMove]);
+  const handleMouseMove = useCallback(
+    (e: MouseEvent) => {
+      handleMove(e.clientX);
+    },
+    [handleMove]
+  );
 
   const handleMouseUp = useCallback(() => {
     handleEnd();
   }, [handleEnd]);
 
   // Touch events
-  const handleTouchStart = useCallback((e: React.TouchEvent) => {
-    handleStart(e.touches[0].clientX);
-  }, [handleStart]);
+  const handleTouchStart = useCallback(
+    (e: React.TouchEvent) => {
+      handleStart(e.touches[0].clientX);
+    },
+    [handleStart]
+  );
 
-  const handleTouchMove = useCallback((e: TouchEvent) => {
-    handleMove(e.touches[0].clientX);
-  }, [handleMove]);
+  const handleTouchMove = useCallback(
+    (e: TouchEvent) => {
+      handleMove(e.touches[0].clientX);
+    },
+    [handleMove]
+  );
 
   const handleTouchEnd = useCallback(() => {
     handleEnd();
@@ -129,10 +150,18 @@ export default function SlideToAnswer({
         window.removeEventListener("touchend", handleTouchEnd);
       };
     }
-  }, [isDragging, handleMouseMove, handleMouseUp, handleTouchMove, handleTouchEnd]);
+  }, [
+    isDragging,
+    handleMouseMove,
+    handleMouseUp,
+    handleTouchMove,
+    handleTouchEnd,
+  ]);
 
   const progressPercentage = containerRef.current
-    ? (sliderPosition / (containerRef.current.getBoundingClientRect().width - SLIDER_WIDTH)) * 100
+    ? (sliderPosition /
+        (containerRef.current.getBoundingClientRect().width - SLIDER_WIDTH)) *
+      100
     : 0;
 
   return (
@@ -175,20 +204,29 @@ export default function SlideToAnswer({
           width: `${SLIDER_WIDTH}px`,
           left: `${sliderPosition}px`,
           transform: isDragging ? "scale(1.05)" : "scale(1)",
-          transition: isDragging ? "none" : "left 0.3s ease-out, transform 0.2s ease",
+          transition: isDragging
+            ? "none"
+            : "left 0.3s ease-out, transform 0.2s ease",
         }}
         onMouseDown={handleMouseDown}
         onTouchStart={handleTouchStart}
       >
         {/* Icon */}
-        <span
-          className="material-symbols-outlined text-[28px] font-bold transition-colors"
-          style={{
-            color: isComplete ? "#2EA062" : "#336D82",
-          }}
-        >
-          {isComplete ? "check_circle" : "arrow_forward"}
-        </span>
+        {isComplete ? (
+          <CheckCircleIcon
+            sx={{
+              fontSize: "28px",
+              color: "#2EA062",
+            }}
+          />
+        ) : (
+          <ArrowForwardIcon
+            sx={{
+              fontSize: "28px",
+              color: "#336D82",
+            }}
+          />
+        )}
       </div>
 
       {/* Completion Text */}

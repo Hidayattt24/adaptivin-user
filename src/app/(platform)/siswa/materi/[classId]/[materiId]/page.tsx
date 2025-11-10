@@ -7,6 +7,12 @@ import { useClassTheme } from "@/contexts/ClassThemeContext";
 import { useMateriById } from "@/hooks/siswa/useMateri";
 import QuizHistoryCard from "@/components/siswa/kuis/QuizHistoryCard";
 import { getRiwayatKuisByMateri, HasilKuisSiswa } from "@/lib/api/kuis";
+import ErrorIcon from "@mui/icons-material/Error";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import MenuBookIcon from "@mui/icons-material/MenuBook";
+import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
+import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
+import QuizIcon from "@mui/icons-material/Quiz";
 
 export default function SubMateriListPage() {
   const params = useParams();
@@ -79,9 +85,7 @@ export default function SubMateriListPage() {
       >
         <div className="text-center px-4">
           <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
-            <span className="material-symbols-outlined text-white text-3xl">
-              error
-            </span>
+            <ErrorIcon sx={{ color: "white", fontSize: "48px" }} />
           </div>
           <h2 className="text-white font-bold text-xl mb-2">
             Materi Tidak Ditemukan
@@ -113,9 +117,9 @@ export default function SubMateriListPage() {
           onClick={() => router.push(`/siswa/materi/${classId}`)}
           className="absolute top-4 left-4 md:top-6 md:left-8 w-10 h-10 md:w-12 md:h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center hover:bg-white/30 transition-all z-10"
         >
-          <span className="material-symbols-outlined text-white text-xl md:text-2xl">
-            arrow_back
-          </span>
+          <ArrowBackIcon
+            sx={{ color: "white", fontSize: { xs: "20px", md: "24px" } }}
+          />
         </button>
 
         {/* Content */}
@@ -124,7 +128,9 @@ export default function SubMateriListPage() {
           <div className="flex justify-center mb-4 md:mb-6">
             <div
               className="px-6 py-1.5 md:px-8 md:py-2 rounded-full"
-              style={{ background: theme.gradients.badge || theme.colors.badge }}
+              style={{
+                background: theme.gradients.badge || theme.colors.badge,
+              }}
             >
               <p className="text-white text-sm md:text-base font-semibold">
                 {theme.name} {theme.romanNumeral}
@@ -138,9 +144,9 @@ export default function SubMateriListPage() {
               className="w-20 h-20 md:w-28 md:h-28 rounded-full flex items-center justify-center"
               style={{ background: theme.colors.iconBg }}
             >
-              <span className="material-symbols-outlined text-white text-4xl md:text-6xl">
-                menu_book
-              </span>
+              <MenuBookIcon
+                sx={{ color: "white", fontSize: { xs: "48px", md: "60px" } }}
+              />
             </div>
           </div>
 
@@ -204,12 +210,12 @@ export default function SubMateriListPage() {
 
                     {/* Arrow Icon */}
                     <div className="flex-shrink-0">
-                      <span
-                        className="material-symbols-outlined text-2xl"
-                        style={{ color: theme.colors.primary }}
-                      >
-                        arrow_forward_ios
-                      </span>
+                      <ArrowForwardIosIcon
+                        sx={{
+                          color: theme.colors.primary,
+                          fontSize: "24px",
+                        }}
+                      />
                     </div>
                   </div>
                 </Link>
@@ -221,15 +227,16 @@ export default function SubMateriListPage() {
                 className="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center"
                 style={{ background: `${theme.colors.primary}20` }}
               >
-                <span
-                  className="material-symbols-outlined text-4xl"
-                  style={{ color: theme.colors.primary }}
-                >
-                  library_books
-                </span>
+                <LibraryBooksIcon
+                  sx={{
+                    color: theme.colors.primary,
+                    fontSize: "48px",
+                  }}
+                />
               </div>
               <p className="text-slate-600 text-sm">
-                Belum ada sub materi. Guru sedang menyiapkan konten pembelajaran.
+                Belum ada sub materi. Guru sedang menyiapkan konten
+                pembelajaran.
               </p>
             </div>
           )}
@@ -243,11 +250,11 @@ export default function SubMateriListPage() {
                   className="px-8 py-4 rounded-2xl font-semibold text-white text-center shadow-lg hover:scale-[1.05] active:scale-[0.95] transition-all flex items-center gap-3"
                   style={{ background: theme.colors.primary }}
                 >
-                  <span className="material-symbols-outlined text-2xl">
-                    quiz
-                  </span>
+                  <QuizIcon sx={{ fontSize: "24px" }} />
                   <span>
-                    {riwayatKuis.length > 0 ? "Ulangi Kuis 🎯" : "Mulai Kuis 🎯"}
+                    {riwayatKuis.length > 0
+                      ? "Ulangi Kuis 🎯"
+                      : "Mulai Kuis 🎯"}
                   </span>
                 </Link>
               </div>
@@ -255,7 +262,10 @@ export default function SubMateriListPage() {
               {/* Riwayat Kuis */}
               {isLoadingRiwayat ? (
                 <div className="flex justify-center py-4">
-                  <div className="w-8 h-8 border-4 border-gray-300 border-t-transparent rounded-full animate-spin" style={{ borderTopColor: theme.colors.primary }} />
+                  <div
+                    className="w-8 h-8 border-4 border-gray-300 border-t-transparent rounded-full animate-spin"
+                    style={{ borderTopColor: theme.colors.primary }}
+                  />
                 </div>
               ) : riwayatKuis.length > 0 ? (
                 <QuizHistoryCard
@@ -270,12 +280,6 @@ export default function SubMateriListPage() {
 
       {/* Bottom Spacing */}
       <div className="h-12 md:h-16" />
-
-      {/* Add Google Material Symbols */}
-      <link
-        rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=optional"
-      />
     </div>
   );
 }

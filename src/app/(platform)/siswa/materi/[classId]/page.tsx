@@ -6,6 +6,8 @@ import MateriHeader from "@/components/siswa/materi/MateriHeader";
 import MateriCard from "@/components/siswa/materi/MateriCard";
 import { useSiswaProfile } from "@/hooks/siswa/useSiswaProfile";
 import { useMateriByKelas } from "@/hooks/siswa/useMateri";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import SchoolIcon from "@mui/icons-material/School";
 
 export default function MateriClassListPage() {
   const router = useRouter();
@@ -26,12 +28,15 @@ export default function MateriClassListPage() {
       <div className="relative">
         {/* Back Button */}
         <button
-          onClick={() => router.push('/siswa/beranda')}
+          onClick={() => router.push("/siswa/beranda")}
           className="absolute top-4 left-4 md:top-6 md:left-8 z-20 w-10 h-10 md:w-12 md:h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center hover:bg-white/30 transition-all"
         >
-          <span className="material-symbols-outlined text-white text-xl md:text-2xl">
-            arrow_back
-          </span>
+          <ArrowBackIcon
+            sx={{
+              color: "white",
+              fontSize: { xs: "20px", md: "24px" },
+            }}
+          />
         </button>
 
         <MateriHeader />
@@ -63,12 +68,12 @@ export default function MateriClassListPage() {
                 className="w-16 h-16 md:w-24 md:h-24 rounded-full mx-auto mb-4 md:mb-6 flex items-center justify-center"
                 style={{ background: `${theme.colors.primary}20` }}
               >
-                <span
-                  className="material-symbols-outlined text-4xl md:text-6xl"
-                  style={{ color: theme.colors.primary }}
-                >
-                  school
-                </span>
+                <SchoolIcon
+                  sx={{
+                    fontSize: { xs: "36px", md: "60px" },
+                    color: theme.colors.primary,
+                  }}
+                />
               </div>
               <p className="text-slate-600 text-sm md:text-base">
                 Belum ada materi untuk kelas ini
@@ -77,12 +82,6 @@ export default function MateriClassListPage() {
           )}
         </div>
       </div>
-
-      {/* Add Google Material Symbols */}
-      <link
-        rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=optional"
-      />
     </div>
   );
 }

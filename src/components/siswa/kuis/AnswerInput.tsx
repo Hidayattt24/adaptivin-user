@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import LightbulbIcon from '@mui/icons-material/Lightbulb';
-import CreateIcon from '@mui/icons-material/Create';
-import CheckIcon from '@mui/icons-material/Check';
+import LightbulbIcon from "@mui/icons-material/Lightbulb";
+import CreateIcon from "@mui/icons-material/Create";
+import CheckIcon from "@mui/icons-material/Check";
 
 interface AnswerInputProps {
   value: string;
@@ -33,7 +33,7 @@ export default function AnswerInput({ value, onChange }: AnswerInputProps) {
       {/* Fun Header - More Visible */}
       <div className="flex items-center gap-3 bg-white/80 backdrop-blur-sm rounded-[15px] px-4 py-3 shadow-md">
         <div className="w-[40px] h-[40px] rounded-full bg-gradient-to-br from-[#FF6B9D] to-[#FFA07A] flex items-center justify-center shadow-lg animate-bounce-slow">
-          <LightbulbIcon sx={{ color: 'white', fontSize: '22px' }} />
+          <LightbulbIcon sx={{ color: "white", fontSize: "22px" }} />
         </div>
         <p className="text-[#336D82] text-[15px] font-bold drop-shadow-sm">
           Tulis Jawabanmu Disini!
@@ -42,10 +42,9 @@ export default function AnswerInput({ value, onChange }: AnswerInputProps) {
 
       {/* Input Container */}
       <div
-        className={`relative bg-white rounded-[20px] overflow-hidden transition-all duration-300 ${isFocused
-            ? "shadow-2xl scale-[1.02]"
-            : "shadow-lg"
-          }`}
+        className={`relative bg-white rounded-[20px] overflow-hidden transition-all duration-300 ${
+          isFocused ? "shadow-2xl scale-[1.02]" : "shadow-lg"
+        }`}
       >
         {/* Colorful Top Border - Static, no change on focus */}
         <div className="h-[4px] bg-gradient-to-r from-[#FF6B9D] via-[#FFD93D] to-[#4ECDC4]" />
@@ -55,7 +54,7 @@ export default function AnswerInput({ value, onChange }: AnswerInputProps) {
           <div className="flex items-center gap-3">
             {/* Pencil Icon - Full Rounded Circle */}
             <div className="w-[50px] h-[50px] rounded-full bg-gradient-to-br from-[#336D82] to-[#4A8FA5] flex items-center justify-center shadow-md flex-shrink-0">
-              <CreateIcon sx={{ color: 'white', fontSize: '26px' }} />
+              <CreateIcon sx={{ color: "white", fontSize: "26px" }} />
             </div>
 
             {/* Input */}
@@ -72,7 +71,9 @@ export default function AnswerInput({ value, onChange }: AnswerInputProps) {
             {/* Success Indicator - Fixed Circle Design */}
             {value && (
               <div className="w-[50px] h-[50px] rounded-full bg-[#2EA062] flex items-center justify-center shadow-md flex-shrink-0 animate-scale-in">
-                <CheckIcon sx={{ color: 'white', fontSize: '28px', fontWeight: 'bold' }} />
+                <CheckIcon
+                  sx={{ color: "white", fontSize: "28px", fontWeight: "bold" }}
+                />
               </div>
             )}
           </div>

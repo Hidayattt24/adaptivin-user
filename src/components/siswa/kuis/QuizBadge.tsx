@@ -1,6 +1,6 @@
 import React from "react";
-import EditIcon from '@mui/icons-material/Edit';
-import MenuBookIcon from '@mui/icons-material/MenuBook';
+import EditIcon from "@mui/icons-material/Edit";
+import MenuBookIcon from "@mui/icons-material/MenuBook";
 
 interface QuizBadgeProps {
   icon: "edit" | "menu_book";
@@ -19,7 +19,7 @@ interface QuizBadgeProps {
 export default function QuizBadge({
   icon,
   label,
-  bgColor = "#336D82"
+  bgColor = "#336D82",
 }: QuizBadgeProps) {
   const IconComponent = icon === "edit" ? EditIcon : MenuBookIcon;
 
@@ -30,10 +30,10 @@ export default function QuizBadge({
     >
       {/* Circle with Icon - Badge enlarged, icon smaller */}
       <div className="w-[24px] h-[24px] bg-white rounded-full flex items-center justify-center flex-shrink-0 shadow-sm">
-        <IconComponent 
-          sx={{ 
+        <IconComponent
+          sx={{
             color: bgColor,
-            fontSize: '14px'
+            fontSize: "14px",
           }}
         />
       </div>

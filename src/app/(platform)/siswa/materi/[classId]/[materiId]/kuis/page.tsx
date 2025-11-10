@@ -7,7 +7,7 @@ import QuizBadge from "@/components/siswa/kuis/QuizBadge";
 import SlideToAnswer from "@/components/siswa/kuis/SlideToAnswer";
 import DynamicAnswerInput from "@/components/siswa/kuis/DynamicAnswerInput";
 import QuizTimer from "@/components/siswa/kuis/QuizTimer";
-import ErrorIcon from '@mui/icons-material/Error';
+import ErrorIcon from "@mui/icons-material/Error";
 import {
   getKuisByMateri,
   Kuis,
@@ -27,7 +27,9 @@ export default function KuisPage() {
     explanation?: string;
     explanationImage?: string;
   } | null>(null);
-  const [questionStartTime, setQuestionStartTime] = useState<number>(Date.now());
+  const [questionStartTime, setQuestionStartTime] = useState<number>(
+    Date.now()
+  );
   const [kuisData, setKuisData] = useState<Kuis | null>(null);
   const [hasilKuisId, setHasilKuisId] = useState<string | null>(null);
   const [isLoadingKuis, setIsLoadingKuis] = useState(true);
@@ -95,10 +97,19 @@ export default function KuisPage() {
   // Load soal pertama ketika kuis data dan hasilKuisId tersedia
   useEffect(() => {
     if (kuisData && hasilKuisId && !currentQuestion && !quizState.isFinished) {
-      console.log("🎬 Initializing first question with jumlah_soal:", kuisData.jumlah_soal);
+      console.log(
+        "🎬 Initializing first question with jumlah_soal:",
+        kuisData.jumlah_soal
+      );
       loadQuestion();
     }
-  }, [kuisData, hasilKuisId, currentQuestion, quizState.isFinished, loadQuestion]);
+  }, [
+    kuisData,
+    hasilKuisId,
+    currentQuestion,
+    quizState.isFinished,
+    loadQuestion,
+  ]);
 
   // Reset timer setiap kali soal berubah
   useEffect(() => {
@@ -149,9 +160,9 @@ export default function KuisPage() {
       setSelectedAnswers([jawabanId]);
     } else if (currentQuestion.tipe_jawaban === "pilihan_ganda_kompleks") {
       // Multiple choice: toggle
-      setSelectedAnswers(prev =>
+      setSelectedAnswers((prev) =>
         prev.includes(jawabanId)
-          ? prev.filter(id => id !== jawabanId)
+          ? prev.filter((id) => id !== jawabanId)
           : [...prev, jawabanId]
       );
     }
@@ -256,9 +267,11 @@ export default function KuisPage() {
       <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-[#336D82] to-white">
         <div className="bg-white rounded-2xl p-8 max-w-md text-center shadow-2xl">
           <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <ErrorIcon sx={{ color: '#ef4444', fontSize: '64px' }} />
+            <ErrorIcon sx={{ color: "#ef4444", fontSize: "64px" }} />
           </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Terjadi Kesalahan</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+            Terjadi Kesalahan
+          </h2>
           <p className="text-gray-600 mb-6">{error}</p>
           <button
             onClick={() => loadQuestion()}
@@ -318,9 +331,7 @@ export default function KuisPage() {
 
             {/* Timer - menggunakan durasi soal saat ini */}
             <div className="flex justify-center mb-4">
-              <QuizTimer
-                totalSeconds={currentQuestion.durasi_soal}
-              />
+              <QuizTimer totalSeconds={currentQuestion.durasi_soal} />
             </div>
           </div>
 

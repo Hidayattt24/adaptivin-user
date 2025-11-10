@@ -13,7 +13,8 @@ export default function Header({ username }: HeaderProps) {
 
   // Dapatkan nama dan gambar karakter dari database
   const namaLengkap = username || profile?.nama_lengkap || "Siswa";
-  const profileImage = profile?.karakter?.poto_profil_url || "/siswa/foto-profil/kocheng-oren.svg";
+  const profileImage =
+    profile?.karakter?.poto_profil_url || "/siswa/foto-profil/kocheng-oren.svg";
 
   return (
     <div className="px-6 pt-[71px] pb-6">
@@ -32,7 +33,7 @@ export default function Header({ username }: HeaderProps) {
         <div className="relative flex-shrink-0 ml-4">
           {/* Animated gradient border */}
           <div className="absolute inset-0 rounded-full bg-gradient-to-br from-[#33A1E0] via-[#5BB5E8] to-[#0A3D60] animate-spin-slow opacity-75"></div>
-          
+
           {/* Inner white circle with image */}
           <div className="relative w-[75px] h-[75px] rounded-full bg-white flex items-center justify-center shadow-[0_8px_32px_0_rgba(51,161,224,0.4)] overflow-hidden m-[3px]">
             <Image

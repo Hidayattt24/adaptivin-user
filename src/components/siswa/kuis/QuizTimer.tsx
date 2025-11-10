@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
-import TimerIcon from '@mui/icons-material/Timer';
+import HourglassEmptyIcon from "@mui/icons-material/HourglassEmpty";
+import TimerIcon from "@mui/icons-material/Timer";
 
 interface QuizTimerProps {
   totalSeconds: number; // Total waktu dalam detik (dari guru)
@@ -49,11 +49,16 @@ export default function QuizTimer({
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+    return `${mins.toString().padStart(2, "0")}:${secs
+      .toString()
+      .padStart(2, "0")}`;
   };
 
   // Hitung persentase waktu tersisa (clamp 0-100)
-  const percentage = Math.max(0, Math.min(100, (remainingSeconds / totalSeconds) * 100));
+  const percentage = Math.max(
+    0,
+    Math.min(100, (remainingSeconds / totalSeconds) * 100)
+  );
 
   // Tentukan warna berdasarkan waktu tersisa
   const getColor = () => {
@@ -70,28 +75,34 @@ export default function QuizTimer({
     <div className="w-full max-w-md mx-auto">
       {/* Timer Card - Lebih prominent */}
       <div
-        className={`bg-white/95 backdrop-blur-sm rounded-2xl p-4 md:p-5 shadow-2xl border-2 transition-all ${isOverdue
+        className={`bg-white/95 backdrop-blur-sm rounded-2xl p-4 md:p-5 shadow-2xl border-2 transition-all ${
+          isOverdue
             ? "border-purple-500 animate-pulse"
             : isWarning
-              ? "animate-pulse border-red-500"
-              : "border-white/50"
-          }`}
+            ? "animate-pulse border-red-500"
+            : "border-white/50"
+        }`}
       >
         <div className="flex items-center justify-between gap-4">
           {/* Left: Icon & Label */}
           <div className="flex items-center gap-3">
             <div
-              className={`w-14 h-14 md:w-16 md:h-16 rounded-xl flex items-center justify-center transition-all shadow-lg ${isOverdue || isWarning ? "animate-bounce" : ""
-                }`}
+              className={`w-14 h-14 md:w-16 md:h-16 rounded-xl flex items-center justify-center transition-all shadow-lg ${
+                isOverdue || isWarning ? "animate-bounce" : ""
+              }`}
               style={{
                 background: `linear-gradient(135deg, ${getColor()} 0%, ${getColor()}dd 100%)`,
                 boxShadow: `0 0 25px ${getColor()}80`,
               }}
             >
               {isOverdue ? (
-                <HourglassEmptyIcon sx={{ color: 'white', fontSize: { xs: '48px', md: '64px' } }} />
+                <HourglassEmptyIcon
+                  sx={{ color: "white", fontSize: { xs: "48px", md: "64px" } }}
+                />
               ) : (
-                <TimerIcon sx={{ color: 'white', fontSize: { xs: '48px', md: '64px' } }} />
+                <TimerIcon
+                  sx={{ color: "white", fontSize: { xs: "48px", md: "64px" } }}
+                />
               )}
             </div>
 
@@ -103,8 +114,8 @@ export default function QuizTimer({
                 {isOverdue
                   ? "Tetap tenang, jawab dengan teliti"
                   : isWarning
-                    ? "⚠️ Segera selesaikan!"
-                    : "Kerjakan dengan tenang"}
+                  ? "⚠️ Segera selesaikan!"
+                  : "Kerjakan dengan tenang"}
               </span>
             </div>
           </div>
@@ -118,11 +129,12 @@ export default function QuizTimer({
                 </span>
               )}
               <span
-                className={`text-4xl md:text-5xl font-bold tabular-nums transition-all ${isOverdue || isWarning ? "animate-pulse" : ""
-                  }`}
+                className={`text-4xl md:text-5xl font-bold tabular-nums transition-all ${
+                  isOverdue || isWarning ? "animate-pulse" : ""
+                }`}
                 style={{
                   color: getColor(),
-                  textShadow: `0 0 20px ${getColor()}60`
+                  textShadow: `0 0 20px ${getColor()}60`,
                 }}
               >
                 {formatTime(displaySeconds)}
@@ -138,8 +150,9 @@ export default function QuizTimer({
         <div className="mt-4">
           <div className="w-full h-3 md:h-4 bg-gray-200 rounded-full overflow-hidden shadow-inner">
             <div
-              className={`h-full transition-all duration-1000 ease-linear rounded-full ${isOverdue ? "animate-pulse" : ""
-                }`}
+              className={`h-full transition-all duration-1000 ease-linear rounded-full ${
+                isOverdue ? "animate-pulse" : ""
+              }`}
               style={{
                 width: isOverdue ? "100%" : `${percentage}%`,
                 background: `linear-gradient(90deg, ${getColor()} 0%, ${getColor()}dd 100%)`,

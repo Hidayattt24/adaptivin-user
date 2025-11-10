@@ -26,7 +26,7 @@ export interface Materi {
 }
 
 export interface PerformanceByLevel {
-  level: "C1" | "C2" | "C3" | "C4" | "C5" | "C6";
+  level: "level1" | "level2" | "level3" | "level4" | "level5" | "level6";
   benar: number;
   salah: number;
 }

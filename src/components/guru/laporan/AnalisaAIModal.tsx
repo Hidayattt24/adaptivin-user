@@ -44,6 +44,12 @@ interface AnalisisData {
   rekomendasi_video: string | object;
 }
 
+interface StrategiDifferensiasi {
+  konten?: string;
+  proses?: string;
+  produk?: string;
+}
+
 interface AnalisaAIModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -83,7 +89,8 @@ const AnalisaAIModal: React.FC<AnalisaAIModalProps> = ({
   const [error, setError] = useState<string>("");
 
   // State for teacher analysis (dari API backend)
-  const [teacherAnalysisData, setTeacherAnalysisData] = useState<AnalisisAIGuru | null>(null);
+  const [teacherAnalysisData, setTeacherAnalysisData] =
+    useState<AnalisisAIGuru | null>(null);
   const [isAnalyzingForTeacher, setIsAnalyzingForTeacher] = useState(false);
   const [showTeacherAnalysis, setShowTeacherAnalysis] = useState(false);
   const [teacherAnalysisError, setTeacherAnalysisError] = useState<string>("");
@@ -141,11 +148,11 @@ const AnalisaAIModal: React.FC<AnalisaAIModalProps> = ({
 
         // Helper function to safely parse JSON strings
         const safeJsonParse = (str: string) => {
-          if (!str || typeof str !== 'string') return str;
+          if (!str || typeof str !== "string") return str;
 
           // Check if string looks like JSON (starts with [ or {)
           const trimmed = str.trim();
-          if (!trimmed.startsWith('[') && !trimmed.startsWith('{')) {
+          if (!trimmed.startsWith("[") && !trimmed.startsWith("{")) {
             return str; // Not JSON, keep as string
           }
 
@@ -157,36 +164,46 @@ const AnalisaAIModal: React.FC<AnalisaAIModalProps> = ({
         };
 
         // Parse JSONB fields jika masih string
-        if (typeof analysis.aktivitas_pembelajaran === 'string') {
+        if (typeof analysis.aktivitas_pembelajaran === "string") {
           try {
-            analysis.aktivitas_pembelajaran = JSON.parse(analysis.aktivitas_pembelajaran);
+            analysis.aktivitas_pembelajaran = JSON.parse(
+              analysis.aktivitas_pembelajaran
+            );
           } catch (e) {
             analysis.aktivitas_pembelajaran = [];
           }
         }
 
-        if (typeof analysis.rekomendasi_video_guru === 'string') {
+        if (typeof analysis.rekomendasi_video_guru === "string") {
           try {
-            analysis.rekomendasi_video_guru = JSON.parse(analysis.rekomendasi_video_guru);
+            analysis.rekomendasi_video_guru = JSON.parse(
+              analysis.rekomendasi_video_guru
+            );
           } catch (e) {
             analysis.rekomendasi_video_guru = [];
           }
         }
 
-        if (typeof analysis.rekomendasi_metode_mengajar === 'string') {
-          analysis.rekomendasi_metode_mengajar = safeJsonParse(analysis.rekomendasi_metode_mengajar);
+        if (typeof analysis.rekomendasi_metode_mengajar === "string") {
+          analysis.rekomendasi_metode_mengajar = safeJsonParse(
+            analysis.rekomendasi_metode_mengajar
+          );
         }
 
-        if (typeof analysis.tips_praktis === 'string') {
+        if (typeof analysis.tips_praktis === "string") {
           analysis.tips_praktis = safeJsonParse(analysis.tips_praktis);
         }
 
-        if (typeof analysis.indikator_progress === 'string') {
-          analysis.indikator_progress = safeJsonParse(analysis.indikator_progress);
+        if (typeof analysis.indikator_progress === "string") {
+          analysis.indikator_progress = safeJsonParse(
+            analysis.indikator_progress
+          );
         }
 
-        if (typeof analysis.strategi_differensiasi === 'string') {
-          analysis.strategi_differensiasi = safeJsonParse(analysis.strategi_differensiasi);
+        if (typeof analysis.strategi_differensiasi === "string") {
+          analysis.strategi_differensiasi = safeJsonParse(
+            analysis.strategi_differensiasi
+          );
         }
 
         setTeacherAnalysisData(analysis);
@@ -292,7 +309,9 @@ Mbah AdaptivAI menyarankan kamu untuk menonton video pembelajaran yang sudah dis
   // Handle teacher analysis - Call API backend untuk generate atau ambil analisis guru
   const handleTeacherAnalysis = async (forceRegenerate: boolean = false) => {
     if (!hasilKuisId) {
-      setTeacherAnalysisError("Hasil kuis ID tidak tersedia. Tidak dapat membuat analisis.");
+      setTeacherAnalysisError(
+        "Hasil kuis ID tidak tersedia. Tidak dapat membuat analisis."
+      );
       return;
     }
 
@@ -321,12 +340,16 @@ Mbah AdaptivAI menyarankan kamu untuk menonton video pembelajaran yang sudah dis
 
         console.log("🤖 Generating new teacher analysis dengan AI...");
         analysis = await createTeacherAnalysis(hasilKuisId);
-        console.log("✅ New teacher analysis berhasil di-generate dan disimpan");
+        console.log(
+          "✅ New teacher analysis berhasil di-generate dan disimpan"
+        );
       } else {
         // 4. Jika belum ada sama sekali, generate baru dengan AI
         console.log("🤖 Analisis guru belum ada, generating dengan AI...");
         analysis = await createTeacherAnalysis(hasilKuisId);
-        console.log("✅ Analisis guru berhasil di-generate dan disimpan ke database");
+        console.log(
+          "✅ Analisis guru berhasil di-generate dan disimpan ke database"
+        );
       }
 
       // 5. Parse JSONB fields jika masih berupa string
@@ -354,11 +377,11 @@ Mbah AdaptivAI menyarankan kamu untuk menonton video pembelajaran yang sudah dis
 
       // Helper function to safely parse JSON strings
       const safeJsonParse = (str: string, fieldName: string) => {
-        if (!str || typeof str !== 'string') return str;
+        if (!str || typeof str !== "string") return str;
 
         // Check if string looks like JSON (starts with [ or {)
         const trimmed = str.trim();
-        if (!trimmed.startsWith('[') && !trimmed.startsWith('{')) {
+        if (!trimmed.startsWith("[") && !trimmed.startsWith("{")) {
           // Not JSON, keep as string
           return str;
         }
@@ -407,7 +430,8 @@ Mbah AdaptivAI menyarankan kamu untuk menonton video pembelajaran yang sudah dis
     } catch (error: any) {
       console.error("❌ Error in handleTeacherAnalysis:", error);
       setTeacherAnalysisError(
-        error.message || "Gagal melakukan analisa untuk guru. Silakan coba lagi."
+        error.message ||
+          "Gagal melakukan analisa untuk guru. Silakan coba lagi."
       );
     } finally {
       setIsAnalyzingForTeacher(false);
@@ -861,7 +885,10 @@ Mbah AdaptivAI menyarankan kamu untuk menonton video pembelajaran yang sudah dis
                     <span className="text-xl flex-shrink-0">💡</span>
                     <div>
                       <p className="text-blue-800 text-xs poppins-medium leading-relaxed">
-                        <span className="poppins-bold">Analisis Ulang:</span> Mbah akan menganalisis hasil kuis ini dari awal dengan AI dan memberikan rekomendasi strategi pembelajaran yang baru. Data analisis lama akan diganti.
+                        <span className="poppins-bold">Analisis Ulang:</span>{" "}
+                        Mbah akan menganalisis hasil kuis ini dari awal dengan
+                        AI dan memberikan rekomendasi strategi pembelajaran yang
+                        baru. Data analisis lama akan diganti.
                       </p>
                     </div>
                   </div>
@@ -954,26 +981,30 @@ Mbah AdaptivAI menyarankan kamu untuk menonton video pembelajaran yang sudah dis
                     </div>
 
                     {/* Check if rekomendasi_metode_mengajar is array or string */}
-                    {Array.isArray(teacherAnalysisData.rekomendasi_metode_mengajar) ? (
+                    {Array.isArray(
+                      teacherAnalysisData.rekomendasi_metode_mengajar
+                    ) ? (
                       <div className="space-y-4">
-                        {teacherAnalysisData.rekomendasi_metode_mengajar.map((metode: any, index: number) => (
-                          <div
-                            key={index}
-                            className="bg-white rounded-xl p-5 shadow-sm border border-cyan-100"
-                          >
-                            <div className="flex items-start gap-3 mb-3">
-                              <div className="w-8 h-8 bg-cyan-500 text-white rounded-full flex items-center justify-center text-sm poppins-bold flex-shrink-0">
-                                {index + 1}
+                        {teacherAnalysisData.rekomendasi_metode_mengajar.map(
+                          (metode: any, index: number) => (
+                            <div
+                              key={index}
+                              className="bg-white rounded-xl p-5 shadow-sm border border-cyan-100"
+                            >
+                              <div className="flex items-start gap-3 mb-3">
+                                <div className="w-8 h-8 bg-cyan-500 text-white rounded-full flex items-center justify-center text-sm poppins-bold flex-shrink-0">
+                                  {index + 1}
+                                </div>
+                                <h5 className="text-cyan-800 text-sm poppins-bold flex-1">
+                                  {metode.nama}
+                                </h5>
                               </div>
-                              <h5 className="text-cyan-800 text-sm poppins-bold flex-1">
-                                {metode.nama}
-                              </h5>
+                              <p className="text-gray-700 text-sm poppins-regular leading-relaxed pl-11">
+                                {metode.penjelasan}
+                              </p>
                             </div>
-                            <p className="text-gray-700 text-sm poppins-regular leading-relaxed pl-11">
-                              {metode.penjelasan}
-                            </p>
-                          </div>
-                        ))}
+                          )
+                        )}
                       </div>
                     ) : (
                       <div className="bg-white/60 rounded-xl p-4">
@@ -1001,73 +1032,82 @@ Mbah AdaptivAI menyarankan kamu untuk menonton video pembelajaran yang sudah dis
                     </div>
 
                     {/* Check if strategi_differensiasi is object or string */}
-                    {typeof teacherAnalysisData.strategi_differensiasi === 'object' &&
-                     !Array.isArray(teacherAnalysisData.strategi_differensiasi) &&
-                     teacherAnalysisData.strategi_differensiasi !== null &&
-                     (teacherAnalysisData.strategi_differensiasi.konten ||
-                      teacherAnalysisData.strategi_differensiasi.proses ||
-                      teacherAnalysisData.strategi_differensiasi.produk) ? (
-                      <div className="space-y-4">
-                        {/* Diferensiasi Konten */}
-                        {teacherAnalysisData.strategi_differensiasi.konten && (
-                          <div className="bg-white rounded-xl p-5 shadow-sm border border-rose-100">
-                            <div className="flex items-center gap-2 mb-3">
-                              <div className="w-8 h-8 bg-rose-500 text-white rounded-lg flex items-center justify-center text-sm poppins-bold">
-                                📚
-                              </div>
-                              <h5 className="text-rose-800 text-sm poppins-bold">
-                                Diferensiasi Konten
-                              </h5>
-                            </div>
-                            <p className="text-gray-700 text-sm poppins-regular leading-relaxed pl-10">
-                              {teacherAnalysisData.strategi_differensiasi.konten}
-                            </p>
-                          </div>
-                        )}
+                    {(() => {
+                      const strategi =
+                        teacherAnalysisData.strategi_differensiasi;
+                      const strategiObj =
+                        typeof strategi === "object" &&
+                        !Array.isArray(strategi) &&
+                        strategi !== null
+                          ? (strategi as StrategiDifferensiasi)
+                          : null;
 
-                        {/* Diferensiasi Proses */}
-                        {teacherAnalysisData.strategi_differensiasi.proses && (
-                          <div className="bg-white rounded-xl p-5 shadow-sm border border-rose-100">
-                            <div className="flex items-center gap-2 mb-3">
-                              <div className="w-8 h-8 bg-rose-500 text-white rounded-lg flex items-center justify-center text-sm poppins-bold">
-                                ⚙️
+                      return strategiObj &&
+                        (strategiObj.konten ||
+                          strategiObj.proses ||
+                          strategiObj.produk) ? (
+                        <div className="space-y-4">
+                          {/* Diferensiasi Konten */}
+                          {strategiObj.konten && (
+                            <div className="bg-white rounded-xl p-5 shadow-sm border border-rose-100">
+                              <div className="flex items-center gap-2 mb-3">
+                                <div className="w-8 h-8 bg-rose-500 text-white rounded-lg flex items-center justify-center text-sm poppins-bold">
+                                  📚
+                                </div>
+                                <h5 className="text-rose-800 text-sm poppins-bold">
+                                  Diferensiasi Konten
+                                </h5>
                               </div>
-                              <h5 className="text-rose-800 text-sm poppins-bold">
-                                Diferensiasi Proses
-                              </h5>
+                              <p className="text-gray-700 text-sm poppins-regular leading-relaxed pl-10">
+                                {strategiObj.konten}
+                              </p>
                             </div>
-                            <p className="text-gray-700 text-sm poppins-regular leading-relaxed pl-10">
-                              {teacherAnalysisData.strategi_differensiasi.proses}
-                            </p>
-                          </div>
-                        )}
+                          )}
 
-                        {/* Diferensiasi Produk */}
-                        {teacherAnalysisData.strategi_differensiasi.produk && (
-                          <div className="bg-white rounded-xl p-5 shadow-sm border border-rose-100">
-                            <div className="flex items-center gap-2 mb-3">
-                              <div className="w-8 h-8 bg-rose-500 text-white rounded-lg flex items-center justify-center text-sm poppins-bold">
-                                🎯
+                          {/* Diferensiasi Proses */}
+                          {strategiObj.proses && (
+                            <div className="bg-white rounded-xl p-5 shadow-sm border border-rose-100">
+                              <div className="flex items-center gap-2 mb-3">
+                                <div className="w-8 h-8 bg-rose-500 text-white rounded-lg flex items-center justify-center text-sm poppins-bold">
+                                  ⚙️
+                                </div>
+                                <h5 className="text-rose-800 text-sm poppins-bold">
+                                  Diferensiasi Proses
+                                </h5>
                               </div>
-                              <h5 className="text-rose-800 text-sm poppins-bold">
-                                Diferensiasi Produk
-                              </h5>
+                              <p className="text-gray-700 text-sm poppins-regular leading-relaxed pl-10">
+                                {strategiObj.proses}
+                              </p>
                             </div>
-                            <p className="text-gray-700 text-sm poppins-regular leading-relaxed pl-10">
-                              {teacherAnalysisData.strategi_differensiasi.produk}
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                    ) : (
-                      <div className="bg-white/60 rounded-xl p-4">
-                        <p className="text-gray-700 text-sm poppins-regular leading-relaxed">
-                          {typeof teacherAnalysisData.strategi_differensiasi === 'string'
-                            ? teacherAnalysisData.strategi_differensiasi
-                            : 'Tidak ada data strategi diferensiasi'}
-                        </p>
-                      </div>
-                    )}
+                          )}
+
+                          {/* Diferensiasi Produk */}
+                          {strategiObj.produk && (
+                            <div className="bg-white rounded-xl p-5 shadow-sm border border-rose-100">
+                              <div className="flex items-center gap-2 mb-3">
+                                <div className="w-8 h-8 bg-rose-500 text-white rounded-lg flex items-center justify-center text-sm poppins-bold">
+                                  🎯
+                                </div>
+                                <h5 className="text-rose-800 text-sm poppins-bold">
+                                  Diferensiasi Produk
+                                </h5>
+                              </div>
+                              <p className="text-gray-700 text-sm poppins-regular leading-relaxed pl-10">
+                                {strategiObj.produk}
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="bg-white/60 rounded-xl p-4">
+                          <p className="text-gray-700 text-sm poppins-regular leading-relaxed">
+                            {typeof strategi === "string"
+                              ? strategi
+                              : "Tidak ada data strategi diferensiasi"}
+                          </p>
+                        </div>
+                      );
+                    })()}
                   </div>
 
                   {/* Aktivitas Pembelajaran */}
@@ -1142,17 +1182,19 @@ Mbah AdaptivAI menyarankan kamu untuk menonton video pembelajaran yang sudah dis
                     {Array.isArray(teacherAnalysisData.tips_praktis) ? (
                       <div className="bg-white/60 rounded-xl p-5">
                         <ul className="space-y-3">
-                          {teacherAnalysisData.tips_praktis.map((tip: string, index: number) => (
-                            <li
-                              key={index}
-                              className="flex items-start gap-3 text-gray-700 text-sm poppins-regular leading-relaxed"
-                            >
-                              <span className="text-yellow-600 text-base flex-shrink-0 mt-0.5">
-                                •
-                              </span>
-                              <span className="flex-1">{tip}</span>
-                            </li>
-                          ))}
+                          {teacherAnalysisData.tips_praktis.map(
+                            (tip: string, index: number) => (
+                              <li
+                                key={index}
+                                className="flex items-start gap-3 text-gray-700 text-sm poppins-regular leading-relaxed"
+                              >
+                                <span className="text-yellow-600 text-base flex-shrink-0 mt-0.5">
+                                  •
+                                </span>
+                                <span className="flex-1">{tip}</span>
+                              </li>
+                            )
+                          )}
                         </ul>
                       </div>
                     ) : (
@@ -1184,17 +1226,19 @@ Mbah AdaptivAI menyarankan kamu untuk menonton video pembelajaran yang sudah dis
                     {Array.isArray(teacherAnalysisData.indikator_progress) ? (
                       <div className="bg-white/60 rounded-xl p-5">
                         <ul className="space-y-3">
-                          {teacherAnalysisData.indikator_progress.map((indikator: string, index: number) => (
-                            <li
-                              key={index}
-                              className="flex items-start gap-3 text-gray-700 text-sm poppins-regular leading-relaxed"
-                            >
-                              <span className="text-teal-600 text-base flex-shrink-0 mt-0.5">
-                                ✓
-                              </span>
-                              <span className="flex-1">{indikator}</span>
-                            </li>
-                          ))}
+                          {teacherAnalysisData.indikator_progress.map(
+                            (indikator: string, index: number) => (
+                              <li
+                                key={index}
+                                className="flex items-start gap-3 text-gray-700 text-sm poppins-regular leading-relaxed"
+                              >
+                                <span className="text-teal-600 text-base flex-shrink-0 mt-0.5">
+                                  ✓
+                                </span>
+                                <span className="flex-1">{indikator}</span>
+                              </li>
+                            )
+                          )}
                         </ul>
                       </div>
                     ) : (
@@ -1218,13 +1262,19 @@ Mbah AdaptivAI menyarankan kamu untuk menonton video pembelajaran yang sudah dis
                                 Video Strategi Pembelajaran untuk Guru
                               </h3>
                               <p className="text-white/90 text-sm poppins-medium">
-                                Video tentang metode & gaya mengajar yang efektif
+                                Video tentang metode & gaya mengajar yang
+                                efektif
                               </p>
                             </div>
                           </div>
                           <div className="bg-white/10 backdrop-blur-sm rounded-lg px-3 py-2 mt-3">
                             <p className="text-white/95 text-xs poppins-regular">
-                              💡 Video ini fokus pada <span className="poppins-semibold">strategi pembelajaran</span> (scaffolding, differensiasi, assessment), bukan konten materi
+                              💡 Video ini fokus pada{" "}
+                              <span className="poppins-semibold">
+                                strategi pembelajaran
+                              </span>{" "}
+                              (scaffolding, differensiasi, assessment), bukan
+                              konten materi
                             </p>
                           </div>
                         </div>
@@ -1313,8 +1363,11 @@ Mbah AdaptivAI menyarankan kamu untuk menonton video pembelajaran yang sudah dis
 
                   {/* Info jika tidak ada video */}
                   {(!teacherAnalysisData.rekomendasi_video_guru ||
-                    (Array.isArray(teacherAnalysisData.rekomendasi_video_guru) &&
-                      teacherAnalysisData.rekomendasi_video_guru.length === 0)) && (
+                    (Array.isArray(
+                      teacherAnalysisData.rekomendasi_video_guru
+                    ) &&
+                      teacherAnalysisData.rekomendasi_video_guru.length ===
+                        0)) && (
                     <div className="bg-gray-50 border-2 border-gray-200 rounded-xl p-5">
                       <div className="flex items-start gap-3">
                         <span className="text-2xl flex-shrink-0">📚</span>
@@ -1323,8 +1376,10 @@ Mbah AdaptivAI menyarankan kamu untuk menonton video pembelajaran yang sudah dis
                             Tidak Ada Video Strategi Pembelajaran
                           </h4>
                           <p className="text-gray-600 text-xs poppins-regular leading-relaxed">
-                            Saat ini tidak ada video yang relevan dengan strategi pembelajaran yang direkomendasikan.
-                            Anda tetap bisa menerapkan metode dan tips yang sudah diberikan di atas tanpa video referensi.
+                            Saat ini tidak ada video yang relevan dengan
+                            strategi pembelajaran yang direkomendasikan. Anda
+                            tetap bisa menerapkan metode dan tips yang sudah
+                            diberikan di atas tanpa video referensi.
                           </p>
                         </div>
                       </div>

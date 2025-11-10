@@ -22,14 +22,19 @@ const LaporanKelasPage = () => {
 
   // States
   const [selectedStudent, setSelectedStudent] = useState<string | null>(null);
-  const [selectedCardMateri, setSelectedCardMateri] = useState<string | null>(null);
+  const [selectedCardMateri, setSelectedCardMateri] = useState<string | null>(
+    null
+  );
   const [showGrafikModal, setShowGrafikModal] = useState(false);
   const [showKuisModal, setShowKuisModal] = useState(false);
   const [showAnalisaModal, setShowAnalisaModal] = useState(false);
 
   // Queries
   const siswaQuery = useSiswaList(kelasId);
-  const siswaItems = useMemo(() => siswaQuery.data?.items || [], [siswaQuery.data?.items]);
+  const siswaItems = useMemo(
+    () => siswaQuery.data?.items || [],
+    [siswaQuery.data?.items]
+  );
 
   // Initialize selected student when data loads
   React.useEffect(() => {
@@ -39,10 +44,7 @@ const LaporanKelasPage = () => {
   }, [siswaItems, selectedStudent]);
 
   // Get student report
-  const studentReport = useStudentReport(
-    kelasId,
-    selectedStudent || ""
-  );
+  const studentReport = useStudentReport(kelasId, selectedStudent || "");
 
   // Get hasil kuis detail for selected material
   const hasilKuisDetail = useHasilKuisDetail(
@@ -61,19 +63,23 @@ const LaporanKelasPage = () => {
     if (!currentReport) return [];
 
     const levelMap: Record<string, string> = {
-      level1: "C1",
-      level2: "C2",
-      level3: "C3",
-      level4: "C4",
-      level5: "C5",
-      level6: "C6",
+      level1: "level1",
+      level2: "level2",
+      level3: "level3",
+      level4: "level4",
+      level5: "level5",
+      level6: "level6",
     };
 
     return currentReport.performanceByLevel.map((item) => ({
       level: levelMap[item.level] || item.level,
       benar: item.benar,
       salah: item.salah,
-    })) as Array<{ level: "C1" | "C2" | "C3" | "C4" | "C5" | "C6"; benar: number; salah: number }>;
+    })) as Array<{
+      level: "level1" | "level2" | "level3" | "level4" | "level5" | "level6";
+      benar: number;
+      salah: number;
+    }>;
   }, [currentReport]);
 
   // Get all materials for the selected student
@@ -88,7 +94,10 @@ const LaporanKelasPage = () => {
 
     // If a material is selected, use it
     if (selectedCardMateri) {
-      return studentMaterials.find(m => m.materiId === selectedCardMateri) || studentMaterials[0];
+      return (
+        studentMaterials.find((m) => m.materiId === selectedCardMateri) ||
+        studentMaterials[0]
+      );
     }
 
     // Default to first material
@@ -158,7 +167,9 @@ const LaporanKelasPage = () => {
             <div className="flex flex-col gap-3 sm:gap-4">
               {/* Dropdown pilih siswa */}
               <div>
-                <label className="block text-white/90 text-sm mb-1">Pilih Siswa</label>
+                <label className="block text-white/90 text-sm mb-1">
+                  Pilih Siswa
+                </label>
                 <select
                   value={selectedStudent ?? ""}
                   onChange={(e) => setSelectedStudent(e.target.value || null)}
@@ -175,7 +186,11 @@ const LaporanKelasPage = () => {
 
               {/* Search untuk mencari siswa */}
               <StudentSearchBar
-                students={siswaItems.map(s => ({ id: s.id, nama: s.nama, nis: s.nis }))}
+                students={siswaItems.map((s) => ({
+                  id: s.id,
+                  nama: s.nama,
+                  nis: s.nis,
+                }))}
                 selectedStudent={selectedStudent}
                 onSelectStudent={setSelectedStudent}
                 aria-label="Cari siswa untuk memilih laporan"
@@ -227,7 +242,9 @@ const LaporanKelasPage = () => {
                   </h3>
                 </div>
                 <div className="h-64 bg-gray-50 border border-dashed border-gray-200 rounded flex items-center justify-center">
-                  <p className="text-gray-400 poppins-medium">Data performa belum tersedia</p>
+                  <p className="text-gray-400 poppins-medium">
+                    Data performa belum tersedia
+                  </p>
                 </div>
               </div>
             )}
@@ -291,15 +308,36 @@ const LaporanKelasPage = () => {
             hasilKuisId={currentCardMateri.analisis?.hasil_kuis_id} // IMPORTANT: Pass hasil_kuis_id untuk API teacher analysis
             analisisData={currentCardMateri.analisis} // Pass analisis data from backend
             quizSummary={{
-              totalQuestions: currentMaterialData?.performanceByLevel.reduce((sum, d) => sum + d.benar + d.salah, 0) || 0,
-              correctAnswers: currentMaterialData?.performanceByLevel.reduce((sum, d) => sum + d.benar, 0) || 0,
-              incorrectAnswers: currentMaterialData?.performanceByLevel.reduce((sum, d) => sum + d.salah, 0) || 0,
-              score: currentMaterialData?.performanceByLevel.reduce((sum, d) => sum + d.benar + d.salah, 0)
+              totalQuestions:
+                currentMaterialData?.performanceByLevel.reduce(
+                  (sum, d) => sum + d.benar + d.salah,
+                  0
+                ) || 0,
+              correctAnswers:
+                currentMaterialData?.performanceByLevel.reduce(
+                  (sum, d) => sum + d.benar,
+                  0
+                ) || 0,
+              incorrectAnswers:
+                currentMaterialData?.performanceByLevel.reduce(
+                  (sum, d) => sum + d.salah,
+                  0
+                ) || 0,
+              score: currentMaterialData?.performanceByLevel.reduce(
+                (sum, d) => sum + d.benar + d.salah,
+                0
+              )
                 ? Math.round(
-                  (currentMaterialData.performanceByLevel.reduce((sum, d) => sum + d.benar, 0) /
-                    currentMaterialData.performanceByLevel.reduce((sum, d) => sum + d.benar + d.salah, 0)) *
-                  100
-                )
+                    (currentMaterialData.performanceByLevel.reduce(
+                      (sum, d) => sum + d.benar,
+                      0
+                    ) /
+                      currentMaterialData.performanceByLevel.reduce(
+                        (sum, d) => sum + d.benar + d.salah,
+                        0
+                      )) *
+                      100
+                  )
                 : 0,
             }}
           />

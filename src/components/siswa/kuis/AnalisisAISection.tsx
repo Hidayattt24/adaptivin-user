@@ -4,6 +4,7 @@ import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import Image from "next/image";
 import {
   Brain,
   Sparkles,
@@ -22,7 +23,11 @@ interface AnalisisAICardProps {
   isReanalyzing?: boolean;
 }
 
-export function AnalisisAICard({ analisis, onReanalyze, isReanalyzing }: AnalisisAICardProps) {
+export function AnalisisAICard({
+  analisis,
+  onReanalyze,
+  isReanalyzing,
+}: AnalisisAICardProps) {
   const renderRekomendasiVideo = () => {
     if (!analisis.rekomendasi_video) return null;
 
@@ -44,8 +49,10 @@ export function AnalisisAICard({ analisis, onReanalyze, isReanalyzing }: Analisi
     return (
       <div className="space-y-2">
         <div className="flex items-center gap-2 mb-3">
-          <Video className="w-4 h-4 text-purple-600" />
-          <h4 className="font-semibold text-sm">Rekomendasi Video</h4>
+          <Video className="w-4 h-4 text-[#336D82]" />
+          <h4 className="font-semibold text-sm text-[#336D82]">
+            Rekomendasi Video
+          </h4>
         </div>
         <div className="space-y-2">
           {videos.map((video, index) => (
@@ -54,15 +61,15 @@ export function AnalisisAICard({ analisis, onReanalyze, isReanalyzing }: Analisi
               href={video.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-start gap-3 p-3 rounded-lg bg-purple-50 dark:bg-purple-950/30 hover:bg-purple-100 dark:hover:bg-purple-950/50 transition-colors border border-purple-200 dark:border-purple-800"
+              className="flex items-start gap-3 p-3 rounded-lg bg-[#F0F7F9] hover:bg-[#E1EEF2] transition-colors border border-[#336D82]/20 hover:border-[#336D82]/40"
             >
-              <Video className="w-4 h-4 text-purple-600 mt-0.5 flex-shrink-0" />
+              <Video className="w-4 h-4 text-[#336D82] mt-0.5 flex-shrink-0" />
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-purple-900 dark:text-purple-100">
+                <p className="text-sm font-medium text-[#336D82]">
                   {video.judul || `Video ${index + 1}`}
                 </p>
                 {video.durasi && (
-                  <p className="text-xs text-purple-600 dark:text-purple-400 mt-1">
+                  <p className="text-xs text-[#7AB0C4] mt-1">
                     Durasi: {video.durasi}
                   </p>
                 )}
@@ -75,19 +82,26 @@ export function AnalisisAICard({ analisis, onReanalyze, isReanalyzing }: Analisi
   };
 
   return (
-    <Card className="border-blue-200 dark:border-blue-800 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950">
-      <CardHeader className="pb-4">
+    <Card className="border-[#336D82]/30 bg-white rounded-[20px] shadow-lg overflow-hidden">
+      <CardHeader className="pb-4 bg-gradient-to-r from-[#336D82] to-[#7AB0C4]">
         <div className="flex items-start justify-between gap-3">
-          <div className="flex items-center gap-2 flex-1">
-            <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0">
-              <Brain className="w-5 h-5 text-white" />
+          <div className="flex items-center gap-3 flex-1">
+            {/* Mbah Adaptivin Avatar */}
+            <div className="w-12 h-12 rounded-full bg-white p-1 flex items-center justify-center flex-shrink-0 shadow-lg">
+              <Image
+                src="/mascot/mascot-2.svg"
+                alt="Mbah Adaptivin"
+                width={40}
+                height={40}
+                className="w-full h-full object-contain"
+              />
             </div>
             <div className="flex-1 min-w-0">
-              <CardTitle className="text-lg flex items-center gap-2">
-                Analisis AI
-                <Sparkles className="w-4 h-4 text-yellow-500" />
+              <CardTitle className="text-lg flex items-center gap-2 text-white">
+                Mbah Adaptivin
+                <Sparkles className="w-4 h-4 text-yellow-300 animate-pulse" />
               </CardTitle>
-              <p className="text-xs text-muted-foreground mt-1">
+              <p className="text-xs text-white/90 mt-1">
                 Dianalisis pada{" "}
                 {new Date(analisis.created_at).toLocaleDateString("id-ID", {
                   day: "numeric",
@@ -101,7 +115,10 @@ export function AnalisisAICard({ analisis, onReanalyze, isReanalyzing }: Analisi
           </div>
 
           <div className="flex flex-col gap-2 items-end">
-            <Badge variant="secondary" className="bg-blue-500 text-white whitespace-nowrap">
+            <Badge
+              variant="secondary"
+              className="bg-white/20 backdrop-blur-sm text-white whitespace-nowrap hover:bg-white/30 border border-white/30"
+            >
               AI Generated
             </Badge>
 
@@ -111,7 +128,7 @@ export function AnalisisAICard({ analisis, onReanalyze, isReanalyzing }: Analisi
                 disabled={isReanalyzing}
                 size="sm"
                 variant="outline"
-                className="text-xs whitespace-nowrap"
+                className="text-xs whitespace-nowrap border-white/30 text-white hover:bg-white/20 hover:text-white bg-white/10 backdrop-blur-sm"
               >
                 {isReanalyzing ? (
                   <>
@@ -131,14 +148,42 @@ export function AnalisisAICard({ analisis, onReanalyze, isReanalyzing }: Analisi
       </CardHeader>
 
       <CardContent className="space-y-4">
+        {/* Info Card - Level Summary */}
+        <div className="bg-gradient-to-br from-[#F0F7F9] to-white rounded-lg p-4 border border-[#336D82]/20 shadow-sm">
+          <div className="flex items-start gap-4">
+            <div className="w-12 h-12 md:w-14 md:h-14 bg-gradient-to-br from-[#336D82] to-[#7AB0C4] rounded-full flex items-center justify-center flex-shrink-0 shadow-md">
+              <Sparkles className="w-6 h-6 md:w-7 md:h-7 text-white" />
+            </div>
+            <div className="flex-1">
+              <h4 className="text-[#336D82] text-base md:text-lg font-bold mb-2">
+                📊 Hasil Analisis Kuis
+              </h4>
+              <div className="space-y-1">
+                <p className="text-[#336D82] text-sm md:text-base font-semibold">
+                  🎯 Level Tertinggi:{" "}
+                  <span className="text-green-600">
+                    {analisis.level_tertinggi?.toUpperCase() || "N/A"}
+                  </span>
+                </p>
+                <p className="text-[#336D82] text-sm md:text-base font-semibold">
+                  📈 Level Terendah:{" "}
+                  <span className="text-orange-600">
+                    {analisis.level_terendah?.toUpperCase() || "N/A"}
+                  </span>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Analisis Utama */}
         {analisis.analisis && (
-          <div className="bg-white dark:bg-gray-900 rounded-lg p-4 border border-blue-200 dark:border-blue-800">
+          <div className="bg-[#F0F7F9] rounded-lg p-4 border border-[#336D82]/20">
             <div className="flex items-center gap-2 mb-2">
-              <Sparkles className="w-4 h-4 text-blue-600" />
-              <h4 className="font-semibold text-sm">Analisis</h4>
+              <Sparkles className="w-4 h-4 text-[#336D82]" />
+              <h4 className="font-semibold text-sm text-[#336D82]">Analisis</h4>
             </div>
-            <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+            <p className="text-sm text-gray-700 whitespace-pre-wrap">
               {analisis.analisis}
             </p>
           </div>
@@ -148,28 +193,28 @@ export function AnalisisAICard({ analisis, onReanalyze, isReanalyzing }: Analisi
         {(analisis.level_tertinggi || analisis.level_terendah) && (
           <div className="grid grid-cols-2 gap-3">
             {analisis.level_tertinggi && (
-              <div className="bg-green-50 dark:bg-green-950/30 rounded-lg p-3 border border-green-200 dark:border-green-800">
+              <div className="bg-green-50 rounded-lg p-3 border border-green-300">
                 <div className="flex items-center gap-2 mb-1">
                   <TrendingUp className="w-4 h-4 text-green-600" />
-                  <h4 className="font-semibold text-xs text-green-800 dark:text-green-200">
+                  <h4 className="font-semibold text-xs text-green-800">
                     Level Tertinggi
                   </h4>
                 </div>
-                <p className="text-lg font-bold text-green-700 dark:text-green-300 uppercase">
+                <p className="text-lg font-bold text-green-700 uppercase">
                   {analisis.level_tertinggi}
                 </p>
               </div>
             )}
 
             {analisis.level_terendah && (
-              <div className="bg-orange-50 dark:bg-orange-950/30 rounded-lg p-3 border border-orange-200 dark:border-orange-800">
+              <div className="bg-orange-50 rounded-lg p-3 border border-orange-300">
                 <div className="flex items-center gap-2 mb-1">
                   <AlertCircle className="w-4 h-4 text-orange-600" />
-                  <h4 className="font-semibold text-xs text-orange-800 dark:text-orange-200">
+                  <h4 className="font-semibold text-xs text-orange-800">
                     Level Terendah
                   </h4>
                 </div>
-                <p className="text-lg font-bold text-orange-700 dark:text-orange-300 uppercase">
+                <p className="text-lg font-bold text-orange-700 uppercase">
                   {analisis.level_terendah}
                 </p>
               </div>
@@ -179,12 +224,14 @@ export function AnalisisAICard({ analisis, onReanalyze, isReanalyzing }: Analisi
 
         {/* Kelebihan */}
         {analisis.kelebihan && (
-          <div className="bg-white dark:bg-gray-900 rounded-lg p-4 border border-green-200 dark:border-green-800">
+          <div className="bg-[#F0F7F9] rounded-lg p-4 border border-green-300">
             <div className="flex items-center gap-2 mb-2">
               <TrendingUp className="w-4 h-4 text-green-600" />
-              <h4 className="font-semibold text-sm">Kelebihan</h4>
+              <h4 className="font-semibold text-sm text-[#336D82]">
+                Kelebihan
+              </h4>
             </div>
-            <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+            <p className="text-sm text-gray-700 whitespace-pre-wrap">
               {analisis.kelebihan}
             </p>
           </div>
@@ -192,12 +239,14 @@ export function AnalisisAICard({ analisis, onReanalyze, isReanalyzing }: Analisi
 
         {/* Kelemahan */}
         {analisis.kelemahan && (
-          <div className="bg-white dark:bg-gray-900 rounded-lg p-4 border border-orange-200 dark:border-orange-800">
+          <div className="bg-[#F0F7F9] rounded-lg p-4 border border-orange-300">
             <div className="flex items-center gap-2 mb-2">
               <AlertCircle className="w-4 h-4 text-orange-600" />
-              <h4 className="font-semibold text-sm">Kelemahan</h4>
+              <h4 className="font-semibold text-sm text-[#336D82]">
+                Kelemahan
+              </h4>
             </div>
-            <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+            <p className="text-sm text-gray-700 whitespace-pre-wrap">
               {analisis.kelemahan}
             </p>
           </div>
@@ -205,12 +254,14 @@ export function AnalisisAICard({ analisis, onReanalyze, isReanalyzing }: Analisi
 
         {/* Rekomendasi Belajar */}
         {analisis.rekomendasi_belajar && (
-          <div className="bg-white dark:bg-gray-900 rounded-lg p-4 border border-blue-200 dark:border-blue-800">
+          <div className="bg-[#F0F7F9] rounded-lg p-4 border border-[#336D82]/20">
             <div className="flex items-center gap-2 mb-2">
-              <BookOpen className="w-4 h-4 text-blue-600" />
-              <h4 className="font-semibold text-sm">Rekomendasi Belajar</h4>
+              <BookOpen className="w-4 h-4 text-[#336D82]" />
+              <h4 className="font-semibold text-sm text-[#336D82]">
+                Rekomendasi Belajar
+              </h4>
             </div>
-            <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+            <p className="text-sm text-gray-700 whitespace-pre-wrap">
               {analisis.rekomendasi_belajar}
             </p>
           </div>
@@ -262,27 +313,42 @@ export function AnalisisAIButton({
   };
 
   return (
-    <Card className="border-dashed border-2 border-blue-300 dark:border-blue-700 bg-blue-50/50 dark:bg-blue-950/30">
+    <Card className="border-dashed border-2 border-[#336D82]/30 bg-gradient-to-br from-[#F0F7F9] to-white rounded-[20px] overflow-hidden shadow-lg">
       <CardContent className="py-8">
         <div className="text-center space-y-4">
-          <div className="w-16 h-16 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center mx-auto">
-            <Brain className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+          {/* Mbah Adaptivin Avatar dengan Animasi */}
+          <div className="relative mx-auto w-24 h-24 mb-2">
+            <div className="absolute inset-0 bg-[#336D82]/10 rounded-full animate-ping" />
+            <div className="relative w-24 h-24 rounded-full bg-gradient-to-br from-[#336D82] to-[#7AB0C4] p-2 flex items-center justify-center shadow-xl">
+              <div className="w-full h-full rounded-full bg-white p-2 flex items-center justify-center">
+                <Image
+                  src="/mascot/mascot-2.svg"
+                  alt="Mbah Adaptivin"
+                  width={64}
+                  height={64}
+                  className="w-full h-full object-contain"
+                />
+              </div>
+            </div>
+            <Sparkles className="absolute -top-1 -right-1 w-6 h-6 text-yellow-500 animate-pulse" />
           </div>
 
           <div>
-            <h3 className="font-semibold text-lg mb-2">
-              {isReAnalyze ? "Analisis Ulang?" : "Analisis AI Belum Tersedia"}
-            </h3>
-            <p className="text-sm text-muted-foreground max-w-md mx-auto">
+            <h3 className="font-bold text-xl mb-2 text-[#336D82]">
               {isReAnalyze
-                ? "Klik tombol di bawah untuk menganalisis ulang hasil kuis Anda dengan AI."
-                : "Dapatkan analisis mendalam tentang hasil kuis Anda dengan bantuan AI. Analisis ini akan memberikan rekomendasi belajar yang personal."}
+                ? "Mau Analisis Lagi?"
+                : "Hai! Aku Mbah Adaptivin! 👋"}
+            </h3>
+            <p className="text-sm text-gray-600 max-w-md mx-auto leading-relaxed">
+              {isReAnalyze
+                ? "Yuk, kita analisis lagi hasil kuis kamu bersama Mbah Adaptivin! 🔍✨"
+                : "Ayo kita lihat hasil belajar kamu! Mbah Adaptivin akan bantu kamu jadi lebih pintar lagi! 📚✨"}
             </p>
           </div>
 
           {error && (
-            <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-lg p-3">
-              <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+            <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+              <p className="text-sm text-red-600">{error}</p>
             </div>
           )}
 
@@ -290,17 +356,20 @@ export function AnalisisAIButton({
             onClick={handleAnalyze}
             disabled={isLoading}
             size="lg"
-            className="bg-blue-600 hover:bg-blue-700 text-white"
+            className="bg-gradient-to-r from-[#336D82] to-[#7AB0C4] hover:from-[#2a5868] hover:to-[#6a9fb3] text-white shadow-lg hover:shadow-xl active:scale-95 transition-all rounded-full px-8 py-6 text-base font-bold"
+            data-analisis-button
           >
             {isLoading ? (
               <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Menganalisis...
+                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                Mbah Adaptivin sedang berpikir...
               </>
             ) : (
               <>
-                <Sparkles className="w-4 h-4 mr-2" />
-                {isReAnalyze ? "Analisis Ulang" : "Analisis dengan AI"}
+                <Sparkles className="w-5 h-5 mr-2" />
+                {isReAnalyze
+                  ? "Analisis Lagi dengan Mbah"
+                  : "Analisis dengan Mbah Adaptivin"}
               </>
             )}
           </Button>

@@ -14,16 +14,19 @@ interface CircularProgressProps {
 export default function CircularProgress({
   correct,
   total,
-  size = 92,
+  size = 100,
 }: CircularProgressProps) {
-  const percentage = (correct / total) * 100;
+  const percentage = total > 0 ? (correct / total) * 100 : 0;
   const strokeWidth = 8;
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (percentage / 100) * circumference;
 
   return (
-    <div className="relative" style={{ width: size, height: size }}>
+    <div
+      className="relative flex-shrink-0"
+      style={{ width: size, height: size }}
+    >
       <svg width={size} height={size} className="transform -rotate-90">
         {/* Background circle */}
         <circle
@@ -45,13 +48,16 @@ export default function CircularProgress({
           strokeDasharray={circumference}
           strokeDashoffset={offset}
           strokeLinecap="round"
-          className="transition-all duration-500"
+          className="transition-all duration-1000 ease-out"
         />
       </svg>
 
       {/* Text in center */}
       <div className="absolute inset-0 flex items-center justify-center">
-        <p className="text-[#336D82] text-[12px] font-medium">
+        <p
+          className="text-[#336D82] font-bold"
+          style={{ fontSize: `${size / 3.5}px` }}
+        >
           {correct}/{total}
         </p>
       </div>

@@ -27,6 +27,7 @@
     "react-dom": "19.1.0",
     "recharts": "^3.3.0",
     "rough-notation": "^0.5.1",
+    "sweetalert": "^2.1.2",
     "sweetalert2": "^11.26.3",
     "tailwind-merge": "^3.3.1"
   },

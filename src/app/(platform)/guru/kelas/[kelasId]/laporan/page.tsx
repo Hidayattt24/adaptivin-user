@@ -288,6 +288,7 @@ const LaporanKelasPage = () => {
             studentId={currentReport.siswaId}
             materiTitle={currentCardMateri.judul}
             materiId={currentCardMateri.materiId}
+            hasilKuisId={currentCardMateri.analisis?.hasil_kuis_id} // IMPORTANT: Pass hasil_kuis_id untuk API teacher analysis
             analisisData={currentCardMateri.analisis} // Pass analisis data from backend
             quizSummary={{
               totalQuestions: currentMaterialData?.performanceByLevel.reduce((sum, d) => sum + d.benar + d.salah, 0) || 0,

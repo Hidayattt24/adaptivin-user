@@ -12,15 +12,15 @@ import {
   useKarakter,
 } from "@/hooks/siswa/useSiswaProfile";
 
-// Character color mapping for borders (by index)
+// Character color mapping (corrected order)
 const characterColors: Record<number, string> = {
-  1: "#832C4C", // kocheng-oren
-  2: "#0F61AD", // bro-kerbuz
-  3: "#F564A9", // sin-bunbun
-  4: "#8FBD41", // mas-gwebek
-  5: "#5F3C32", // pak-bubu
-  6: "#568C1C", // mas-pace
-  7: "#BB5D57", // mas-piggy
+  1: "#0F61AD", // Bro Kerbuz
+  2: "#832C4C", // Kocheng Oren
+  3: "#8FBD41", // Mas Gwebek
+  4: "#568C1C", // Mas Pace
+  5: "#BB5D57", // Mas Piggy
+  6: "#5F3C32", // Pak Bubu
+  7: "#F564A9", // Sis Bun Bun
 };
 
 // Character descriptions (by index)
@@ -371,7 +371,7 @@ export default function PilihKarakterPage() {
                 <div className="flex-shrink-0">
                   <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-md overflow-hidden">
                     <img
-                      src="/mascot/mbah-adaptivin.svg"
+                      src="/mascot/mascot-2.svg"
                       alt="Mascot"
                       className="w-10 h-10 object-contain"
                     />

@@ -682,7 +682,8 @@ export default function HasilKuisPage() {
               <div
                 className="relative overflow-hidden rounded-[24px] shadow-2xl transition-all duration-300"
                 style={{
-                  background: "linear-gradient(135deg, #336D82 0%, #7AB0C4 100%)",
+                  background:
+                    "linear-gradient(135deg, #336D82 0%, #7AB0C4 100%)",
                 }}
               >
                 {/* Decorative Background Pattern */}
@@ -699,10 +700,10 @@ export default function HasilKuisPage() {
                     <div className="relative flex-shrink-0">
                       {/* Outer Glow Ring */}
                       <div className="absolute inset-0 rounded-full bg-yellow-300/30 blur-xl animate-pulse"></div>
-                      
+
                       {/* Rotating Ring */}
                       <div className="absolute inset-0 rounded-full border-4 border-dashed border-white/30 animate-spin-slow"></div>
-                      
+
                       {/* Main Avatar */}
                       <div className="relative w-24 h-24 md:w-28 md:h-28 rounded-full bg-white p-3 shadow-2xl">
                         <Image
@@ -713,7 +714,7 @@ export default function HasilKuisPage() {
                           className="w-full h-full object-contain"
                         />
                       </div>
-                      
+
                       {/* Sparkle Effects */}
                       <div className="absolute -top-2 -right-2 w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center shadow-lg animate-bounce">
                         <span className="text-lg">✨</span>
@@ -744,8 +745,9 @@ export default function HasilKuisPage() {
                       <span className="text-3xl flex-shrink-0">🌟</span>
                       <div>
                         <p className="text-white text-sm md:text-base leading-relaxed">
-                          Dengan kekuatan AI-ku, aku bisa tau kelebihan dan kelemahan kamu, 
-                          terus kasih saran belajar yang cocok buat kamu! Keren kan? 😎
+                          Dengan kekuatan AI-ku, aku bisa tau kelebihan dan
+                          kelemahan kamu, terus kasih saran belajar yang cocok
+                          buat kamu! Keren kan? 😎
                         </p>
                       </div>
                     </div>
@@ -774,7 +776,7 @@ export default function HasilKuisPage() {
 
                   {/* Fun Fact */}
                   <p className="text-white/80 text-xs md:text-sm text-center mt-4 italic">
-                    💡 Psst... Hasil ramalan Mbah sangat akurat lho! 
+                    💡 Psst... Hasil ramalan Mbah sangat akurat lho!
                   </p>
                 </div>
               </div>
@@ -948,7 +950,8 @@ export default function HasilKuisPage() {
         }
 
         @keyframes wave {
-          0%, 100% {
+          0%,
+          100% {
             transform: rotate(0deg);
           }
           25% {

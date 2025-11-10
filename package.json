@@ -6,7 +6,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "pre-build": "node scripts/pre-build-check.js",
+    "build:check": "npm run pre-build && npm run build",
+    "build:production": "npm run pre-build && NODE_ENV=production npm run build",
+    "analyze": "ANALYZE=true npm run build"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

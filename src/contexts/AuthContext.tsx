@@ -122,12 +122,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setCookie("token", token, { maxAge: 86400 }); // 1 day
       setCookie("role", user.role, { maxAge: 86400 });
 
-      // Redirect berdasarkan role
-      if (user.role === "guru") {
-        router.push("/guru/dashboard");
-      } else if (user.role === "siswa") {
-        router.push("/siswa/beranda");
-      }
+      // Note: Redirect dilakukan di halaman login, bukan di sini
+      // Ini untuk menghindari race condition dengan cookie management
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : "Login gagal";

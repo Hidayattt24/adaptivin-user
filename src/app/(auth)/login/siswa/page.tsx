@@ -21,6 +21,9 @@ const LoginSiswaPage = () => {
     setIsLoading(true);
 
     try {
+      // Hapus cookie onboarding sebelum login untuk memaksa tampil onboarding lagi
+      document.cookie = "adaptivin_user_hasSeenOnboarding=; path=/; max-age=0";
+
       await login(email, password);
 
       // Success SweetAlert
@@ -37,8 +40,8 @@ const LoginSiswaPage = () => {
         className: "swal-custom",
       });
 
-      // Redirect ke onboarding untuk first time user
-      router.push("/siswa/onboarding");
+      // Redirect ke onboarding dengan replace untuk menghindari history
+      router.replace("/siswa/onboarding");
     } catch (error: unknown) {
       setIsLoading(false);
 

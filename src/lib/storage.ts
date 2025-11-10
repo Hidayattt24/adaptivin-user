@@ -252,6 +252,8 @@ export const clearAuth = (): void => {
   removeStorage(StorageKeys.TOKEN);
   removeCookie("token");
   removeCookie("role");
+  removeCookie("hasSeenOnboarding"); // Clear onboarding status on logout
+  removeCookie("hasSeenSplash"); // Clear splash status on logout
 };
 
 /**
@@ -262,7 +264,7 @@ export const cleanupCorruptedStorage = (): void => {
   try {
     const prefix = getPrefix();
     const keys = Object.keys(localStorage);
-    
+
     keys.forEach((key) => {
       if (key.startsWith(prefix)) {
         try {

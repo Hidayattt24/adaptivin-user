@@ -846,7 +846,7 @@ export default function HasilKuisPage() {
                         Aku Mbah Adaptivin punya kekuatan istimewa lho! 🔮✨
                       </p>
                       <p className="text-white drop-shadow font-semibold text-lg md:text-xl">
-                        "Mau aku ramal dan prediksi hasil belajar kamu?" 🎯
+                        &quot;Mau aku ramal dan prediksi hasil belajar kamu?&quot; 🎯
                       </p>
                     </div>
                   </div>

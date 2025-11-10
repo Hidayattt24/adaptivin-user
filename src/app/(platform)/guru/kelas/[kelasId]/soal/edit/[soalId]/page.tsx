@@ -95,8 +95,9 @@ const EditSoalPage = () => {
         answerFilePreview: soalData.gambar_pendukung_jawaban || null,
         answerText: correctAnswer,
         explanation: soalData.penjelasan || "",
-        timeValue: Math.floor(soalData.durasi_soal / 60),
-        timeUnit: "Menit",
+        // ⭐ Backend menyimpan dalam detik, convert untuk display
+        timeValue: soalData.durasi_soal, // Store dalam detik
+        timeUnit: "Detik", // Default ke Detik
         multipleChoiceOptions: multipleChoiceOptions,
       });
     }
@@ -320,6 +321,13 @@ const EditSoalPage = () => {
         jawaban = [{ isi_jawaban: question.answerText.trim(), is_benar: true }];
       }
 
+      // ⭐ Convert durasi_soal to minutes if input is in seconds (same as create)
+      let durasiMenit = question.timeValue;
+      if (question.timeUnit === "Detik") {
+        // Convert detik ke menit (backend expects minutes)
+        durasiMenit = question.timeValue / 60;
+      }
+
       // Create update payload with proper typing
       const payload: {
         materi_id: string;
@@ -339,7 +347,7 @@ const EditSoalPage = () => {
         tipe_jawaban: question.answerType,
         soal_teks: question.questionText,
         penjelasan: question.explanation || undefined,
-        durasi_soal: question.timeValue,
+        durasi_soal: durasiMenit,
         jawaban: jawaban,
       };
 

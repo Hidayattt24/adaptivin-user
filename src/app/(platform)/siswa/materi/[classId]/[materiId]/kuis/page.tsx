@@ -8,6 +8,7 @@ import SlideToAnswer from "@/components/siswa/kuis/SlideToAnswer";
 import DynamicAnswerInput from "@/components/siswa/kuis/DynamicAnswerInput";
 import QuizTimer from "@/components/siswa/kuis/QuizTimer";
 import ErrorIcon from "@mui/icons-material/Error";
+import Swal from "sweetalert2";
 import {
   getKuisByMateri,
   Kuis,
@@ -52,7 +53,7 @@ export default function KuisPage() {
         const kuis = await getKuisByMateri(materiId);
 
         if (!kuis) {
-          alert("Kuis tidak ditemukan untuk materi ini");
+          Swal.fire("Gagal", "Kuis tidak ditemukan untuk materi ini", "error");
           router.back();
           return;
         }
@@ -88,6 +89,7 @@ export default function KuisPage() {
     error,
     loadQuestion,
     submitAnswer,
+    isSubmitting,
   } = useAdaptiveQuiz(
     kuisData?.id || "",
     hasilKuisId || "",
@@ -203,37 +205,41 @@ export default function KuisPage() {
   })();
 
   const handleSubmitAnswer = async () => {
-    if (!currentQuestion || !isAnswerValid) return;
+    if (!currentQuestion || !isAnswerValid || isSubmitting) return;
 
-    // Hitung waktu yang digunakan (dalam detik)
-    const waktuDijawab = Math.floor((Date.now() - questionStartTime) / 1000);
+    try {
+      // Hitung waktu yang digunakan (dalam detik)
+      const waktuDijawab = Math.floor((Date.now() - questionStartTime) / 1000);
 
-    // Get jawaban siswa berdasarkan tipe soal
-    const jawabanSiswa = getJawabanSiswa();
-    const jawabanId = getJawabanId();
+      // Get jawaban siswa berdasarkan tipe soal
+      const jawabanSiswa = getJawabanSiswa();
+      const jawabanId = getJawabanId();
 
-    // Submit jawaban (akan otomatis disimpan ke database via API)
-    const result = await submitAnswer(jawabanSiswa, waktuDijawab, jawabanId);
+      // Submit jawaban (akan otomatis disimpan ke database via API)
+      const result = await submitAnswer(jawabanSiswa, waktuDijawab, jawabanId);
 
-    if (result) {
-      // Simpan ke sessionStorage untuk hasil individual
-      sessionStorage.setItem(
-        "lastAnswer",
-        JSON.stringify({
-          soal: currentQuestion,
-          jawabanSiswa,
+      if (result) {
+        // Simpan ke sessionStorage untuk hasil individual
+        sessionStorage.setItem(
+          "lastAnswer",
+          JSON.stringify({
+            soal: currentQuestion,
+            jawabanSiswa,
+            isCorrect: result.isCorrect,
+            waktuDijawab,
+          })
+        );
+
+        // Tampilkan modal feedback
+        setFeedbackData({
           isCorrect: result.isCorrect,
-          waktuDijawab,
-        })
-      );
-
-      // Tampilkan modal feedback
-      setFeedbackData({
-        isCorrect: result.isCorrect,
-        explanation: currentQuestion.penjelasan,
-        explanationImage: currentQuestion.gambar_pendukung_jawaban,
-      });
-      setShowFeedbackModal(true);
+          explanation: currentQuestion.penjelasan,
+          explanationImage: currentQuestion.gambar_pendukung_jawaban,
+        });
+        setShowFeedbackModal(true);
+      }
+    } catch (error) {
+      console.error("❌ Error submitting answer:", error);
     }
   };
 
@@ -337,6 +343,20 @@ export default function KuisPage() {
 
           {/* Progress Bar */}
           <div className="mb-8 md:mb-12">
+            {/* Progress Counter Text */}
+            <div className="flex justify-between items-center mb-2">
+              <p className="text-white text-sm md:text-base font-medium">
+                Soal {quizState.currentQuestionNumber} dari{" "}
+                {quizState.totalQuestions}
+              </p>
+              <p className="text-white/80 text-xs md:text-sm">
+                {Math.round(
+                  (quizState.currentQuestionNumber / quizState.totalQuestions) *
+                  100
+                )}
+                % Selesai
+              </p>
+            </div>
             <QuizProgress
               currentQuestion={quizState.currentQuestionNumber}
               totalQuestions={quizState.totalQuestions}
@@ -394,7 +414,7 @@ export default function KuisPage() {
             <SlideToAnswer
               key={`slide-${currentQuestion.id}`}
               onSlideComplete={handleSubmitAnswer}
-              disabled={!isAnswerValid}
+              disabled={!isAnswerValid || isSubmitting}
             />
           </div>
         </div>

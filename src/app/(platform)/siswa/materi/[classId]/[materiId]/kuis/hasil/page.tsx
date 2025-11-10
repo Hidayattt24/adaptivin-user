@@ -93,7 +93,7 @@ export default function HasilKuisPage() {
   const [riwayat, setRiwayat] = useState<JawabanDetail[]>([]);
   const [totalBenar, setTotalBenar] = useState(0);
   const [totalSoal, setTotalSoal] = useState(0);
-  const [showResults, setShowResults] = useState(false);
+  const [showResults, setShowResults] = useState(true); // Auto-expand by default
   const [materiNama, setMateriNama] = useState("Materi");
   const [selectedQuestion, setSelectedQuestion] =
     useState<JawabanDetail | null>(null);
@@ -105,6 +105,7 @@ export default function HasilKuisPage() {
   );
   const [analisisData, setAnalisisData] = useState<AnalisisAI | null>(null);
   const [loadingAnalisis, setLoadingAnalisis] = useState(false);
+  const [isRamalanLoading, setIsRamalanLoading] = useState(false);
 
   // Fetch materi info
   useEffect(() => {
@@ -123,8 +124,8 @@ export default function HasilKuisPage() {
     router.push(`/siswa/materi/${classId}/${materiId}`);
   };
 
-  const handleInfoClick = (item: JawabanDetail) => {
-    setSelectedQuestion(item);
+  const handleInfoClick = (item: JawabanDetail, index: number) => {
+    setSelectedQuestion({ ...item, questionNumber: index + 1 } as any);
     setShowDetailModal(true);
   };
 
@@ -271,13 +272,40 @@ export default function HasilKuisPage() {
       is_completed: true,
     });
 
+    // Stop loading ramalan
+    setIsRamalanLoading(false);
+
+    // Auto-expand hasil keseluruhan
+    setShowResults(true);
+
+    // Auto-expand detail analisis
+    setTimeout(() => {
+      const detailSection = document.getElementById("analisis-detail");
+      const icon = document.getElementById("analisis-icon");
+      if (detailSection && icon) {
+        detailSection.classList.remove("hidden");
+        icon.classList.add("rotate-180");
+      }
+    }, 300);
+
     // Scroll ke analisis
     setTimeout(() => {
       const analisisElement = document.getElementById("analisis-section");
       if (analisisElement) {
         analisisElement.scrollIntoView({ behavior: "smooth", block: "start" });
       }
-    }, 100);
+    }, 500);
+  };
+
+  // Handler untuk tombol "Ramal Sekarang!"
+  const handleRamalSekarang = () => {
+    setIsRamalanLoading(true);
+
+    // Trigger analisis button
+    const element = document.querySelector("[data-analisis-button]");
+    if (element instanceof HTMLElement) {
+      element.click();
+    }
   };
 
   // Handler untuk re-analyze
@@ -361,6 +389,7 @@ export default function HasilKuisPage() {
 
             let bgColor = "bg-gray-50 dark:bg-gray-900";
             let borderColor = "border-gray-200 dark:border-gray-700";
+            let textColor = "text-gray-700";
             let icon = null;
             let statusText = null;
 
@@ -368,6 +397,7 @@ export default function HasilKuisPage() {
               // Dipilih dan benar ✅ (hijau)
               bgColor = "bg-green-50 dark:bg-green-950/30";
               borderColor = "border-green-500";
+              textColor = "text-green-800";
               icon = (
                 <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
               );
@@ -378,6 +408,7 @@ export default function HasilKuisPage() {
               // Tidak dipilih tapi seharusnya dipilih 🟡 (kuning - terlewat)
               bgColor = "bg-yellow-50 dark:bg-yellow-950/30";
               borderColor = "border-yellow-500";
+              textColor = "text-yellow-800";
               icon = (
                 <CheckCircle2 className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
               );
@@ -390,6 +421,7 @@ export default function HasilKuisPage() {
               // Dipilih tapi salah ❌ (merah)
               bgColor = "bg-red-50 dark:bg-red-950/30";
               borderColor = "border-red-500";
+              textColor = "text-red-800";
               icon = (
                 <XCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
               );
@@ -402,6 +434,7 @@ export default function HasilKuisPage() {
               // Tidak dipilih dan memang salah (abu-abu - benar tidak dipilih)
               bgColor = "bg-gray-50 dark:bg-gray-900";
               borderColor = "border-gray-200 dark:border-gray-700";
+              textColor = "text-gray-700";
               icon = (
                 <div className="w-5 h-5 rounded-full border-2 border-gray-300 flex-shrink-0 mt-0.5" />
               );
@@ -415,7 +448,9 @@ export default function HasilKuisPage() {
                 <div className="flex items-start gap-3">
                   {icon}
                   <div className="flex-1">
-                    <p className="text-sm">{jawaban.isi_jawaban}</p>
+                    <p className={`text-sm font-medium ${textColor}`}>
+                      {jawaban.isi_jawaban}
+                    </p>
                     {statusText}
                   </div>
                 </div>
@@ -442,19 +477,23 @@ export default function HasilKuisPage() {
 
           let bgColor = "bg-gray-50 dark:bg-gray-900";
           let borderColor = "border-gray-200 dark:border-gray-700";
+          let textColor = "text-gray-700";
           let icon = null;
 
           if (isSelected && isCorrect) {
             bgColor = "bg-green-50 dark:bg-green-950/30";
             borderColor = "border-green-500";
+            textColor = "text-green-800";
             icon = <CheckCircle2 className="w-5 h-5 text-green-600" />;
           } else if (isSelected && !isCorrect) {
             bgColor = "bg-red-50 dark:bg-red-950/30";
             borderColor = "border-red-500";
+            textColor = "text-red-800";
             icon = <XCircle className="w-5 h-5 text-red-600" />;
           } else if (!isSelected && isCorrect) {
             bgColor = "bg-yellow-50 dark:bg-yellow-950/30";
             borderColor = "border-yellow-500";
+            textColor = "text-yellow-800";
             icon = <CheckCircle2 className="w-5 h-5 text-yellow-600" />;
           }
 
@@ -466,7 +505,9 @@ export default function HasilKuisPage() {
               <div className="flex items-start gap-3">
                 {icon}
                 <div className="flex-1">
-                  <p className="text-sm">{jawaban.isi_jawaban}</p>
+                  <p className={`text-sm font-medium ${textColor}`}>
+                    {jawaban.isi_jawaban}
+                  </p>
                   {!isSelected && isCorrect && (
                     <p className="text-xs text-yellow-600 mt-1">
                       Jawaban yang benar
@@ -495,79 +536,150 @@ export default function HasilKuisPage() {
   const skor = totalSoal > 0 ? Math.round((totalBenar / totalSoal) * 100) : 0;
 
   return (
-    <div className="relative w-full min-h-screen bg-white overflow-x-hidden pb-8 md:pb-12">
+    <div className="relative w-full min-h-screen bg-gradient-to-b from-gray-50 to-white overflow-x-hidden pb-8 md:pb-12">
       {/* Content Container - Desktop Centered */}
       <div className="max-w-3xl mx-auto">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 md:px-8 pt-8 md:pt-12 pb-4 md:pb-6">
-          <h1 className="text-[#336D82] text-[20px] md:text-3xl font-semibold">
-            Riview Jawaban
+        <div className="flex items-center justify-between px-4 md:px-8 pt-6 md:pt-12 pb-4 md:pb-6">
+          <h1 className="text-[#336D82] text-[18px] md:text-3xl font-bold">
+            📊 Hasil Kuis
           </h1>
           <button
             onClick={handleClose}
-            className="w-[42px] h-[42px] md:w-[52px] md:h-[52px] bg-[#336D82] rounded-full flex items-center justify-center hover:bg-[#2a5868] active:scale-95 transition-all shadow-lg"
+            className="w-[40px] h-[40px] md:w-[52px] md:h-[52px] bg-[#336D82] rounded-full flex items-center justify-center hover:bg-[#2a5868] active:scale-95 transition-all shadow-lg"
           >
-            <span className="material-symbols-outlined text-white text-[24px] md:text-[28px]">
+            <span className="material-symbols-outlined text-white text-[20px] md:text-[28px]">
               close
             </span>
           </button>
         </div>
 
         {/* Summary Card */}
-        <div className="px-6 md:px-8 mb-6 md:mb-8">
-          <div
-            className="rounded-[20px] md:rounded-[30px] p-6 md:p-8 shadow-xl"
-            style={{
-              background: "linear-gradient(180deg, #336D82 0%, #7AB0C4 100%)",
-            }}
-          >
-            {/* Materi Info */}
-            <div className="mb-4 md:mb-6">
-              <p className="text-white text-[14px] md:text-base font-medium mb-1">
-                Materi
-              </p>
-              <p className="text-white text-[15px] md:text-xl font-semibold">
-                {materiNama}
-              </p>
+        <div className="px-4 md:px-8 mb-4 md:mb-8">
+          <div className="rounded-[20px] md:rounded-[32px] overflow-hidden shadow-xl md:shadow-2xl">
+            {/* Header Section with Gradient */}
+            <div
+              className="relative p-4 md:p-8 overflow-hidden"
+              style={{
+                background: "linear-gradient(135deg, #336D82 0%, #7AB0C4 100%)",
+              }}
+            >
+              {/* Decorative elements */}
+              <div className="absolute inset-0 pointer-events-none opacity-10">
+                <div className="absolute w-24 h-24 md:w-32 md:h-32 bg-white rounded-full -top-12 -right-12 md:-top-16 md:-right-16 animate-pulse"></div>
+                <div className="absolute w-20 h-20 md:w-24 md:h-24 bg-white rounded-full -bottom-10 -left-10 md:-bottom-12 md:-left-12 animate-pulse delay-75"></div>
+                <div className="absolute w-16 h-16 md:w-20 md:h-20 bg-white rounded-full top-1/2 left-8 md:left-10 animate-pulse delay-100"></div>
+              </div>
+
+              {/* Content */}
+              <div className="relative z-10">
+                {/* Materi Badge */}
+                <div className="inline-flex items-center gap-1.5 md:gap-2 bg-white/20 backdrop-blur-sm px-3 py-1.5 md:px-4 md:py-2 rounded-full mb-2 md:mb-3">
+                  <span className="text-white/90 text-[11px] md:text-sm font-medium">
+                    📚 Materi
+                  </span>
+                </div>
+
+                {/* Materi Title */}
+                <h2 className="text-white text-lg md:text-3xl font-bold mb-0.5 md:mb-1 drop-shadow-md">
+                  {materiNama}
+                </h2>
+                <p className="text-white/90 text-xs md:text-base">
+                  Hasil Kuis Kamu
+                </p>
+              </div>
             </div>
 
-            {/* Progress Card */}
-            <div className="bg-white rounded-t-[10px] md:rounded-t-[15px] p-4 md:p-6 flex items-center gap-4 md:gap-6">
-              {/* Circular Progress */}
-              <CircularProgress
-                correct={totalBenar}
-                total={totalSoal}
-                size={100}
-              />
+            {/* Score Section with Modern Design */}
+            <div className="bg-gradient-to-br from-gray-50 to-white p-4 md:p-8">
+              <div className="flex flex-col items-center gap-4 md:gap-6">
+                {/* Circular Progress with Enhanced Design */}
+                <div className="relative flex-shrink-0">
+                  {/* Glow effect */}
+                  <div className="absolute inset-0 bg-[#336D82]/20 rounded-full blur-xl md:blur-2xl animate-pulse"></div>
 
-              {/* Score Text */}
-              <div>
-                <p className="text-[#336D82] text-[11px] md:text-sm font-medium leading-relaxed">
-                  Jawaban kamu benar
-                </p>
-                <p className="text-[#336D82] text-[11px] md:text-sm font-medium leading-relaxed">
-                  {totalBenar} dari {totalSoal} pertanyaan
-                </p>
+                  {/* Progress Circle */}
+                  <div className="relative">
+                    <CircularProgress
+                      correct={totalBenar}
+                      total={totalSoal}
+                      size={100}
+                    />
+                  </div>
+                </div>
+
+                {/* Score Details - Centered on All Screens */}
+                <div className="flex-1 text-center w-full">
+                  {/* Score Badge */}
+                  <div className="inline-flex items-center gap-2 bg-gradient-to-r from-[#336D82]/10 to-[#7AB0C4]/10 px-3 py-1.5 md:px-4 md:py-2 rounded-full mb-2 md:mb-3 border border-[#336D82]/20">
+                    <span className="text-xl md:text-2xl">🎯</span>
+                    <span className="text-[#336D82] text-xs md:text-base font-bold">
+                      Skor: {Math.round((totalBenar / totalSoal) * 100)}%
+                    </span>
+                  </div>
+
+                  {/* Score Text */}
+                  <div className="space-y-1 md:space-y-2">
+                    <p className="text-gray-700 text-sm md:text-lg font-semibold">
+                      Jawaban Benar
+                    </p>
+                    <div className="flex items-baseline justify-center gap-2">
+                      <span className="text-3xl md:text-5xl font-bold text-[#336D82]">
+                        {totalBenar}
+                      </span>
+                      <span className="text-lg md:text-2xl text-gray-400 font-medium">
+                        / {totalSoal}
+                      </span>
+                    </div>
+                    <p className="text-gray-500 text-xs md:text-base">
+                      pertanyaan dijawab dengan benar
+                    </p>
+                  </div>
+
+                  {/* Achievement Badge */}
+                  {skor >= 80 ? (
+                    <div className="mt-3 md:mt-4 inline-flex items-center gap-2 bg-gradient-to-r from-yellow-100 to-orange-100 px-3 py-1.5 md:px-4 md:py-2 rounded-full border-2 border-yellow-300">
+                      <span className="text-xl md:text-2xl">🏆</span>
+                      <span className="text-orange-700 text-xs md:text-base font-bold">
+                        Luar Biasa!
+                      </span>
+                    </div>
+                  ) : skor >= 60 ? (
+                    <div className="mt-3 md:mt-4 inline-flex items-center gap-2 bg-gradient-to-r from-green-100 to-emerald-100 px-3 py-1.5 md:px-4 md:py-2 rounded-full border-2 border-green-300">
+                      <span className="text-xl md:text-2xl">⭐</span>
+                      <span className="text-green-700 text-xs md:text-base font-bold">
+                        Bagus!
+                      </span>
+                    </div>
+                  ) : (
+                    <div className="mt-3 md:mt-4 inline-flex items-center gap-2 bg-gradient-to-r from-blue-100 to-cyan-100 px-3 py-1.5 md:px-4 md:py-2 rounded-full border-2 border-blue-300">
+                      <span className="text-xl md:text-2xl">💪</span>
+                      <span className="text-blue-700 text-xs md:text-base font-bold">
+                        Tetap Semangat!
+                      </span>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
         </div>
 
         {/* Dropdown Toggle */}
-        <div className="px-6 md:px-8 mb-4 md:mb-6">
-          <div className="flex gap-3 justify-center">
+        <div className="px-4 md:px-8 mb-4 md:mb-6">
+          <div className="flex gap-2 md:gap-3 justify-center">
             <button
               onClick={() => setShowResults(!showResults)}
-              className="bg-[#336D82] rounded-[20px] h-[34px] md:h-[44px] px-5 md:px-7 text-white text-[14px] md:text-base font-semibold shadow-md hover:shadow-lg active:scale-95 transition-all"
+              className="bg-[#336D82] rounded-[16px] md:rounded-[20px] h-[36px] md:h-[44px] px-4 md:px-7 text-white text-[13px] md:text-base font-semibold shadow-md hover:shadow-lg active:scale-95 transition-all"
             >
-              Hasil Keseluruhan
+              📋 Hasil Keseluruhan
             </button>
             <button
               onClick={() => setShowResults(!showResults)}
-              className="bg-[#336D82] rounded-[20px] h-[34px] md:h-[44px] w-[69px] md:w-[80px] flex items-center justify-center shadow-md hover:shadow-lg active:scale-95 transition-all"
+              className="bg-[#336D82] rounded-[16px] md:rounded-[20px] h-[36px] md:h-[44px] w-[60px] md:w-[80px] flex items-center justify-center shadow-md hover:shadow-lg active:scale-95 transition-all"
             >
               <span
-                className={`material-symbols-outlined text-white text-[24px] md:text-[28px] transition-transform duration-300 ${
+                className={`material-symbols-outlined text-white text-[22px] md:text-[28px] transition-transform duration-300 ${
                   showResults ? "rotate-180" : ""
                 }`}
               >
@@ -579,21 +691,21 @@ export default function HasilKuisPage() {
 
         {/* Results List - Desktop Grid */}
         {showResults && (
-          <div className="px-6 md:px-8 space-y-3 md:grid md:grid-cols-2 md:gap-4 md:space-y-0 mb-6 md:mb-8 animate-fade-in">
+          <div className="px-4 md:px-8 space-y-2 md:space-y-3 md:grid md:grid-cols-2 md:gap-4 md:space-y-0 mb-4 md:mb-8 animate-fade-in">
             {riwayat.map((item, index) => (
               <QuizResultItem
                 key={item.id}
                 questionNumber={index + 1}
                 question={item.soal.soal_teks}
                 isCorrect={item.benar}
-                onInfoClick={() => handleInfoClick(item)}
+                onInfoClick={() => handleInfoClick(item, index)}
               />
             ))}
           </div>
         )}
 
         {/* Analisis AI Section */}
-        <div id="analisis-section" className="px-6 md:px-8 mb-6 md:mb-8">
+        <div id="analisis-section" className="px-4 md:px-8 mb-4 md:mb-8">
           {loadingAnalisis ? (
             <Card className="border-2 border-blue-200 rounded-[20px] overflow-hidden">
               <CardContent className="py-8">
@@ -607,7 +719,7 @@ export default function HasilKuisPage() {
             <div>
               {/* Dropdown Toggle untuk Analisis Detail */}
               <div className="mb-4">
-                <div className="flex gap-3 justify-center">
+                <div className="flex gap-2 md:gap-3 justify-center">
                   <button
                     onClick={() => {
                       const detailSection =
@@ -625,9 +737,9 @@ export default function HasilKuisPage() {
                         }
                       }
                     }}
-                    className="bg-[#336D82] rounded-[20px] h-[34px] md:h-[44px] px-5 md:px-7 text-white text-[14px] md:text-base font-semibold shadow-md hover:shadow-lg active:scale-95 transition-all"
+                    className="bg-[#336D82] rounded-[16px] md:rounded-[20px] h-[36px] md:h-[44px] px-4 md:px-7 text-white text-[13px] md:text-base font-semibold shadow-md hover:shadow-lg active:scale-95 transition-all"
                   >
-                    Detail Analisis Mbah Adaptivin
+                    🔮 Detail Analisis Mbah
                   </button>
                   <button
                     onClick={() => {
@@ -646,11 +758,11 @@ export default function HasilKuisPage() {
                         }
                       }
                     }}
-                    className="bg-[#336D82] rounded-[20px] h-[34px] md:h-[44px] w-[69px] md:w-[80px] flex items-center justify-center shadow-md hover:shadow-lg active:scale-95 transition-all"
+                    className="bg-[#336D82] rounded-[16px] md:rounded-[20px] h-[36px] md:h-[44px] w-[60px] md:w-[80px] flex items-center justify-center shadow-md hover:shadow-lg active:scale-95 transition-all"
                   >
                     <span
                       id="analisis-icon"
-                      className="material-symbols-outlined text-white text-[24px] md:text-[28px] transition-transform duration-300"
+                      className="material-symbols-outlined text-white text-[22px] md:text-[28px] transition-transform duration-300 rotate-180"
                     >
                       expand_more
                     </span>
@@ -658,8 +770,8 @@ export default function HasilKuisPage() {
                 </div>
               </div>
 
-              {/* Detail Analisis (Hidden by default) */}
-              <div id="analisis-detail" className="hidden animate-fade-in">
+              {/* Detail Analisis (Auto-expanded by default) */}
+              <div id="analisis-detail" className="animate-fade-in">
                 <AnalisisAISection
                   analisis={analisisData}
                   hasilKuisId={hasilKuisId!}
@@ -754,25 +866,75 @@ export default function HasilKuisPage() {
                   </div>
 
                   {/* Action Button */}
-                  <button
-                    onClick={() => {
-                      const element = document.querySelector(
-                        "[data-analisis-button]"
-                      );
-                      if (element instanceof HTMLElement) {
-                        element.click();
-                      }
-                    }}
-                    className="w-full bg-white hover:bg-gray-50 text-[#336D82] py-4 md:py-5 rounded-2xl font-bold text-lg md:text-xl transition-all active:scale-95 shadow-2xl flex items-center justify-center gap-3 group"
-                  >
-                    <span className="text-2xl group-hover:scale-110 transition-transform">
-                      🔮
-                    </span>
-                    <span>Ramal Sekarang!</span>
-                    <span className="text-2xl group-hover:scale-110 transition-transform">
-                      ✨
-                    </span>
-                  </button>
+                  {!isRamalanLoading ? (
+                    <button
+                      onClick={handleRamalSekarang}
+                      className="w-full bg-white hover:bg-gray-50 text-[#336D82] py-4 md:py-5 rounded-2xl font-bold text-lg md:text-xl transition-all active:scale-95 shadow-2xl flex items-center justify-center gap-3 group"
+                    >
+                      <span className="text-2xl group-hover:scale-110 transition-transform">
+                        🔮
+                      </span>
+                      <span>Ramal Sekarang!</span>
+                      <span className="text-2xl group-hover:scale-110 transition-transform">
+                        ✨
+                      </span>
+                    </button>
+                  ) : (
+                    <div className="w-full bg-gradient-to-br from-purple-100 via-purple-50 to-pink-50 py-6 md:py-8 rounded-2xl shadow-2xl border-2 border-purple-200">
+                      {/* Mystical Loading Animation */}
+                      <div className="flex flex-col items-center gap-4">
+                        {/* Crystal Ball Animation */}
+                        <div className="relative">
+                          {/* Outer glow rings */}
+                          <div className="absolute inset-0 animate-ping-slow">
+                            <div className="w-24 h-24 md:w-28 md:h-28 rounded-full bg-purple-400/30 blur-xl"></div>
+                          </div>
+                          <div className="absolute inset-0 animate-ping-slower">
+                            <div className="w-24 h-24 md:w-28 md:h-28 rounded-full bg-pink-400/20 blur-2xl"></div>
+                          </div>
+
+                          {/* Main crystal ball */}
+                          <div className="relative w-20 h-20 md:w-24 md:h-24 rounded-full bg-gradient-to-br from-purple-400 via-purple-300 to-pink-300 flex items-center justify-center shadow-2xl animate-pulse-glow">
+                            <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-gradient-to-br from-purple-200/50 to-pink-200/50 backdrop-blur-sm flex items-center justify-center">
+                              <span className="text-4xl md:text-5xl animate-spin-slow">
+                                🔮
+                              </span>
+                            </div>
+                            {/* Sparkles around ball */}
+                            <div className="absolute -top-2 -right-2 text-2xl animate-bounce">
+                              ✨
+                            </div>
+                            <div className="absolute -bottom-2 -left-2 text-2xl animate-bounce delay-100">
+                              ⭐
+                            </div>
+                            <div className="absolute top-0 -left-3 text-xl animate-bounce delay-75">
+                              💫
+                            </div>
+                            <div className="absolute bottom-0 -right-3 text-xl animate-bounce delay-150">
+                              🌟
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Loading Text */}
+                        <div className="text-center px-4">
+                          <p className="text-purple-800 font-bold text-lg md:text-xl mb-2 animate-pulse">
+                            🔮 Mbah Sedang Meramal... 🔮
+                          </p>
+                          <p className="text-purple-600 text-sm md:text-base font-medium animate-fade-in-out">
+                            Tunggu sebentar ya, lagi baca bola kristal nih... ✨
+                          </p>
+                        </div>
+
+                        {/* Mystical Dots */}
+                        <div className="flex gap-2">
+                          <div className="w-3 h-3 rounded-full bg-purple-400 animate-bounce"></div>
+                          <div className="w-3 h-3 rounded-full bg-purple-400 animate-bounce delay-100"></div>
+                          <div className="w-3 h-3 rounded-full bg-purple-400 animate-bounce delay-200"></div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                   {/* Fun Fact */}
                   <p className="text-white/80 text-xs md:text-sm text-center mt-4 italic">
@@ -797,117 +959,146 @@ export default function HasilKuisPage() {
 
       {/* Modal Detail Jawaban */}
       {showDetailModal && selectedQuestion && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
-          <div className="bg-white rounded-[24px] md:rounded-[32px] w-full max-w-2xl max-h-[90vh] overflow-hidden shadow-2xl">
-            {/* Header */}
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-50 p-3 md:p-4 animate-fade-in">
+          <div className="bg-white rounded-[24px] md:rounded-[32px] w-full max-w-md md:max-w-2xl max-h-[95vh] overflow-hidden shadow-2xl animate-scale-in">
+            {/* Header with Clean Design */}
             <div
-              className="p-6 md:p-8 text-white relative overflow-hidden"
+              className="relative pt-5 pb-4 px-5 md:px-6"
               style={{
                 background: selectedQuestion.benar
-                  ? "linear-gradient(135deg, #10b981 0%, #059669 100%)"
-                  : "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)",
+                  ? "linear-gradient(135deg, #10b981 0%, #34d399 100%)"
+                  : "linear-gradient(135deg, #ef4444 0%, #f87171 100%)",
               }}
             >
-              {/* Decorative circles - behind content */}
-              <div className="absolute inset-0 pointer-events-none opacity-10">
-                <div className="absolute w-32 h-32 bg-white rounded-full -top-16 -left-16"></div>
-                <div className="absolute w-24 h-24 bg-white rounded-full -bottom-12 -right-12"></div>
-              </div>
-
-              {/* Close button - on top layer */}
+              {/* Close button - Top Right */}
               <button
                 onClick={closeDetailModal}
-                className="absolute top-4 right-4 w-10 h-10 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-all active:scale-95 z-10"
+                className="absolute top-3 right-3 w-9 h-9 bg-white rounded-full flex items-center justify-center transition-all active:scale-95 shadow-md hover:bg-gray-50"
+                aria-label="Tutup"
               >
-                <X className="w-6 h-6 text-white" />
+                <X className="w-4 h-4 text-gray-700" />
               </button>
 
-              {/* Content - on top of decorative circles */}
-              <div className="flex items-center gap-4 mb-4 relative z-10">
-                <div
-                  className={`w-16 h-16 rounded-full flex items-center justify-center ${
-                    selectedQuestion.benar ? "bg-green-100" : "bg-red-100"
-                  }`}
-                >
-                  {selectedQuestion.benar ? (
-                    <CheckCircle2 className="w-10 h-10 text-green-600" />
-                  ) : (
-                    <XCircle className="w-10 h-10 text-red-600" />
+              {/* Question Number Badge */}
+              <div className="text-center mb-3">
+                <p className="text-white/80 text-xs font-medium mb-2">
+                  Soal Nomor #{(selectedQuestion as any).questionNumber}
+                </p>
+
+                {/* Icon */}
+                <div className="flex justify-center mb-3">
+                  <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-lg">
+                    {selectedQuestion.benar ? (
+                      <CheckCircle2 className="w-8 h-8 text-green-500" />
+                    ) : (
+                      <XCircle className="w-8 h-8 text-red-500" />
+                    )}
+                  </div>
+                </div>
+
+                {/* Title */}
+                <h3 className="text-white text-xl md:text-2xl font-bold mb-3">
+                  {selectedQuestion.benar
+                    ? "Jawaban Benar! 🎉"
+                    : "Jawaban Salah"}
+                </h3>
+
+                {/* Info Badges */}
+                <div className="flex justify-center gap-2 flex-wrap">
+                  <div className="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur-sm px-3 py-1.5 rounded-lg">
+                    <span className="text-white text-xs font-semibold">
+                      Level: {selectedQuestion.level_soal.toUpperCase()}
+                    </span>
+                  </div>
+                  <div className="inline-flex items-center gap-1 bg-white/20 backdrop-blur-sm px-3 py-1.5 rounded-lg">
+                    <Clock className="w-3.5 h-3.5 text-white" />
+                    <span className="text-white text-xs font-semibold">
+                      Waktu: {formatTime(selectedQuestion.waktu_dijawab)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Content - Scrollable with Better Layout */}
+            <div className="overflow-y-auto max-h-[calc(95vh-240px)] bg-white">
+              {/* Soal Section */}
+              <div className="p-4 md:p-5 bg-gray-50 border-b border-gray-200">
+                <div className="flex items-center gap-2 mb-2.5">
+                  <div className="w-6 h-6 bg-[#336D82] rounded-lg flex items-center justify-center flex-shrink-0">
+                    <span className="text-white text-sm font-bold">?</span>
+                  </div>
+                  <h4 className="text-xs font-bold text-[#336D82] uppercase tracking-wider">
+                    Pertanyaan
+                  </h4>
+                </div>
+                <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-200">
+                  <p className="text-gray-800 text-sm md:text-base leading-relaxed">
+                    {selectedQuestion.soal.soal_teks}
+                  </p>
+                  {selectedQuestion.soal.soal_gambar && (
+                    <div className="mt-3 rounded-lg overflow-hidden border border-gray-200">
+                      <Image
+                        src={selectedQuestion.soal.soal_gambar}
+                        alt="Gambar Soal"
+                        width={600}
+                        height={400}
+                        className="w-full h-auto object-contain bg-gray-50"
+                      />
+                    </div>
                   )}
                 </div>
-                <div>
-                  <h3 className="text-2xl md:text-3xl font-bold">
-                    {selectedQuestion.benar
-                      ? "Jawaban Benar! 🎉"
-                      : "Jawaban Salah 😔"}
-                  </h3>
-                  <p className="text-white/90 text-sm md:text-base mt-1">
-                    Level: {selectedQuestion.level_soal.toUpperCase()} • Waktu:{" "}
-                    {formatTime(selectedQuestion.waktu_dijawab)}
-                  </p>
-                </div>
               </div>
-            </div>
 
-            {/* Content */}
-            <div className="p-6 md:p-8 overflow-y-auto max-h-[calc(90vh-180px)]">
-              {/* Soal */}
-              <div className="mb-6">
-                <h4 className="text-sm font-semibold text-gray-500 mb-2 uppercase tracking-wide">
-                  Pertanyaan
-                </h4>
-                <p className="text-gray-900 text-base md:text-lg leading-relaxed">
-                  {selectedQuestion.soal.soal_teks}
-                </p>
-                {selectedQuestion.soal.soal_gambar && (
-                  <div className="mt-4 rounded-xl overflow-hidden border-2 border-gray-200">
-                    <Image
-                      src={selectedQuestion.soal.soal_gambar}
-                      alt="Gambar Soal"
-                      width={600}
-                      height={400}
-                      className="w-full h-auto object-contain"
-                    />
+              {/* Jawaban Section */}
+              <div className="p-4 md:p-5">
+                <div className="flex items-center gap-2 mb-2.5">
+                  <div className="w-6 h-6 bg-[#336D82] rounded-lg flex items-center justify-center flex-shrink-0">
+                    <span className="text-white text-sm font-bold">A</span>
                   </div>
-                )}
-              </div>
-
-              {/* Jawaban Detail */}
-              <div>
-                <h4 className="text-sm font-semibold text-gray-500 mb-3 uppercase tracking-wide">
-                  Detail Jawaban
-                </h4>
-                {renderJawabanSiswa(selectedQuestion)}
-              </div>
-
-              {/* Info Badge */}
-              <div className="mt-6 flex items-center gap-3 flex-wrap">
-                <div className="px-4 py-2 bg-blue-50 border border-blue-200 rounded-lg">
-                  <span className="text-xs text-blue-700 font-medium">
-                    {selectedQuestion.soal.tipe_jawaban === "pilihan_ganda"
-                      ? "Pilihan Ganda"
-                      : selectedQuestion.soal.tipe_jawaban ===
-                        "pilihan_ganda_kompleks"
-                      ? "Pilihan Ganda Kompleks"
-                      : "Isian Singkat"}
-                  </span>
+                  <h4 className="text-xs font-bold text-[#336D82] uppercase tracking-wider">
+                    Detail Jawaban
+                  </h4>
                 </div>
-                <div className="px-4 py-2 bg-purple-50 border border-purple-200 rounded-lg">
-                  <span className="text-xs text-purple-700 font-medium flex items-center gap-1">
-                    <Clock className="w-3 h-3" />
-                    {formatTime(selectedQuestion.waktu_dijawab)}
-                  </span>
+                <div className="space-y-2">
+                  {renderJawabanSiswa(selectedQuestion)}
+                </div>
+              </div>
+
+              {/* Info Footer */}
+              <div className="p-4 md:p-5 bg-gradient-to-b from-white to-gray-50 border-t border-gray-200">
+                <div className="flex flex-wrap justify-center gap-2">
+                  {/* Type Badge */}
+                  <div className="inline-flex items-center gap-2 px-3 py-2 bg-blue-50 rounded-xl border border-blue-200">
+                    <span className="text-base">📝</span>
+                    <span className="text-xs md:text-sm text-blue-700 font-semibold">
+                      {selectedQuestion.soal.tipe_jawaban === "pilihan_ganda"
+                        ? "Pilihan Ganda"
+                        : selectedQuestion.soal.tipe_jawaban ===
+                          "pilihan_ganda_kompleks"
+                        ? "Pilihan Kompleks"
+                        : "Isian Singkat"}
+                    </span>
+                  </div>
+
+                  {/* Level Badge */}
+                  <div className="inline-flex items-center gap-2 px-3 py-2 bg-orange-50 rounded-xl border border-orange-200">
+                    <span className="text-base">⚡</span>
+                    <span className="text-xs md:text-sm text-orange-700 font-semibold">
+                      Level {selectedQuestion.level_soal.toUpperCase()}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Footer */}
-            <div className="p-6 bg-gray-50 border-t border-gray-200">
+            {/* Footer Button */}
+            <div className="p-4 bg-white border-t border-gray-200">
               <button
                 onClick={closeDetailModal}
-                className="w-full bg-[#336D82] hover:bg-[#2a5868] text-white py-3 md:py-4 rounded-xl font-semibold transition-all active:scale-[0.98] shadow-lg"
+                className="w-full bg-[#336D82] hover:bg-[#2a5868] text-white py-3 rounded-2xl font-bold text-sm md:text-base transition-all active:scale-[0.98] shadow-md"
               >
-                Tutup
+                Tutup Detail
               </button>
             </div>
           </div>
@@ -936,6 +1127,21 @@ export default function HasilKuisPage() {
           animation: fade-in 0.3s ease-out;
         }
 
+        @keyframes scale-in {
+          from {
+            opacity: 0;
+            transform: scale(0.9);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
+
+        :global(.animate-scale-in) {
+          animation: scale-in 0.3s ease-out;
+        }
+
         @keyframes spin-slow {
           from {
             transform: rotate(0deg);
@@ -949,12 +1155,82 @@ export default function HasilKuisPage() {
           animation: spin-slow 3s linear infinite;
         }
 
+        @keyframes ping-slow {
+          0% {
+            transform: scale(1);
+            opacity: 1;
+          }
+          75%,
+          100% {
+            transform: scale(1.5);
+            opacity: 0;
+          }
+        }
+
+        :global(.animate-ping-slow) {
+          animation: ping-slow 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+        }
+
+        @keyframes ping-slower {
+          0% {
+            transform: scale(1);
+            opacity: 1;
+          }
+          75%,
+          100% {
+            transform: scale(1.8);
+            opacity: 0;
+          }
+        }
+
+        :global(.animate-ping-slower) {
+          animation: ping-slower 3s cubic-bezier(0, 0, 0.2, 1) infinite;
+        }
+
+        @keyframes pulse-glow {
+          0%,
+          100% {
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.4),
+              0 0 40px rgba(236, 72, 153, 0.2);
+          }
+          50% {
+            box-shadow: 0 0 40px rgba(168, 85, 247, 0.6),
+              0 0 60px rgba(236, 72, 153, 0.4);
+          }
+        }
+
+        :global(.animate-pulse-glow) {
+          animation: pulse-glow 2s ease-in-out infinite;
+        }
+
+        @keyframes fade-in-out {
+          0%,
+          100% {
+            opacity: 0.7;
+          }
+          50% {
+            opacity: 1;
+          }
+        }
+
+        :global(.animate-fade-in-out) {
+          animation: fade-in-out 2s ease-in-out infinite;
+        }
+
         :global(.delay-75) {
           animation-delay: 75ms;
         }
 
         :global(.delay-100) {
           animation-delay: 100ms;
+        }
+
+        :global(.delay-150) {
+          animation-delay: 150ms;
+        }
+
+        :global(.delay-200) {
+          animation-delay: 200ms;
         }
 
         @keyframes wave {

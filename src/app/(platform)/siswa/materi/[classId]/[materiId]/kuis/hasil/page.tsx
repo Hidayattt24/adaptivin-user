@@ -125,7 +125,10 @@ export default function HasilKuisPage() {
   };
 
   const handleInfoClick = (item: JawabanDetail, index: number) => {
-    setSelectedQuestion({ ...item, questionNumber: index + 1 } as any);
+    setSelectedQuestion({
+      ...item,
+      questionNumber: index + 1,
+    } as JawabanDetail & { questionNumber: number });
     setShowDetailModal(true);
   };
 
@@ -846,7 +849,8 @@ export default function HasilKuisPage() {
                         Aku Mbah Adaptivin punya kekuatan istimewa lho! 🔮✨
                       </p>
                       <p className="text-white drop-shadow font-semibold text-lg md:text-xl">
-                        &quot;Mau aku ramal dan prediksi hasil belajar kamu?&quot; 🎯
+                        &quot;Mau aku ramal dan prediksi hasil belajar
+                        kamu?&quot; 🎯
                       </p>
                     </div>
                   </div>
@@ -982,7 +986,14 @@ export default function HasilKuisPage() {
               {/* Question Number Badge */}
               <div className="text-center mb-3">
                 <p className="text-white/80 text-xs font-medium mb-2">
-                  Soal Nomor #{(selectedQuestion as any).questionNumber}
+                  Soal Nomor #
+                  {
+                    (
+                      selectedQuestion as JawabanDetail & {
+                        questionNumber: number;
+                      }
+                    ).questionNumber
+                  }
                 </p>
 
                 {/* Icon */}

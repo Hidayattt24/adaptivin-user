@@ -427,12 +427,13 @@ Mbah AdaptivAI menyarankan kamu untuk menonton video pembelajaran yang sudah dis
       setShowTeacherAnalysis(true);
 
       console.log("✅ Teacher analysis data set successfully");
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("❌ Error in handleTeacherAnalysis:", error);
-      setTeacherAnalysisError(
-        error.message ||
-          "Gagal melakukan analisa untuk guru. Silakan coba lagi."
-      );
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Gagal melakukan analisa untuk guru. Silakan coba lagi.";
+      setTeacherAnalysisError(errorMessage);
     } finally {
       setIsAnalyzingForTeacher(false);
     }
@@ -986,7 +987,10 @@ Mbah AdaptivAI menyarankan kamu untuk menonton video pembelajaran yang sudah dis
                     ) ? (
                       <div className="space-y-4">
                         {teacherAnalysisData.rekomendasi_metode_mengajar.map(
-                          (metode: any, index: number) => (
+                          (
+                            metode: { nama: string; penjelasan: string },
+                            index: number
+                          ) => (
                             <div
                               key={index}
                               className="bg-white rounded-xl p-5 shadow-sm border border-cyan-100"

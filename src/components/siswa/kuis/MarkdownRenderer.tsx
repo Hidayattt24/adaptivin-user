@@ -17,7 +17,7 @@ interface MarkdownRendererProps {
  * - Styling yang user-friendly dan mudah dibaca
  * - Support emoji dan formatting khusus
  * - Responsive design
- * - Convert \n dari backend menjadi line break yang proper
+ * - Convert \n literal dari database menjadi actual line breaks
  */
 export function MarkdownRenderer({
   content,
@@ -26,9 +26,12 @@ export function MarkdownRenderer({
   // Debug: log content untuk melihat format aslinya
   console.log("MarkdownRenderer - Original content:", content);
 
-  // Content dari backend sudah berupa string dengan \n yang proper (dari JSON.parse)
-  // Kita hanya perlu memastikan formatnya clean
-  const formattedContent = content.trim();
+  // PENTING: String dari database mengandung literal "\n" (backslash + n)
+  // Kita perlu mengkonversinya menjadi actual newline character agar ReactMarkdown bisa process
+  // Contoh: "text\n\nmore" menjadi "text[newline][newline]more"
+  const formattedContent = content
+    .replace(/\\n/g, "\n") // Convert \n literal menjadi actual newline
+    .trim();
 
   console.log("MarkdownRenderer - Formatted content:", formattedContent);
 

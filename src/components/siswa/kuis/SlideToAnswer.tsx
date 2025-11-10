@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 
 interface SlideToAnswerProps {
   onSlideComplete: () => void;
@@ -181,14 +183,21 @@ export default function SlideToAnswer({
         onTouchStart={handleTouchStart}
       >
         {/* Icon */}
-        <span
-          className="material-symbols-outlined text-[28px] font-bold transition-colors"
-          style={{
-            color: isComplete ? "#2EA062" : "#336D82",
-          }}
-        >
-          {isComplete ? "check_circle" : "arrow_forward"}
-        </span>
+        {isComplete ? (
+          <CheckCircleIcon 
+            sx={{ 
+              fontSize: '28px',
+              color: '#2EA062',
+            }}
+          />
+        ) : (
+          <ArrowForwardIcon
+            sx={{
+              fontSize: '28px',
+              color: '#336D82',
+            }}
+          />
+        )}
       </div>
 
       {/* Completion Text */}

@@ -1,4 +1,5 @@
 import React from "react";
+import MenuBookIcon from '@mui/icons-material/MenuBook';
 
 interface QuizProgressProps {
   currentQuestion: number;
@@ -31,9 +32,7 @@ export default function QuizProgress({ currentQuestion, totalQuestions }: QuizPr
 
       {/* Book Icon */}
       <div className="absolute right-2 top-1/2 -translate-y-1/2 w-[20px] h-[20px] flex items-center justify-center z-10">
-        <span className="material-symbols-outlined text-[#336D82] text-[18px] drop-shadow-sm">
-          menu_book
-        </span>
+        <MenuBookIcon sx={{ color: '#336D82', fontSize: '18px', filter: 'drop-shadow(0 1px 2px rgb(0 0 0 / 0.1))' }} />
       </div>
     </div>
   );

@@ -20,13 +20,21 @@ export default function Header({ username }: HeaderProps) {
       <div className="flex items-start justify-between">
         {/* Greeting */}
         <div className="flex-1">
-          <h1 className="text-[26px] poppins-bold text-[#2B7A9E] leading-tight drop-shadow-sm">Hallo {namaLengkap}!</h1>
-          <p className="text-[19px] font-medium text-[#2B7A9E] mt-1">siap belajar seru hari ini?</p>
+          <h1 className="text-[26px] poppins-bold text-[#33A1E0] leading-tight drop-shadow-sm">
+            Hallo {namaLengkap}!
+          </h1>
+          <p className="text-[19px] font-medium text-[#33A1E0] mt-1">
+            siap belajar seru hari ini?
+          </p>
         </div>
 
-        {/* Profile Picture - Clean design without background circles */}
+        {/* Profile Picture - Attractive border design */}
         <div className="relative flex-shrink-0 ml-4">
-          <div className="w-[75px] h-[75px] rounded-full bg-white flex items-center justify-center shadow-[0_4px_20px_0_rgba(43,122,158,0.2)] overflow-hidden border-2 border-[#33A1E0]/30">
+          {/* Animated gradient border */}
+          <div className="absolute inset-0 rounded-full bg-gradient-to-br from-[#33A1E0] via-[#5BB5E8] to-[#0A3D60] animate-spin-slow opacity-75"></div>
+          
+          {/* Inner white circle with image */}
+          <div className="relative w-[75px] h-[75px] rounded-full bg-white flex items-center justify-center shadow-[0_8px_32px_0_rgba(51,161,224,0.4)] overflow-hidden m-[3px]">
             <Image
               src={profileImage}
               alt={`${namaLengkap} Profile`}
@@ -37,6 +45,21 @@ export default function Header({ username }: HeaderProps) {
           </div>
         </div>
       </div>
+
+      {/* Animation for gradient border */}
+      <style jsx>{`
+        @keyframes spin-slow {
+          from {
+            transform: rotate(0deg);
+          }
+          to {
+            transform: rotate(360deg);
+          }
+        }
+        .animate-spin-slow {
+          animation: spin-slow 3s linear infinite;
+        }
+      `}</style>
     </div>
   );
 }

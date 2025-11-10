@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
+import TimerIcon from '@mui/icons-material/Timer';
 
 interface QuizTimerProps {
   totalSeconds: number; // Total waktu dalam detik (dari guru)
@@ -86,9 +88,11 @@ export default function QuizTimer({
                 boxShadow: `0 0 25px ${getColor()}80`,
               }}
             >
-              <span className="material-symbols-outlined text-white text-3xl md:text-4xl">
-                {isOverdue ? "hourglass_empty" : "timer"}
-              </span>
+              {isOverdue ? (
+                <HourglassEmptyIcon sx={{ color: 'white', fontSize: { xs: '48px', md: '64px' } }} />
+              ) : (
+                <TimerIcon sx={{ color: 'white', fontSize: { xs: '48px', md: '64px' } }} />
+              )}
             </div>
 
             <div className="flex flex-col">

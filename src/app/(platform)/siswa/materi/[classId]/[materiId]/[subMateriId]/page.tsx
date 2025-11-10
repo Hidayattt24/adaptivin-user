@@ -7,6 +7,10 @@ import IsiMateriCard from "@/components/siswa/materi/IsiMateriCard";
 import MateriDropdown from "@/components/siswa/materi/MateriDropdown";
 import MediaViewerModal from "@/components/siswa/materi/MediaViewerModal";
 import { useSubMateriById } from "@/hooks/siswa/useMateri";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import ErrorIcon from "@mui/icons-material/Error";
+import FolderOpenIcon from "@mui/icons-material/FolderOpen";
+import DescriptionIcon from "@mui/icons-material/Description";
 
 export default function IsiMateriPage() {
   const [uploadSectionOpen, setUploadSectionOpen] = useState(true);
@@ -35,12 +39,19 @@ export default function IsiMateriPage() {
   const { data: subMateri, isLoading, error } = useSubMateriById(subMateriId);
 
   // Separate media by type
-  const pdfMedia = subMateri?.sub_materi_media?.filter((m) => m.tipe_media === "pdf") || [];
-  const videoMedia = subMateri?.sub_materi_media?.filter((m) => m.tipe_media === "video") || [];
-  const gambarMedia = subMateri?.sub_materi_media?.filter((m) => m.tipe_media === "gambar") || [];
+  const pdfMedia =
+    subMateri?.sub_materi_media?.filter((m) => m.tipe_media === "pdf") || [];
+  const videoMedia =
+    subMateri?.sub_materi_media?.filter((m) => m.tipe_media === "video") || [];
+  const gambarMedia =
+    subMateri?.sub_materi_media?.filter((m) => m.tipe_media === "gambar") || [];
 
   // Open media viewer
-  const openMediaViewer = (type: "pdf" | "video", url: string, title: string) => {
+  const openMediaViewer = (
+    type: "pdf" | "video",
+    url: string,
+    title: string
+  ) => {
     setMediaModal({
       isOpen: true,
       type,
@@ -77,10 +88,14 @@ export default function IsiMateriPage() {
       >
         <div className="text-center px-4">
           <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <span className="material-symbols-outlined text-red-500 text-3xl">error</span>
+            <ErrorIcon sx={{ color: "#ef4444", fontSize: "48px" }} />
           </div>
-          <h2 className="text-white font-bold text-xl mb-2">Materi Tidak Ditemukan</h2>
-          <p className="text-white/80 mb-4">Materi yang Anda cari tidak tersedia</p>
+          <h2 className="text-white font-bold text-xl mb-2">
+            Materi Tidak Ditemukan
+          </h2>
+          <p className="text-white/80 mb-4">
+            Materi yang Anda cari tidak tersedia
+          </p>
           <button
             onClick={() => router.push(`/siswa/materi/${classId}`)}
             className="px-6 py-2 bg-white text-gray-700 rounded-full font-semibold hover:bg-gray-100 transition-all"
@@ -104,9 +119,7 @@ export default function IsiMateriPage() {
         onClick={() => router.push(`/siswa/materi/${classId}/${materiId}`)}
         className="absolute top-4 md:top-5 left-4 md:left-6 w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center hover:bg-white/30 transition-all z-10"
       >
-        <span className="material-symbols-outlined text-white text-xl">
-          arrow_back
-        </span>
+        <ArrowBackIcon sx={{ color: "white", fontSize: "20px" }} />
       </button>
 
       {/* Content Container - Desktop Centered & Compact */}
@@ -137,55 +150,70 @@ export default function IsiMateriPage() {
             </div>
 
             {/* Upload Cards - Desktop Grid */}
-            {uploadSectionOpen && (pdfMedia.length > 0 || videoMedia.length > 0) && (
-              <div className="space-y-4 md:grid md:grid-cols-2 md:gap-4 md:space-y-0">
-                {/* PDF Cards */}
-                {pdfMedia.map((media, index) => (
-                  <IsiMateriCard
-                    key={media.id}
-                    type="pdf"
-                    title={`File ${subMateri.judul_sub_materi} ${pdfMedia.length > 1 ? `(${index + 1})` : ''}`}
-                    classColor={theme.colors.primary}
-                    onClick={() => {
-                      openMediaViewer(
-                        "pdf",
-                        media.url,
-                        `File ${subMateri.judul_sub_materi} ${pdfMedia.length > 1 ? `(${index + 1})` : ''}`
-                      );
-                    }}
-                  />
-                ))}
+            {uploadSectionOpen &&
+              (pdfMedia.length > 0 || videoMedia.length > 0) && (
+                <div className="space-y-4 md:grid md:grid-cols-2 md:gap-4 md:space-y-0">
+                  {/* PDF Cards */}
+                  {pdfMedia.map((media, index) => (
+                    <IsiMateriCard
+                      key={media.id}
+                      type="pdf"
+                      title={`File ${subMateri.judul_sub_materi} ${
+                        pdfMedia.length > 1 ? `(${index + 1})` : ""
+                      }`}
+                      classColor={theme.colors.primary}
+                      onClick={() => {
+                        openMediaViewer(
+                          "pdf",
+                          media.url,
+                          `File ${subMateri.judul_sub_materi} ${
+                            pdfMedia.length > 1 ? `(${index + 1})` : ""
+                          }`
+                        );
+                      }}
+                    />
+                  ))}
 
-                {/* Video Cards */}
-                {videoMedia.map((media, index) => (
-                  <IsiMateriCard
-                    key={media.id}
-                    type="video"
-                    title={`Video ${subMateri.judul_sub_materi} ${videoMedia.length > 1 ? `(${index + 1})` : ''}`}
-                    classColor={theme.colors.primary}
-                    onClick={() => {
-                      openMediaViewer(
-                        "video",
-                        media.url,
-                        `Video ${subMateri.judul_sub_materi} ${videoMedia.length > 1 ? `(${index + 1})` : ''}`
-                      );
-                    }}
-                  />
-                ))}
-              </div>
-            )}
+                  {/* Video Cards */}
+                  {videoMedia.map((media, index) => (
+                    <IsiMateriCard
+                      key={media.id}
+                      type="video"
+                      title={`Video ${subMateri.judul_sub_materi} ${
+                        videoMedia.length > 1 ? `(${index + 1})` : ""
+                      }`}
+                      classColor={theme.colors.primary}
+                      onClick={() => {
+                        openMediaViewer(
+                          "video",
+                          media.url,
+                          `Video ${subMateri.judul_sub_materi} ${
+                            videoMedia.length > 1 ? `(${index + 1})` : ""
+                          }`
+                        );
+                      }}
+                    />
+                  ))}
+                </div>
+              )}
 
             {/* No Media Message */}
-            {uploadSectionOpen && pdfMedia.length === 0 && videoMedia.length === 0 && (
-              <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 text-center">
-                <span className="material-symbols-outlined text-gray-400 text-4xl mb-2">
-                  folder_open
-                </span>
-                <p className="text-gray-500 text-sm">
-                  Belum ada file atau video yang diupload untuk materi ini
-                </p>
-              </div>
-            )}
+            {uploadSectionOpen &&
+              pdfMedia.length === 0 &&
+              videoMedia.length === 0 && (
+                <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 text-center">
+                  <FolderOpenIcon
+                    sx={{
+                      color: "#9ca3af",
+                      fontSize: "48px",
+                      marginBottom: "8px",
+                    }}
+                  />
+                  <p className="text-gray-500 text-sm">
+                    Belum ada file atau video yang diupload untuk materi ini
+                  </p>
+                </div>
+              )}
           </div>
 
           {/* MATERI BACAAN SECTION */}
@@ -255,9 +283,13 @@ export default function IsiMateriPage() {
                   {/* No Content Message */}
                   {!subMateri.isi_materi && gambarMedia.length === 0 && (
                     <div className="text-center py-8">
-                      <span className="material-symbols-outlined text-gray-400 text-4xl mb-2">
-                        description
-                      </span>
+                      <DescriptionIcon
+                        sx={{
+                          color: "#9ca3af",
+                          fontSize: "48px",
+                          marginBottom: "8px",
+                        }}
+                      />
                       <p className="text-gray-500 text-sm">
                         Belum ada konten bacaan untuk materi ini
                       </p>

@@ -2,6 +2,10 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import SentimentSatisfiedIcon from '@mui/icons-material/SentimentSatisfied';
+import SentimentDissatisfiedIcon from '@mui/icons-material/SentimentDissatisfied';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 
 interface QuizResultCardProps {
   isCorrect: boolean;
@@ -42,7 +46,7 @@ export default function QuizResultCard({
     ? "Yeay! Jawabanmu Benar! 🎉"
     : "Ups kamu salah nih : (";
 
-  const iconName = isCorrect ? "sentiment_satisfied" : "sentiment_dissatisfied";
+  const IconComponent = isCorrect ? SentimentSatisfiedIcon : SentimentDissatisfiedIcon;
   const buttonColor = isCorrect ? "#2EA062" : "#8A0000";
 
   return (
@@ -69,9 +73,7 @@ export default function QuizResultCard({
               className="w-[22px] h-[22px] rounded-full flex items-center justify-center shadow-sm"
               style={{ backgroundColor: buttonColor }}
             >
-              <span className="material-symbols-outlined text-white text-[14px]">
-                {iconName}
-              </span>
+              <IconComponent sx={{ color: 'white', fontSize: '14px' }} />
             </div>
             <span
               className="text-[10px] font-semibold"
@@ -79,14 +81,14 @@ export default function QuizResultCard({
             >
               Jawaban kamu
             </span>
-            <span
-              className={`material-symbols-outlined text-[16px] transition-transform ${
-                showUserAnswer ? "rotate-180" : ""
-              }`}
-              style={{ color: buttonColor }}
-            >
-              expand_more
-            </span>
+            <ExpandMoreIcon
+              sx={{
+                color: buttonColor,
+                fontSize: '16px',
+                transition: 'transform 0.2s',
+                transform: showUserAnswer ? 'rotate(180deg)' : 'rotate(0deg)'
+              }}
+            />
           </button>
         </div>
 
@@ -99,9 +101,7 @@ export default function QuizResultCard({
               Jawabannya {userAnswer}
             </p>
             <div className="w-[42px] h-[42px] rounded-full bg-white flex items-center justify-center shadow-md">
-              <span className="material-symbols-outlined text-[red] text-[24px]">
-                sentiment_dissatisfied
-              </span>
+              <SentimentDissatisfiedIcon sx={{ color: 'red', fontSize: '24px' }} />
             </div>
           </div>
         )}
@@ -115,9 +115,7 @@ export default function QuizResultCard({
               Jawabannya {userAnswer} ✓
             </p>
             <div className="w-[42px] h-[42px] rounded-full bg-white flex items-center justify-center shadow-md">
-              <span className="material-symbols-outlined text-[#2EA062] text-[24px]">
-                sentiment_satisfied
-              </span>
+              <SentimentSatisfiedIcon sx={{ color: '#2EA062', fontSize: '24px' }} />
             </div>
           </div>
         )}
@@ -173,13 +171,14 @@ export default function QuizResultCard({
               }}
               className="rounded-[20px] h-[34px] w-[69px] flex items-center justify-center shadow-md hover:shadow-lg active:scale-95 transition-all"
             >
-              <span
-                className={`material-symbols-outlined text-white text-[24px] transition-transform duration-300 ${
-                  showExplanation ? "rotate-180" : ""
-                }`}
-              >
-                expand_more
-              </span>
+              <ExpandMoreIcon
+                sx={{
+                  color: 'white',
+                  fontSize: '24px',
+                  transition: 'transform 0.3s',
+                  transform: showExplanation ? 'rotate(180deg)' : 'rotate(0deg)'
+                }}
+              />
             </button>
           </div>
 
@@ -222,9 +221,7 @@ export default function QuizResultCard({
             className="rounded-[20px] h-[46px] w-full flex items-center justify-center gap-3 shadow-xl hover:shadow-2xl active:scale-[0.98] transition-all"
           >
             <div className="w-[32px] h-[32px] bg-white rounded-full flex items-center justify-center shadow-md">
-              <span className="material-symbols-outlined text-[#386641] text-[20px]">
-                thumb_up
-              </span>
+              <ThumbUpIcon sx={{ color: '#386641', fontSize: '20px' }} />
             </div>
             <span className="text-white text-[14px] font-semibold">
               Klik jika sudah paham
@@ -233,12 +230,6 @@ export default function QuizResultCard({
         </div>
         </div>
       </div>
-
-      {/* Add Google Material Symbols */}
-      <link
-        rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
-      />
     </div>
   );
 }

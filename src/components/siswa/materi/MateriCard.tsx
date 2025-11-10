@@ -1,7 +1,13 @@
 "use client";
 
-import Link from 'next/link';
-import { useClassTheme } from '@/contexts/ClassThemeContext';
+import Link from "next/link";
+import { useClassTheme } from "@/contexts/ClassThemeContext";
+import MenuBookIcon from "@mui/icons-material/MenuBook";
+import BookIcon from "@mui/icons-material/Book";
+import SchoolIcon from "@mui/icons-material/School";
+import AutoStoriesIcon from "@mui/icons-material/AutoStories";
+import LockIcon from "@mui/icons-material/Lock";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 
 export interface MateriCardProps {
   id: string;
@@ -10,6 +16,14 @@ export interface MateriCardProps {
   icon: string;
   isLocked?: boolean;
 }
+
+// Icon mapping
+const iconMap: Record<string, React.ElementType> = {
+  book: BookIcon,
+  menu_book: MenuBookIcon,
+  school: SchoolIcon,
+  auto_stories: AutoStoriesIcon,
+};
 
 /**
  * MateriCard Component
@@ -23,13 +37,20 @@ export default function MateriCard({
 }: MateriCardProps) {
   const { theme } = useClassTheme();
 
+  // Get icon component
+  const IconComponent = iconMap[icon] || BookIcon;
+
   // Get classId from theme
   const classId = theme.id;
 
-  const cardClassName = `block bg-white rounded-[10px] shadow-sm border border-slate-100 ${!isLocked ? 'hover:shadow-md hover:border-slate-200 active:scale-[0.98] transition-all duration-200' : 'opacity-60 cursor-not-allowed'}`;
+  const cardClassName = `block bg-white rounded-[10px] shadow-sm border border-slate-100 ${
+    !isLocked
+      ? "hover:shadow-md hover:border-slate-200 active:scale-[0.98] transition-all duration-200"
+      : "opacity-60 cursor-not-allowed"
+  }`;
   const cardStyle = {
-    width: '326px',
-    height: '129px',
+    width: "326px",
+    height: "129px",
   };
 
   const cardContent = (
@@ -38,16 +59,15 @@ export default function MateriCard({
       <div
         className="flex-shrink-0 rounded-full flex items-center justify-center"
         style={{
-          width: '57px',
-          height: '57px',
+          width: "57px",
+          height: "57px",
           background: theme.colors.iconBg,
         }}
       >
-        <i
-          className={`pixelart-icons-font-${icon}`}
-          style={{
-            fontSize: '32px',
-            color: '#FFFFFF',
+        <IconComponent
+          sx={{
+            fontSize: "32px",
+            color: "#FFFFFF",
           }}
         />
       </div>
@@ -71,19 +91,17 @@ export default function MateriCard({
       {/* Lock Icon or Arrow */}
       <div className="flex-shrink-0">
         {isLocked ? (
-          <i
-            className="pixelart-icons-font-lock"
-            style={{
-              fontSize: '20px',
-              color: '#9CA3AF',
+          <LockIcon
+            sx={{
+              fontSize: "20px",
+              color: "#9CA3AF",
             }}
           />
         ) : (
-          <i
-            className="pixelart-icons-font-chevron-right"
-            style={{
-              fontSize: '20px',
-              color: '#9CA3AF',
+          <ChevronRightIcon
+            sx={{
+              fontSize: "20px",
+              color: "#9CA3AF",
             }}
           />
         )}
@@ -100,7 +118,11 @@ export default function MateriCard({
   }
 
   return (
-    <Link href={`/siswa/materi/${classId}/${id}`} className={cardClassName} style={cardStyle}>
+    <Link
+      href={`/siswa/materi/${classId}/${id}`}
+      className={cardClassName}
+      style={cardStyle}
+    >
       {cardContent}
     </Link>
   );

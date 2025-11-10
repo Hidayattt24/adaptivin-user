@@ -2,6 +2,9 @@
 
 import { JawabanSoal } from "@/lib/api/kuis";
 import AnswerInput from "./AnswerInput";
+import ChecklistIcon from '@mui/icons-material/Checklist';
+import RadioButtonCheckedIcon from '@mui/icons-material/RadioButtonChecked';
+import CheckIcon from '@mui/icons-material/Check';
 
 interface DynamicAnswerInputProps {
   tipeJawaban: "pilihan_ganda" | "pilihan_ganda_kompleks" | "isian_singkat";
@@ -51,9 +54,11 @@ export default function DynamicAnswerInput({
       {/* Fun Header */}
       <div className="flex items-center gap-3 bg-white/80 backdrop-blur-sm rounded-[15px] px-4 py-3 shadow-md">
         <div className="w-[40px] h-[40px] rounded-full bg-gradient-to-br from-[#FF6B9D] to-[#FFA07A] flex items-center justify-center shadow-lg animate-bounce-slow">
-          <span className="material-symbols-outlined text-white text-[22px]">
-            {isMultipleChoice ? "checklist" : "radio_button_checked"}
-          </span>
+          {isMultipleChoice ? (
+            <ChecklistIcon sx={{ color: 'white', fontSize: '22px' }} />
+          ) : (
+            <RadioButtonCheckedIcon sx={{ color: 'white', fontSize: '22px' }} />
+          )}
         </div>
         <p className="text-[#336D82] text-[15px] font-bold drop-shadow-sm">
           {isMultipleChoice
@@ -98,9 +103,7 @@ export default function DynamicAnswerInput({
                 {/* Check Icon */}
                 {isSelected && (
                   <div className="w-[30px] h-[30px] rounded-full bg-white flex items-center justify-center flex-shrink-0 animate-scale-in">
-                    <span className="material-symbols-outlined text-[#2EA062] text-[22px] font-bold">
-                      check
-                    </span>
+                    <CheckIcon sx={{ color: '#2EA062', fontSize: '22px', fontWeight: 'bold' }} />
                   </div>
                 )}
               </div>

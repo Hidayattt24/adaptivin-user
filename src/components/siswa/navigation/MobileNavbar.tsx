@@ -10,7 +10,9 @@ interface MobileNavbarProps {
   characterImage?: string; // Optional: untuk override karakter (misal di halaman pilih karakter)
 }
 
-export default function MobileNavbar({ characterImage: overrideCharacterImage }: MobileNavbarProps = {}) {
+export default function MobileNavbar({
+  characterImage: overrideCharacterImage,
+}: MobileNavbarProps = {}) {
   const pathname = usePathname();
 
   // Ambil data profil dari database (dengan fallback ke localStorage)
@@ -19,38 +21,50 @@ export default function MobileNavbar({ characterImage: overrideCharacterImage }:
   // Fallback ke localStorage jika query masih loading atau data belum ada
   // Ini memastikan avatar tetap tampil dengan benar saat navigasi
   const currentUser = getCurrentUser();
-  const karakterUrl = profile?.karakter?.poto_profil_url ?? currentUser?.karakter?.poto_profil_url;
+  const karakterUrl =
+    profile?.karakter?.poto_profil_url ??
+    currentUser?.karakter?.poto_profil_url;
 
   // Dapatkan gambar karakter dari database berdasarkan karakter_url
   // Jika ada override (misal di halaman pilih karakter), gunakan itu
-  const characterImage = overrideCharacterImage || karakterUrl || "/siswa/foto-profil/kocheng-oren.svg";
+  const characterImage =
+    overrideCharacterImage ||
+    karakterUrl ||
+    "/siswa/foto-profil/kocheng-oren.svg";
 
   const isActive = (path: string) => pathname === path;
 
   return (
     <>
-      {/* Responsive Navbar - Compact for desktop */}
-      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 w-[calc(100%-32px)] max-w-[360px] md:max-w-[300px] z-50">
+      {/* Responsive Navbar - Medium size for desktop */}
+      <div className="fixed bottom-4 md:bottom-5 left-1/2 -translate-x-1/2 w-[calc(100%-32px)] max-w-[360px] md:max-w-[400px] z-50">
         <div className="relative">
           {/* Modern Glass Morphism Background */}
-          <div className="bg-gradient-to-r from-[#2c5f6f] to-[#336d82] rounded-[28px] md:rounded-[24px] h-[72px] md:h-[56px] shadow-[0_8px_32px_0_rgba(51,109,130,0.4)] backdrop-blur-sm border border-white/10"></div>
+          <div
+            className="rounded-[28px] md:rounded-[30px] h-[72px] md:h-[76px] shadow-[0_8px_32px_0_rgba(51,109,130,0.4)] backdrop-blur-sm border border-white/10"
+            style={{
+              background:
+                "linear-gradient(180deg, #33A1E0 0.03%, #0A3D60 124.56%)",
+            }}
+          ></div>
 
           {/* Nav Items */}
-          <div className="absolute inset-0 flex items-center justify-between px-12 md:px-8">
+          <div className="absolute inset-0 flex items-center justify-between px-12 md:px-14">
             {/* Home Button */}
             <Link
               href="/siswa/beranda"
-              className="flex flex-col items-center gap-1 md:gap-0.5 transition-all duration-300 group relative py-2 px-4 md:px-3"
+              className="flex flex-col items-center gap-1 transition-all duration-300 group relative py-2 px-4"
             >
               {/* Active Indicator - Circular Background */}
               {isActive("/siswa/beranda") && (
                 <div className="absolute inset-0 bg-white/20 rounded-2xl"></div>
               )}
               <span
-                className={`material-symbols-outlined text-white transition-all duration-300 relative z-10 ${isActive("/siswa/beranda")
-                  ? "text-[32px] drop-shadow-lg"
-                  : "text-[28px] opacity-70 group-hover:opacity-100 group-hover:scale-110"
-                  }`}
+                className={`material-symbols-outlined text-white transition-all duration-300 relative z-10 ${
+                  isActive("/siswa/beranda")
+                    ? "text-[32px] md:text-[34px] drop-shadow-lg"
+                    : "text-[28px] md:text-[30px] opacity-70 group-hover:opacity-100 group-hover:scale-110"
+                }`}
                 style={{
                   fontVariationSettings: isActive("/siswa/beranda")
                     ? "'FILL' 1, 'wght' 700, 'GRAD' 0, 'opsz' 24"
@@ -60,28 +74,29 @@ export default function MobileNavbar({ characterImage: overrideCharacterImage }:
                 home_app_logo
               </span>
               <span
-                className={`text-white text-[10px] font-medium transition-opacity duration-300 relative z-10 ${isActive("/siswa/beranda")
-                  ? "opacity-100 font-bold"
-                  : "opacity-70"
-                  }`}
+                className={`text-white text-[10px] md:text-[11px] font-medium transition-opacity duration-300 relative z-10 ${
+                  isActive("/siswa/beranda")
+                    ? "opacity-100 font-bold"
+                    : "opacity-70"
+                }`}
               >
                 Home
               </span>
             </Link>
 
             {/* Character Button - Centered & Elevated */}
-            <div className="absolute left-1/2 -translate-x-1/2 -top-10 md:-top-7">
+            <div className="absolute left-1/2 -translate-x-1/2 -top-10 md:-top-11">
               <Link
                 href="/siswa/pilih-karakter"
                 className="flex flex-col items-center justify-center group"
               >
-                <div className="w-[95px] h-[95px] md:w-[75px] md:h-[75px] rounded-full bg-white flex items-center justify-center shadow-[0_8px_32px_0_rgba(0,0,0,0.15)] group-hover:scale-105 transition-all duration-300 ring-4 ring-white/50">
+                <div className="w-[95px] h-[95px] md:w-[105px] md:h-[105px] rounded-full bg-white flex items-center justify-center shadow-[0_8px_32px_0_rgba(0,0,0,0.15)] group-hover:scale-105 transition-all duration-300 ring-4 ring-white/50">
                   <Image
                     src={characterImage}
                     alt="Character"
                     width={100}
                     height={100}
-                    className="object-contain w-[78px] md:w-[60px]"
+                    className="object-contain w-[78px] md:w-[84px]"
                   />
                 </div>
               </Link>
@@ -90,17 +105,18 @@ export default function MobileNavbar({ characterImage: overrideCharacterImage }:
             {/* Profile Button */}
             <Link
               href="/siswa/profil"
-              className="flex flex-col items-center gap-1 md:gap-0.5 transition-all duration-300 group relative py-2 px-4 md:px-3"
+              className="flex flex-col items-center gap-1 transition-all duration-300 group relative py-2 px-4"
             >
               {/* Active Indicator - Circular Background */}
               {isActive("/siswa/profil") && (
                 <div className="absolute inset-0 bg-white/20 rounded-2xl"></div>
               )}
               <span
-                className={`material-symbols-outlined text-white transition-all duration-300 relative z-10 ${isActive("/siswa/profil")
-                  ? "text-[32px] drop-shadow-lg"
-                  : "text-[28px] opacity-70 group-hover:opacity-100 group-hover:scale-110"
-                  }`}
+                className={`material-symbols-outlined text-white transition-all duration-300 relative z-10 ${
+                  isActive("/siswa/profil")
+                    ? "text-[32px] md:text-[34px] drop-shadow-lg"
+                    : "text-[28px] md:text-[30px] opacity-70 group-hover:opacity-100 group-hover:scale-110"
+                }`}
                 style={{
                   fontVariationSettings: isActive("/siswa/profil")
                     ? "'FILL' 1, 'wght' 700, 'GRAD' 0, 'opsz' 24"
@@ -110,10 +126,11 @@ export default function MobileNavbar({ characterImage: overrideCharacterImage }:
                 power_settings_circle
               </span>
               <span
-                className={`text-white text-[10px] font-medium transition-opacity duration-300 relative z-10 ${isActive("/siswa/profil")
-                  ? "opacity-100 font-bold"
-                  : "opacity-70"
-                  }`}
+                className={`text-white text-[10px] md:text-[11px] font-medium transition-opacity duration-300 relative z-10 ${
+                  isActive("/siswa/profil")
+                    ? "opacity-100 font-bold"
+                    : "opacity-70"
+                }`}
               >
                 Profile
               </span>

@@ -1,5 +1,11 @@
 import React from "react";
 import { HasilKuisSiswa } from "@/lib/api/kuis";
+import HistoryIcon from '@mui/icons-material/History';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import CancelIcon from '@mui/icons-material/Cancel';
+import TimerIcon from '@mui/icons-material/Timer';
+import SchoolIcon from '@mui/icons-material/School';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 
 interface QuizHistoryCardProps {
   riwayat: HasilKuisSiswa[];
@@ -39,9 +45,7 @@ const QuizHistoryCard: React.FC<QuizHistoryCardProps> = ({
   return (
     <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
       <div className="flex items-center mb-4">
-        <span className="material-symbols-outlined text-[#336D82] text-3xl mr-3">
-          history
-        </span>
+        <HistoryIcon sx={{ color: '#336D82', fontSize: '48px', marginRight: '12px' }} />
         <h3 className="text-xl font-bold text-[#336D82]">Riwayat Kuis</h3>
       </div>
 
@@ -74,9 +78,7 @@ const QuizHistoryCard: React.FC<QuizHistoryCardProps> = ({
 
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">
                     <div className="flex items-center gap-2">
-                      <span className="material-symbols-outlined text-green-500 text-xl">
-                        check_circle
-                      </span>
+                      <CheckCircleIcon sx={{ color: '#10b981', fontSize: '20px' }} />
                       <div>
                         <p className="text-xs text-gray-500">Benar</p>
                         <p className="font-semibold text-gray-900">
@@ -86,9 +88,7 @@ const QuizHistoryCard: React.FC<QuizHistoryCardProps> = ({
                     </div>
 
                     <div className="flex items-center gap-2">
-                      <span className="material-symbols-outlined text-red-500 text-xl">
-                        cancel
-                      </span>
+                      <CancelIcon sx={{ color: '#ef4444', fontSize: '20px' }} />
                       <div>
                         <p className="text-xs text-gray-500">Salah</p>
                         <p className="font-semibold text-gray-900">
@@ -98,9 +98,7 @@ const QuizHistoryCard: React.FC<QuizHistoryCardProps> = ({
                     </div>
 
                     <div className="flex items-center gap-2">
-                      <span className="material-symbols-outlined text-blue-500 text-xl">
-                        timer
-                      </span>
+                      <TimerIcon sx={{ color: '#3b82f6', fontSize: '20px' }} />
                       <div>
                         <p className="text-xs text-gray-500">Waktu</p>
                         <p className="font-semibold text-gray-900">
@@ -110,9 +108,7 @@ const QuizHistoryCard: React.FC<QuizHistoryCardProps> = ({
                     </div>
 
                     <div className="flex items-center gap-2">
-                      <span className="material-symbols-outlined text-[#336D82] text-xl">
-                        school
-                      </span>
+                      <SchoolIcon sx={{ color: '#336D82', fontSize: '20px' }} />
                       <div>
                         <p className="text-xs text-gray-500">Nilai</p>
                         <p className="font-semibold text-gray-900">{nilai}</p>
@@ -125,9 +121,7 @@ const QuizHistoryCard: React.FC<QuizHistoryCardProps> = ({
                   onClick={() => onViewDetail(hasil.id)}
                   className="ml-4 px-4 py-2 bg-[#336D82] text-white rounded-lg text-sm font-medium hover:bg-[#2a5a6d] transition-colors flex items-center gap-1"
                 >
-                  <span className="material-symbols-outlined text-sm">
-                    visibility
-                  </span>
+                  <VisibilityIcon sx={{ fontSize: '14px' }} />
                   Lihat
                 </button>
               </div>

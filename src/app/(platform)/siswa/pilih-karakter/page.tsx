@@ -312,13 +312,13 @@ export default function PilihKarakterPage() {
       `}</style>
 
       {/* Content */}
-      <div className="relative z-10">
-        {/* Header - Compact for Desktop */}
-        <div className="px-4 sm:px-6 md:px-6 lg:px-8 pt-8 sm:pt-10 md:pt-6 pb-2 sm:pb-3 md:pb-3">
+      <div className="relative z-10 max-w-2xl mx-auto">
+        {/* Header - Medium for Desktop */}
+        <div className="px-4 sm:px-6 md:px-8 pt-8 sm:pt-10 md:pt-10 pb-2 sm:pb-3 md:pb-3">
           <div className="max-w-2xl mx-auto">
             {/* Fun animated title */}
             <div className="relative inline-block w-full">
-              <h1 className="text-[26px] sm:text-[30px] md:text-xl lg:text-2xl font-bold text-[#0A3D60] text-center drop-shadow-lg leading-tight">
+              <h1 className="text-[26px] sm:text-[30px] md:text-[32px] font-bold text-[#0A3D60] text-center drop-shadow-lg leading-tight">
                 Pilih Teman
                 <br />
                 <EmojiText tag="span" size={18}>
@@ -329,37 +329,71 @@ export default function PilihKarakterPage() {
           </div>
         </div>
 
-        {/* Fun character info card - Compact for Desktop */}
-        <div className="px-4 sm:px-6 md:px-6 lg:px-8 mt-3 sm:mt-4 md:mt-4">
-          <div className="max-w-lg mx-auto">
-            <div className="bg-gradient-to-r from-[#E8F6FF] via-white to-[#FFE8F5] rounded-2xl sm:rounded-2xl p-3 sm:p-3 md:p-3 shadow-xl border-2 border-[#33A1E0]/20">
-              <div className="flex items-center justify-center gap-2 sm:gap-3 md:gap-3">
-                <div className="text-2xl sm:text-3xl md:text-3xl animate-bounce flex-shrink-0">
-                  🎯
-                </div>
+        {/* Fun character info card - Medium for Desktop */}
+        <div className="px-4 sm:px-6 md:px-8 mt-3 sm:mt-4 md:mt-5">
+          <div className="max-w-xl mx-auto">
+            <div
+              className="rounded-2xl md:rounded-[26px] p-4 sm:p-4 md:p-5 shadow-xl"
+              style={{
+                background:
+                  "linear-gradient(180deg, #33A1E0 0.03%, #0A3D60 124.56%)",
+              }}
+            >
+              <div className="flex items-center justify-center gap-2 sm:gap-3 md:gap-4">
                 <div className="text-center flex-1 min-w-0">
-                  <h3 className="text-base sm:text-lg md:text-lg font-bold text-[#4c859a] mb-1 truncate">
+                  <h3 className="text-base sm:text-lg md:text-xl font-bold text-white mb-1.5 truncate">
                     {centerCharacter?.name || "Pilih Karaktermu!"}
                   </h3>
-                  <div className="flex items-center justify-center gap-1.5 sm:gap-2">
-                    <div className="w-2 h-2 md:w-2 md:h-2 bg-green-400 rounded-full animate-pulse flex-shrink-0"></div>
-                    <p className="text-[11px] sm:text-xs md:text-xs text-gray-600 font-medium">
+                  <div className="flex items-center justify-center gap-2">
+                    <div className="w-2 h-2 md:w-2.5 md:h-2.5 bg-white rounded-full animate-pulse flex-shrink-0"></div>
+                    <p className="text-xs sm:text-[13px] md:text-sm text-white font-medium">
                       Siap menemanimu belajar!
                     </p>
                   </div>
-                </div>
-                <div
-                  className="text-2xl sm:text-3xl md:text-3xl animate-bounce flex-shrink-0"
-                  style={{ animationDelay: "0.5s" }}
-                >
-                  🎉
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Infinite Carousel - All screen sizes - Compact for Desktop */}
+        {/* Mascot Helper Note - Desktop only */}
+        <div className="hidden md:block px-4 sm:px-6 md:px-8 mt-4">
+          <div className="max-w-xl mx-auto">
+            <div
+              className="backdrop-blur-sm rounded-2xl p-4 shadow-lg border-2 border-white/50"
+              style={{
+                background:
+                  "linear-gradient(180deg, #33A1E0 0.03%, #0A3D60 124.56%)",
+              }}
+            >
+              <div className="flex items-start gap-3">
+                {/* Mascot Image */}
+                <div className="flex-shrink-0">
+                  <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-md overflow-hidden">
+                    <img
+                      src="/mascot/mascot-2.svg"
+                      alt="Mascot"
+                      className="w-10 h-10 object-contain"
+                    />
+                  </div>
+                </div>
+
+                {/* Message */}
+                <div className="flex-1 pt-1">
+                  <div className="bg-white/90 rounded-xl px-4 py-3 shadow-sm">
+                    <p className="text-sm font-semibold text-[#0A3D60] leading-relaxed">
+                      💡 <span className="font-bold">Tips:</span> Kamu bisa
+                      scroll langsung dengan mouse kamu, lalu klik card pilihan
+                      kamu!
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Infinite Carousel - Medium for Desktop */}
         <div className="mt-4 sm:mt-6 md:mt-6">
           <InfiniteCarousel
             items={characters}
@@ -370,26 +404,30 @@ export default function PilihKarakterPage() {
           />
         </div>
 
-        {/* Select Button - Compact for Desktop */}
-        <div className="flex justify-center mt-5 sm:mt-6 md:mt-5 px-4 sm:px-6 md:px-6">
+        {/* Select Button - Medium for Desktop */}
+        <div className="flex justify-center mt-5 sm:mt-6 md:mt-7 px-4 sm:px-6 md:px-8">
           <button
             onClick={() => {
               handleSelectCharacter(centerCharacterId);
               triggerConfetti();
             }}
-            className="relative group bg-gradient-to-r from-[#33A1E0] via-[#2B7A9E] to-[#336d82] text-white text-sm sm:text-[15px] md:text-sm font-bold px-8 sm:px-10 md:px-10 py-2.5 sm:py-3 md:py-2.5 rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 active:scale-95 md:hover:scale-105 md:hover:-translate-y-1 overflow-hidden"
+            className="relative group text-white text-sm sm:text-[15px] md:text-[15px] font-bold px-8 sm:px-10 md:px-11 py-2.5 sm:py-3 md:py-3 rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 active:scale-95 md:hover:scale-105 md:hover:-translate-y-1 overflow-hidden"
+            style={{
+              background:
+                "linear-gradient(180deg, #33A1E0 0.03%, #0A3D60 124.56%)",
+            }}
           >
             {/* Animated background shine */}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
 
             {/* Button text */}
-            <span className="relative z-10 flex items-center gap-2 md:gap-2">
-              <span className="text-xl sm:text-2xl md:text-2xl animate-bounce">
+            <span className="relative z-10 flex items-center gap-2 md:gap-2.5">
+              <span className="text-xl sm:text-2xl md:text-[26px] animate-bounce">
                 🎮
               </span>
               <span>Pilih Teman Ini!</span>
               <span
-                className="text-xl sm:text-2xl md:text-2xl animate-bounce"
+                className="text-xl sm:text-2xl md:text-[26px] animate-bounce"
                 style={{ animationDelay: "0.3s" }}
               >
                 ✨
@@ -397,21 +435,21 @@ export default function PilihKarakterPage() {
             </span>
 
             {/* Sparkle effects */}
-            <div className="absolute -top-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 bg-yellow-300 rounded-full animate-ping"></div>
+            <div className="absolute -top-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 md:w-[18px] md:h-[18px] bg-yellow-300 rounded-full animate-ping"></div>
             <div
-              className="absolute -bottom-1 -left-1 w-3 h-3 sm:w-4 sm:h-4 bg-pink-300 rounded-full animate-ping"
+              className="absolute -bottom-1 -left-1 w-3 h-3 sm:w-4 sm:h-4 md:w-[18px] md:h-[18px] bg-pink-300 rounded-full animate-ping"
               style={{ animationDelay: "0.5s" }}
             ></div>
           </button>
         </div>
 
-        {/* Navigation Bar - All screen sizes */}
-        <div className="mt-12 sm:mt-16 md:mt-12">
+        {/* Navigation Bar - Medium for Desktop */}
+        <div className="mt-12 sm:mt-16 md:mt-16">
           <MobileNavbar characterImage={mascotImageForNavbar} />
         </div>
 
-        {/* Bottom Spacing - Compact for Desktop */}
-        <div className="h-20 sm:h-24 md:h-24"></div>
+        {/* Bottom Spacing - Medium for Desktop */}
+        <div className="h-20 sm:h-24 md:h-28"></div>
       </div>
     </div>
   );

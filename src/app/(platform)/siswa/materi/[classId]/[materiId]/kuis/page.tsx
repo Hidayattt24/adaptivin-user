@@ -7,6 +7,7 @@ import QuizBadge from "@/components/siswa/kuis/QuizBadge";
 import SlideToAnswer from "@/components/siswa/kuis/SlideToAnswer";
 import DynamicAnswerInput from "@/components/siswa/kuis/DynamicAnswerInput";
 import QuizTimer from "@/components/siswa/kuis/QuizTimer";
+import ErrorIcon from '@mui/icons-material/Error';
 import {
   getKuisByMateri,
   Kuis,
@@ -255,7 +256,7 @@ export default function KuisPage() {
       <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-[#336D82] to-white">
         <div className="bg-white rounded-2xl p-8 max-w-md text-center shadow-2xl">
           <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <span className="material-symbols-outlined text-red-500 text-4xl">error</span>
+            <ErrorIcon sx={{ color: '#ef4444', fontSize: '64px' }} />
           </div>
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Terjadi Kesalahan</h2>
           <p className="text-gray-600 mb-6">{error}</p>

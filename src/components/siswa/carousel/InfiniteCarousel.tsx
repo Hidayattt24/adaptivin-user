@@ -57,47 +57,47 @@ export default function InfiniteCarousel({
       }
 
       const scrollLeft = container.scrollLeft;
+      const containerWidth = container.offsetWidth;
       const cardWidth = getCardWidth();
-      const maxScroll = container.scrollWidth - container.offsetWidth;
+      const maxScroll = container.scrollWidth - containerWidth;
 
-      // If scrolled to the end, set to last index
-      if (scrollLeft >= maxScroll - 10) {
-        setActiveIndex(items.length - 1);
-        return;
+      // Calculate center of viewport
+      const viewportCenter = scrollLeft + containerWidth / 2;
+
+      // Find which card is closest to center
+      let closestIndex = 0;
+      let closestDistance = Infinity;
+
+      for (let i = 0; i < items.length; i++) {
+        // Calculate card center position
+        let cardCenter;
+        if (i === 0) {
+          // First card starts at center
+          cardCenter = containerWidth / 2;
+        } else if (i === items.length - 1) {
+          // Last card ends at center from the right
+          cardCenter = maxScroll + containerWidth / 2;
+        } else {
+          // Middle cards
+          cardCenter = containerWidth / 2 + cardWidth * i;
+        }
+
+        const distance = Math.abs(viewportCenter - cardCenter);
+        if (distance < closestDistance) {
+          closestDistance = distance;
+          closestIndex = i;
+        }
       }
 
-      // If at the beginning, set to first index
-      if (scrollLeft <= 10) {
-        setActiveIndex(0);
-        return;
-      }
-
-      // Otherwise calculate based on scroll position
-      const newIndex = Math.round(scrollLeft / cardWidth);
-      setActiveIndex(Math.min(newIndex, items.length - 1));
+      setActiveIndex(closestIndex);
     };
 
-    // Aggressively reset scroll and state
-    const forceReset = () => {
-      container.scrollLeft = 0;
-      setActiveIndex(0);
+    // Initial setup - don't force reset on mount if user navigated back
+    const initialTimer = setTimeout(() => {
       handleScroll();
-    };
+    }, 100);
 
-    // Immediate reset
-    forceReset();
-
-    // Multiple delayed resets to override browser scroll restoration
-    const syncTimer1 = setTimeout(forceReset, 0);
-    const syncTimer2 = setTimeout(forceReset, 50);
-    const syncTimer3 = setTimeout(forceReset, 150);
-    const syncTimer4 = setTimeout(forceReset, 300);
-    const syncTimer5 = setTimeout(forceReset, 500);
-
-    // Use requestAnimationFrame for immediate sync
-    const rafId = requestAnimationFrame(forceReset);
-
-    container.addEventListener("scroll", handleScroll);
+    container.addEventListener("scroll", handleScroll, { passive: true });
 
     // Handle window resize
     window.addEventListener("resize", handleScroll);
@@ -105,12 +105,7 @@ export default function InfiniteCarousel({
     return () => {
       container.removeEventListener("scroll", handleScroll);
       window.removeEventListener("resize", handleScroll);
-      clearTimeout(syncTimer1);
-      clearTimeout(syncTimer2);
-      clearTimeout(syncTimer3);
-      clearTimeout(syncTimer4);
-      clearTimeout(syncTimer5);
-      cancelAnimationFrame(rafId);
+      clearTimeout(initialTimer);
     };
   }, [items.length, showScrollHint]);
 
@@ -120,44 +115,64 @@ export default function InfiniteCarousel({
   }, [activeIndex, items, onCenterChange]);
 
   // Navigate to specific card
-  const scrollToCard = useCallback((index: number) => {
-    const container = scrollContainerRef.current;
-    if (!container) return;
+  const scrollToCard = useCallback(
+    (index: number) => {
+      const container = scrollContainerRef.current;
+      if (!container) return;
 
-    // Responsive card dimensions
-    let cardWidth = 263;
-    let gap = 24;
+      // Responsive card dimensions
+      let cardWidth = 263;
+      let gap = 24;
 
-    if (window.innerWidth >= 1024) {
-      cardWidth = 320;
-      gap = 32;
-    } else if (window.innerWidth >= 768) {
-      cardWidth = 290;
-      gap = 28;
+      if (window.innerWidth >= 1024) {
+        cardWidth = 320;
+        gap = 32;
+      } else if (window.innerWidth >= 768) {
+        cardWidth = 290;
+        gap = 28;
+      }
+
+      const containerWidth = container.offsetWidth;
+      const totalCardWidth = cardWidth + gap;
+
+      // Calculate scroll position to center the card perfectly
+      let scrollLeft = 0;
+
+      if (index === 0) {
+        scrollLeft = 0;
+      } else if (index === items.length - 1) {
+        scrollLeft = container.scrollWidth - containerWidth;
+      } else {
+        // For middle cards, center them
+        const cardPosition = totalCardWidth * index;
+        scrollLeft = cardPosition - containerWidth / 2 + cardWidth / 2;
+      }
+
+      // Scroll to position
+      container.scrollTo({
+        left: scrollLeft,
+        behavior: "smooth",
+      });
+    },
+    [items.length]
+  );
+
+  // Navigation button handlers
+  const handlePrevious = () => {
+    if (activeIndex > 0) {
+      const newIndex = activeIndex - 1;
+      setActiveIndex(newIndex);
+      scrollToCard(newIndex);
     }
+  };
 
-    const containerWidth = container.offsetWidth;
-    const totalCardWidth = cardWidth + gap;
-
-    // Calculate scroll position to center the card perfectly
-    let scrollLeft = 0;
-
-    if (index === 0) {
-      scrollLeft = 0;
-    } else if (index === items.length - 1) {
-      scrollLeft = container.scrollWidth - containerWidth;
-    } else {
-      // For middle cards, center them
-      const cardPosition = totalCardWidth * index;
-      scrollLeft = cardPosition - (containerWidth / 2) + (cardWidth / 2);
+  const handleNext = () => {
+    if (activeIndex < items.length - 1) {
+      const newIndex = activeIndex + 1;
+      setActiveIndex(newIndex);
+      scrollToCard(newIndex);
     }
-
-    // Scroll to position
-    container.scrollTo({
-      left: scrollLeft,
-      behavior: "smooth",
-    });
-  }, [items.length]);
+  };
 
   return (
     <div className="relative pb-8">
@@ -169,7 +184,9 @@ export default function InfiniteCarousel({
             <div className="bg-gradient-to-r from-[#33A1E0] to-[#2B7A9E] text-white px-6 py-3 rounded-full shadow-2xl animate-bounce-slow">
               <div className="flex items-center gap-3">
                 <span className="text-2xl">👆</span>
-                <p className="font-bold text-sm lg:text-base">Geser ke kanan & kiri untuk lihat karakter lainnya!</p>
+                <p className="font-bold text-sm lg:text-base">
+                  Geser ke kanan & kiri untuk lihat karakter lainnya!
+                </p>
                 <span className="text-2xl">👆</span>
               </div>
             </div>
@@ -179,9 +196,13 @@ export default function InfiniteCarousel({
           {activeIndex > 0 && (
             <div className="absolute left-4 lg:left-8 top-1/2 -translate-y-1/2 animate-slide-left">
               <div className="flex items-center gap-2">
-                <div className="text-4xl lg:text-5xl drop-shadow-lg animate-pulse">👈</div>
+                <div className="text-4xl lg:text-5xl drop-shadow-lg animate-pulse">
+                  👈
+                </div>
                 <div className="bg-white/90 backdrop-blur-sm px-3 py-2 rounded-lg shadow-xl">
-                  <p className="font-bold text-[#33A1E0] text-xs lg:text-sm">Geser</p>
+                  <p className="font-bold text-[#33A1E0] text-xs lg:text-sm">
+                    Geser
+                  </p>
                 </div>
               </div>
             </div>
@@ -192,9 +213,13 @@ export default function InfiniteCarousel({
             <div className="absolute right-4 lg:right-8 top-1/2 -translate-y-1/2 animate-slide-right">
               <div className="flex items-center gap-2">
                 <div className="bg-white/90 backdrop-blur-sm px-3 py-2 rounded-lg shadow-xl">
-                  <p className="font-bold text-[#FF6B9D] text-xs lg:text-sm">Geser</p>
+                  <p className="font-bold text-[#FF6B9D] text-xs lg:text-sm">
+                    Geser
+                  </p>
                 </div>
-                <div className="text-4xl lg:text-5xl drop-shadow-lg animate-pulse">👉</div>
+                <div className="text-4xl lg:text-5xl drop-shadow-lg animate-pulse">
+                  👉
+                </div>
               </div>
             </div>
           )}
@@ -223,19 +248,23 @@ export default function InfiniteCarousel({
               // Default margins for SSR
               const halfCard = 131.5; // 263 / 2 (mobile default)
               return {
-                left: index === 0 ? `calc(50% - ${halfCard}px)` : '0',
-                right: index === items.length - 1 ? `calc(50% - ${halfCard}px)` : '0',
+                left: index === 0 ? `calc(50% - ${halfCard}px)` : "0",
+                right:
+                  index === items.length - 1
+                    ? `calc(50% - ${halfCard}px)`
+                    : "0",
               };
             }
-            
+
             let cardWidth = 263;
             if (window.innerWidth >= 1024) cardWidth = 320;
             else if (window.innerWidth >= 768) cardWidth = 290;
-            
+
             const halfCard = cardWidth / 2;
             return {
-              left: index === 0 ? `calc(50% - ${halfCard}px)` : '0',
-              right: index === items.length - 1 ? `calc(50% - ${halfCard}px)` : '0',
+              left: index === 0 ? `calc(50% - ${halfCard}px)` : "0",
+              right:
+                index === items.length - 1 ? `calc(50% - ${halfCard}px)` : "0",
             };
           };
 
@@ -289,8 +318,6 @@ export default function InfiniteCarousel({
                     </div>
                   )}
 
-
-
                   {/* Center indicator - Show when card is in center - Inside card bottom */}
                   {isCenter && !isSelected && (
                     <div className="absolute bottom-3 sm:bottom-4 left-1/2 -translate-x-1/2 z-10 w-max max-w-[90%]">
@@ -310,16 +337,20 @@ export default function InfiniteCarousel({
                   )}
 
                   {/* Card image container - Responsive sizing */}
-                  <div className={`relative bg-transparent rounded-[18px] md:rounded-[22px] lg:rounded-[26px] transition-all duration-300 ${
-                    isSelected ? "p-1" : ""
-                  } ${!isCenter ? "opacity-60" : "opacity-100"}`}>
+                  <div
+                    className={`relative bg-transparent rounded-[18px] md:rounded-[22px] lg:rounded-[26px] transition-all duration-300 ${
+                      isSelected ? "p-1" : ""
+                    } ${!isCenter ? "opacity-60" : "opacity-100"}`}
+                  >
                     <Image
                       src={item.path}
                       alt={item.name}
                       width={320}
                       height={393}
                       className={`object-contain transition-all duration-300 rounded-[16px] md:rounded-[20px] lg:rounded-[24px] w-[263px] md:w-[290px] lg:w-[320px] h-auto ${
-                        isCenter ? "group-hover:scale-105" : "group-hover:scale-95"
+                        isCenter
+                          ? "group-hover:scale-105"
+                          : "group-hover:scale-95"
                       }`}
                       priority={index <= 2}
                     />
@@ -339,7 +370,8 @@ export default function InfiniteCarousel({
             className="text-xs sm:text-[13px] md:text-sm lg:text-base font-medium text-[#c3c3c3] text-center leading-relaxed"
             size={14}
           >
-            {items[activeIndex]?.description || "Pilih teman belajar favoritmu!"}
+            {items[activeIndex]?.description ||
+              "Pilih teman belajar favoritmu!"}
           </EmojiText>
         </div>
       </div>
@@ -362,6 +394,102 @@ export default function InfiniteCarousel({
           );
         })}
       </div>
+
+      {/* Navigation Buttons - Desktop only - Below carousel for easy access */}
+      {showNavigationButtons && (
+        <div className="hidden md:flex justify-center gap-4 lg:gap-6 mt-6 lg:mt-8 relative z-30">
+          {/* Previous Button */}
+          <button
+            type="button"
+            onClick={handlePrevious}
+            disabled={activeIndex === 0}
+            className={`group flex items-center gap-2 lg:gap-3 px-6 lg:px-8 py-3 lg:py-4 rounded-2xl font-bold text-sm lg:text-base transition-all duration-300 shadow-lg ${
+              activeIndex === 0
+                ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                : "text-white hover:shadow-xl hover:scale-105 active:scale-95 cursor-pointer"
+            }`}
+            style={
+              activeIndex === 0
+                ? {}
+                : {
+                    background:
+                      "linear-gradient(180deg, #33A1E0 0.03%, #0A3D60 124.56%)",
+                  }
+            }
+            aria-label="Previous character"
+          >
+            <svg
+              className={`w-5 h-5 lg:w-6 lg:h-6 transition-transform duration-300 ${
+                activeIndex === 0 ? "" : "group-hover:-translate-x-1"
+              }`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2.5}
+                d="M15 19l-7-7 7-7"
+              />
+            </svg>
+            <span>Sebelumnya</span>
+          </button>
+
+          {/* Current Position Indicator */}
+          <div
+            className="flex items-center justify-center px-4 lg:px-6 py-3 lg:py-4 rounded-2xl shadow-md"
+            style={{
+              background:
+                "linear-gradient(180deg, #33A1E0 0.03%, #0A3D60 124.56%)",
+            }}
+          >
+            <span className="font-bold text-white text-sm lg:text-base">
+              {activeIndex + 1} / {items.length}
+            </span>
+          </div>
+
+          {/* Next Button */}
+          <button
+            type="button"
+            onClick={handleNext}
+            disabled={activeIndex === items.length - 1}
+            className={`group flex items-center gap-2 lg:gap-3 px-6 lg:px-8 py-3 lg:py-4 rounded-2xl font-bold text-sm lg:text-base transition-all duration-300 shadow-lg ${
+              activeIndex === items.length - 1
+                ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                : "text-white hover:shadow-xl hover:scale-105 active:scale-95 cursor-pointer"
+            }`}
+            style={
+              activeIndex === items.length - 1
+                ? {}
+                : {
+                    background:
+                      "linear-gradient(180deg, #33A1E0 0.03%, #0A3D60 124.56%)",
+                  }
+            }
+            aria-label="Next character"
+          >
+            <span>Selanjutnya</span>
+            <svg
+              className={`w-5 h-5 lg:w-6 lg:h-6 transition-transform duration-300 ${
+                activeIndex === items.length - 1
+                  ? ""
+                  : "group-hover:translate-x-1"
+              }`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2.5}
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
+          </button>
+        </div>
+      )}
 
       {/* Scrollbar Hide CSS + Animations */}
       <style jsx>{`
@@ -411,7 +539,8 @@ export default function InfiniteCarousel({
 
         /* Border pulse animation - subtle breathing effect */
         @keyframes border-pulse {
-          0%, 100% {
+          0%,
+          100% {
             opacity: 0.8;
           }
           50% {
@@ -425,7 +554,8 @@ export default function InfiniteCarousel({
 
         /* Scroll hint animations */
         @keyframes bounce-slow {
-          0%, 100% {
+          0%,
+          100% {
             transform: translateY(0) translateX(-50%);
           }
           50% {
@@ -438,7 +568,8 @@ export default function InfiniteCarousel({
         }
 
         @keyframes slide-left {
-          0%, 100% {
+          0%,
+          100% {
             transform: translateX(0) translateY(-50%);
             opacity: 1;
           }
@@ -453,7 +584,8 @@ export default function InfiniteCarousel({
         }
 
         @keyframes slide-right {
-          0%, 100% {
+          0%,
+          100% {
             transform: translateX(0) translateY(-50%);
             opacity: 1;
           }

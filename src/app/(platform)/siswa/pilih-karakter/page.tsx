@@ -371,7 +371,7 @@ export default function PilihKarakterPage() {
                 <div className="flex-shrink-0">
                   <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-md overflow-hidden">
                     <img
-                      src="/mascot/mascot-2.svg"
+                      src="/mascot/mbah-adaptivin.svg"
                       alt="Mascot"
                       className="w-10 h-10 object-contain"
                     />

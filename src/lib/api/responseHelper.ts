@@ -28,8 +28,9 @@ interface LegacyApiResponse<T = unknown> {
 /**
  * Extract data dari response API
  * Menangani berbagai format response untuk backward compatibility
+ * @param allowNull - Set true untuk operasi yang mengembalikan null (seperti DELETE)
  */
-export function extractData<T>(response: AxiosResponse): T {
+export function extractData<T>(response: AxiosResponse, allowNull = false): T {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const body = response.data as any;
 
@@ -42,11 +43,12 @@ export function extractData<T>(response: AxiosResponse): T {
       throw new Error(apiResponse.message || "API request failed");
     }
 
-    if (apiResponse.data === null || apiResponse.data === undefined) {
+    // Allow null data untuk operasi seperti DELETE
+    if ((apiResponse.data === null || apiResponse.data === undefined) && !allowNull) {
       throw new Error("No data returned from API");
     }
 
-    return apiResponse.data;
+    return apiResponse.data as T;
   }
 
   // Format lama tanpa success field
@@ -54,7 +56,8 @@ export function extractData<T>(response: AxiosResponse): T {
   if ("status" in body && body.status === "success" && "data" in body) {
     const legacyResponse = body as LegacyApiResponse<T>;
 
-    if (legacyResponse.data === null || legacyResponse.data === undefined) {
+    // Allow null data untuk operasi seperti DELETE
+    if ((legacyResponse.data === null || legacyResponse.data === undefined) && !allowNull) {
       throw new Error("No data returned from API");
     }
 

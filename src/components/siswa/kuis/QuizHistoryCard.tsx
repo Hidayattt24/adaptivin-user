@@ -68,7 +68,7 @@ const QuizHistoryCard: React.FC<QuizHistoryCardProps> = ({
             <div className="relative flex-shrink-0">
               <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-white p-2 shadow-lg">
                 <Image
-                  src="/mascot/mascot-2.svg"
+                  src="/mascot/mbah-adaptivin.svg"
                   alt="Mbah Adaptivin"
                   width={64}
                   height={64}

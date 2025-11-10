@@ -16,6 +16,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { AnalisisAI, RekomendasiVideo } from "@/lib/api/analisis";
+import { MarkdownRenderer } from "./MarkdownRenderer";
 
 interface AnalisisAICardProps {
   analisis: AnalisisAI;
@@ -48,34 +49,57 @@ export function AnalisisAICard({
 
     return (
       <div className="space-y-2">
-        <div className="flex items-center gap-2 mb-3">
-          <Video className="w-4 h-4 text-[#336D82]" />
-          <h4 className="font-semibold text-sm text-[#336D82]">
-            Rekomendasi Video
-          </h4>
+        <div className="bg-gradient-to-r from-[#336D82] to-[#7AB0C4] rounded-lg p-4 mb-3">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-2xl">🎬</span>
+            <h4 className="font-bold text-base text-white">
+              Video Seru Buat Kamu!
+            </h4>
+          </div>
+          <p className="text-white/90 text-sm">
+            Mbah pilihkan video yang asyik buat kamu tonton! Klik aja langsung!
+            👇
+          </p>
         </div>
-        <div className="space-y-2">
+        <div className="space-y-3">
           {videos.map((video, index) => (
             <a
               key={index}
               href={video.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-start gap-3 p-3 rounded-lg bg-[#F0F7F9] hover:bg-[#E1EEF2] transition-colors border border-[#336D82]/20 hover:border-[#336D82]/40"
+              className="group flex items-start gap-4 p-4 rounded-xl bg-gradient-to-br from-red-50 to-orange-50 hover:from-red-100 hover:to-orange-100 transition-all duration-200 border-2 border-red-200 hover:border-red-400 hover:shadow-lg active:scale-[0.98]"
             >
-              <Video className="w-4 h-4 text-[#336D82] mt-0.5 flex-shrink-0" />
+              <div className="w-12 h-12 bg-gradient-to-br from-red-500 to-orange-500 rounded-lg flex items-center justify-center flex-shrink-0 shadow-md group-hover:scale-110 transition-transform">
+                <Video className="w-6 h-6 text-white" />
+              </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-[#336D82]">
-                  {video.judul || `Video ${index + 1}`}
+                <p className="text-sm md:text-base font-bold text-gray-800 group-hover:text-red-600 transition-colors mb-1">
+                  {video.judul || `Video Pembelajaran ${index + 1}`}
                 </p>
-                {video.durasi && (
-                  <p className="text-xs text-[#7AB0C4] mt-1">
-                    Durasi: {video.durasi}
-                  </p>
-                )}
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="inline-flex items-center gap-1 px-2 py-1 bg-red-100 text-red-700 rounded-full text-xs font-semibold">
+                    🎥 YouTube
+                  </span>
+                  {video.durasi && (
+                    <span className="inline-flex items-center gap-1 px-2 py-1 bg-orange-100 text-orange-700 rounded-full text-xs font-semibold">
+                      ⏱️ {video.durasi}
+                    </span>
+                  )}
+                  <span className="text-xs text-gray-500 group-hover:text-red-600 transition-colors font-medium">
+                    Klik untuk nonton! →
+                  </span>
+                </div>
               </div>
             </a>
           ))}
+        </div>
+        <div className="bg-yellow-50 border-2 border-yellow-300 rounded-lg p-3 flex items-start gap-2">
+          <span className="text-xl flex-shrink-0">💡</span>
+          <p className="text-xs text-yellow-800 font-medium">
+            <strong>Tips Mbah:</strong> Tonton video sambil catat hal penting
+            ya! Biar makin nempel di otak! 🧠✨
+          </p>
         </div>
       </div>
     );
@@ -89,7 +113,7 @@ export function AnalisisAICard({
             {/* Mbah Adaptivin Avatar */}
             <div className="w-12 h-12 rounded-full bg-white p-1 flex items-center justify-center flex-shrink-0 shadow-lg">
               <Image
-                src="/mascot/mascot-2.svg"
+                src="/mascot/mbah-adaptivin.svg"
                 alt="Mbah Adaptivin"
                 width={40}
                 height={40}
@@ -179,13 +203,11 @@ export function AnalisisAICard({
         {/* Analisis Utama */}
         {analisis.analisis && (
           <div className="bg-[#F0F7F9] rounded-lg p-4 border border-[#336D82]/20">
-            <div className="flex items-center gap-2 mb-2">
+            <div className="flex items-center gap-2 mb-3">
               <Sparkles className="w-4 h-4 text-[#336D82]" />
               <h4 className="font-semibold text-sm text-[#336D82]">Analisis</h4>
             </div>
-            <p className="text-sm text-gray-700 whitespace-pre-wrap">
-              {analisis.analisis}
-            </p>
+            <MarkdownRenderer content={analisis.analisis} />
           </div>
         )}
 
@@ -225,45 +247,39 @@ export function AnalisisAICard({
         {/* Kelebihan */}
         {analisis.kelebihan && (
           <div className="bg-[#F0F7F9] rounded-lg p-4 border border-green-300">
-            <div className="flex items-center gap-2 mb-2">
+            <div className="flex items-center gap-2 mb-3">
               <TrendingUp className="w-4 h-4 text-green-600" />
               <h4 className="font-semibold text-sm text-[#336D82]">
                 Kelebihan
               </h4>
             </div>
-            <p className="text-sm text-gray-700 whitespace-pre-wrap">
-              {analisis.kelebihan}
-            </p>
+            <MarkdownRenderer content={analisis.kelebihan} />
           </div>
         )}
 
         {/* Kelemahan */}
         {analisis.kelemahan && (
           <div className="bg-[#F0F7F9] rounded-lg p-4 border border-orange-300">
-            <div className="flex items-center gap-2 mb-2">
+            <div className="flex items-center gap-2 mb-3">
               <AlertCircle className="w-4 h-4 text-orange-600" />
               <h4 className="font-semibold text-sm text-[#336D82]">
                 Kelemahan
               </h4>
             </div>
-            <p className="text-sm text-gray-700 whitespace-pre-wrap">
-              {analisis.kelemahan}
-            </p>
+            <MarkdownRenderer content={analisis.kelemahan} />
           </div>
         )}
 
         {/* Rekomendasi Belajar */}
         {analisis.rekomendasi_belajar && (
           <div className="bg-[#F0F7F9] rounded-lg p-4 border border-[#336D82]/20">
-            <div className="flex items-center gap-2 mb-2">
+            <div className="flex items-center gap-2 mb-3">
               <BookOpen className="w-4 h-4 text-[#336D82]" />
               <h4 className="font-semibold text-sm text-[#336D82]">
                 Rekomendasi Belajar
               </h4>
             </div>
-            <p className="text-sm text-gray-700 whitespace-pre-wrap">
-              {analisis.rekomendasi_belajar}
-            </p>
+            <MarkdownRenderer content={analisis.rekomendasi_belajar} />
           </div>
         )}
 
@@ -322,7 +338,7 @@ export function AnalisisAIButton({
             <div className="relative w-24 h-24 rounded-full bg-gradient-to-br from-[#336D82] to-[#7AB0C4] p-2 flex items-center justify-center shadow-xl">
               <div className="w-full h-full rounded-full bg-white p-2 flex items-center justify-center">
                 <Image
-                  src="/mascot/mascot-2.svg"
+                  src="/mascot/mbah-adaptivin.svg"
                   alt="Mbah Adaptivin"
                   width={64}
                   height={64}
@@ -360,16 +376,21 @@ export function AnalisisAIButton({
             data-analisis-button
           >
             {isLoading ? (
-              <>
-                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                Mbah Adaptivin sedang berpikir...
-              </>
+              <div className="flex flex-col items-center gap-2">
+                <div className="flex items-center gap-2">
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <span>Mbah Adaptivin sedang bekerja...</span>
+                </div>
+                <span className="text-xs text-white/90 font-normal">
+                  Menganalisis hasil kuis & mencari video terbaik untukmu 🔍
+                </span>
+              </div>
             ) : (
               <>
                 <Sparkles className="w-5 h-5 mr-2" />
                 {isReAnalyze
-                  ? "Analisis Lagi dengan Mbah"
-                  : "Analisis dengan Mbah Adaptivin"}
+                  ? "Analisis Ulang dengan Mbah"
+                  : "Ramal Hasil Belajarmu!"}
               </>
             )}
           </Button>

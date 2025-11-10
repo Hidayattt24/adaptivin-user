@@ -671,7 +671,7 @@ export default function HasilKuisPage() {
             <div className="relative group">
               {/* Decorative Background Glow */}
               <div
-                className="absolute inset-0 rounded-[24px] opacity-30 blur-2xl group-hover:opacity-50 transition-opacity"
+                className="absolute inset-0 rounded-[24px] opacity-20 blur-2xl group-hover:opacity-30 transition-opacity pointer-events-none"
                 style={{
                   background:
                     "linear-gradient(135deg, #336D82 0%, #7AB0C4 100%)",
@@ -683,11 +683,11 @@ export default function HasilKuisPage() {
                 className="relative overflow-hidden rounded-[24px] shadow-2xl transition-all duration-300"
                 style={{
                   background:
-                    "linear-gradient(135deg, #336D82 0%, #7AB0C4 100%)",
+                    "linear-gradient(135deg, #5a8ca0 0%, #8fc5d8 100%)",
                 }}
               >
                 {/* Decorative Background Pattern */}
-                <div className="absolute inset-0 opacity-10">
+                <div className="absolute inset-0 opacity-5 pointer-events-none">
                   <div className="absolute w-40 h-40 bg-white rounded-full -top-10 -left-10 animate-pulse" />
                   <div className="absolute w-32 h-32 bg-white rounded-full -bottom-10 -right-10 animate-pulse delay-75" />
                   <div className="absolute w-24 h-24 bg-white rounded-full top-1/2 right-10 animate-pulse delay-100" />
@@ -699,15 +699,15 @@ export default function HasilKuisPage() {
                     {/* Mbah Adaptivin Avatar with Mystical Effects */}
                     <div className="relative flex-shrink-0">
                       {/* Outer Glow Ring */}
-                      <div className="absolute inset-0 rounded-full bg-yellow-300/30 blur-xl animate-pulse"></div>
+                      <div className="absolute inset-0 rounded-full bg-yellow-300/20 blur-xl animate-pulse pointer-events-none"></div>
 
                       {/* Rotating Ring */}
-                      <div className="absolute inset-0 rounded-full border-4 border-dashed border-white/30 animate-spin-slow"></div>
+                      <div className="absolute inset-0 rounded-full border-4 border-dashed border-white/20 animate-spin-slow pointer-events-none"></div>
 
                       {/* Main Avatar */}
                       <div className="relative w-24 h-24 md:w-28 md:h-28 rounded-full bg-white p-3 shadow-2xl">
                         <Image
-                          src="/mascot/mascot-2.svg"
+                          src="/mascot/mbah-adaptivin.svg"
                           alt="Mbah Adaptivin"
                           width={96}
                           height={96}
@@ -716,35 +716,35 @@ export default function HasilKuisPage() {
                       </div>
 
                       {/* Sparkle Effects */}
-                      <div className="absolute -top-2 -right-2 w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center shadow-lg animate-bounce">
+                      <div className="absolute -top-2 -right-2 w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center shadow-lg animate-bounce pointer-events-none">
                         <span className="text-lg">✨</span>
                       </div>
-                      <div className="absolute -bottom-2 -left-2 w-8 h-8 bg-purple-400 rounded-full flex items-center justify-center shadow-lg animate-bounce delay-100">
+                      <div className="absolute -bottom-2 -left-2 w-8 h-8 bg-purple-400 rounded-full flex items-center justify-center shadow-lg animate-bounce delay-100 pointer-events-none">
                         <span className="text-lg">🔮</span>
                       </div>
                     </div>
 
                     {/* Text Content */}
                     <div className="flex-1 text-center md:text-left">
-                      <h3 className="text-2xl md:text-3xl font-bold text-white mb-2 flex items-center justify-center md:justify-start gap-2">
+                      <h3 className="text-2xl md:text-3xl font-bold text-white drop-shadow-md mb-2 flex items-center justify-center md:justify-start gap-2">
                         <span>Hai Anak Pintar!</span>
                         <span className="animate-wave inline-block">👋</span>
                       </h3>
-                      <p className="text-white/90 text-base md:text-lg leading-relaxed mb-3">
+                      <p className="text-white drop-shadow text-base md:text-lg leading-relaxed mb-3">
                         Aku Mbah Adaptivin punya kekuatan istimewa lho! 🔮✨
                       </p>
-                      <p className="text-white font-semibold text-lg md:text-xl">
+                      <p className="text-white drop-shadow font-semibold text-lg md:text-xl">
                         "Mau aku ramal dan prediksi hasil belajar kamu?" 🎯
                       </p>
                     </div>
                   </div>
 
                   {/* Mystical Description Box */}
-                  <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-4 mb-6 border-2 border-white/30">
+                  <div className="bg-white/25 backdrop-blur-sm rounded-2xl p-4 mb-6 border-2 border-white/40">
                     <div className="flex items-start gap-3">
                       <span className="text-3xl flex-shrink-0">🌟</span>
                       <div>
-                        <p className="text-white text-sm md:text-base leading-relaxed">
+                        <p className="text-white drop-shadow text-sm md:text-base leading-relaxed">
                           Dengan kekuatan AI-ku, aku bisa tau kelebihan dan
                           kelemahan kamu, terus kasih saran belajar yang cocok
                           buat kamu! Keren kan? 😎
@@ -775,7 +775,7 @@ export default function HasilKuisPage() {
                   </button>
 
                   {/* Fun Fact */}
-                  <p className="text-white/80 text-xs md:text-sm text-center mt-4 italic">
+                  <p className="text-white drop-shadow text-xs md:text-sm text-center mt-4 italic">
                     💡 Psst... Hasil ramalan Mbah sangat akurat lho!
                   </p>
                 </div>
@@ -801,21 +801,29 @@ export default function HasilKuisPage() {
           <div className="bg-white rounded-[24px] md:rounded-[32px] w-full max-w-2xl max-h-[90vh] overflow-hidden shadow-2xl">
             {/* Header */}
             <div
-              className="p-6 md:p-8 text-white relative"
+              className="p-6 md:p-8 text-white relative overflow-hidden"
               style={{
                 background: selectedQuestion.benar
                   ? "linear-gradient(135deg, #10b981 0%, #059669 100%)"
                   : "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)",
               }}
             >
+              {/* Decorative circles - behind content */}
+              <div className="absolute inset-0 pointer-events-none opacity-10">
+                <div className="absolute w-32 h-32 bg-white rounded-full -top-16 -left-16"></div>
+                <div className="absolute w-24 h-24 bg-white rounded-full -bottom-12 -right-12"></div>
+              </div>
+
+              {/* Close button - on top layer */}
               <button
                 onClick={closeDetailModal}
-                className="absolute top-4 right-4 w-10 h-10 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-all active:scale-95"
+                className="absolute top-4 right-4 w-10 h-10 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-all active:scale-95 z-10"
               >
                 <X className="w-6 h-6 text-white" />
               </button>
 
-              <div className="flex items-center gap-4 mb-4">
+              {/* Content - on top of decorative circles */}
+              <div className="flex items-center gap-4 mb-4 relative z-10">
                 <div
                   className={`w-16 h-16 rounded-full flex items-center justify-center ${
                     selectedQuestion.benar ? "bg-green-100" : "bg-red-100"

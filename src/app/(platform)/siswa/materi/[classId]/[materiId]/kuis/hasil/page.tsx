@@ -702,7 +702,7 @@ export default function HasilKuisPage() {
                       <div className="absolute inset-0 rounded-full bg-yellow-300/20 blur-xl animate-pulse pointer-events-none"></div>
 
                       {/* Rotating Ring */}
-                      <div className="absolute inset-0 rounded-full border-4 border-dashed border-white/20 animate-spin-slow pointer-events-none"></div>
+                      <div className="absolute inset-0 rounded-full border-4 border-dashed border-white/30 animate-spin-slow"></div>
 
                       {/* Main Avatar */}
                       <div className="relative w-24 h-24 md:w-28 md:h-28 rounded-full bg-white p-3 shadow-2xl">
@@ -744,7 +744,7 @@ export default function HasilKuisPage() {
                     <div className="flex items-start gap-3">
                       <span className="text-3xl flex-shrink-0">🌟</span>
                       <div>
-                        <p className="text-white drop-shadow text-sm md:text-base leading-relaxed">
+                        <p className="text-white text-sm md:text-base leading-relaxed">
                           Dengan kekuatan AI-ku, aku bisa tau kelebihan dan
                           kelemahan kamu, terus kasih saran belajar yang cocok
                           buat kamu! Keren kan? 😎
@@ -775,7 +775,7 @@ export default function HasilKuisPage() {
                   </button>
 
                   {/* Fun Fact */}
-                  <p className="text-white drop-shadow text-xs md:text-sm text-center mt-4 italic">
+                  <p className="text-white/80 text-xs md:text-sm text-center mt-4 italic">
                     💡 Psst... Hasil ramalan Mbah sangat akurat lho!
                   </p>
                 </div>

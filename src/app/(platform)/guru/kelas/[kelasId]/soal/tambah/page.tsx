@@ -21,7 +21,7 @@ const TambahSoalPage = () => {
   const kelasId = params.kelasId as string;
 
   // Fetch materi dropdown from API
-  const { data: materiList = [], isLoading: isLoadingMateri } = useMateriDropdown();
+  const { data: materiList = [], isLoading: isLoadingMateri } = useMateriDropdown(kelasId);
 
   // Create soal mutation
   const createSoalMutation = useCreateSoal();

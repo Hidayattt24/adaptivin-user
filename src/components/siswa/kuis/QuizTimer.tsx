@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import HourglassEmptyIcon from "@mui/icons-material/HourglassEmpty";
 import TimerIcon from "@mui/icons-material/Timer";
+import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 
 interface QuizTimerProps {
   totalSeconds: number; // Total waktu dalam detik (dari guru)
@@ -40,11 +40,6 @@ export default function QuizTimer({
     return () => clearInterval(interval);
   }, [isPaused, totalSeconds, onTimeUp]);
 
-  // Hitung remaining atau overdue
-  const remainingSeconds = totalSeconds - elapsedSeconds;
-  const isOverdue = remainingSeconds < 0;
-  const displaySeconds = Math.abs(remainingSeconds);
-
   // Format waktu ke MM:SS
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -54,90 +49,54 @@ export default function QuizTimer({
       .padStart(2, "0")}`;
   };
 
-  // Hitung persentase waktu tersisa (clamp 0-100)
-  const percentage = Math.max(
-    0,
-    Math.min(100, (remainingSeconds / totalSeconds) * 100)
-  );
+  // Hitung persentase progress (0-100)
+  const percentage = Math.min(100, (elapsedSeconds / totalSeconds) * 100);
 
-  // Tentukan warna berdasarkan waktu tersisa
+  // Tentukan warna berdasarkan progress (selalu tenang)
   const getColor = () => {
-    if (isOverdue) return "#9333ea"; // Purple untuk overdue
-    if (percentage > 50) return "#2ea062"; // Hijau
-    if (percentage > 25) return "#fcc61d"; // Kuning
-    return "#ff1919"; // Merah
+    return "#336D82"; // Warna tema utama yang tenang
   };
-
-  // Tentukan apakah perlu warning animation
-  const isWarning = percentage <= 25 && percentage > 0;
 
   return (
     <div className="w-full max-w-md mx-auto">
-      {/* Timer Card - Lebih prominent */}
-      <div
-        className={`bg-white/95 backdrop-blur-sm rounded-2xl p-4 md:p-5 shadow-2xl border-2 transition-all ${
-          isOverdue
-            ? "border-purple-500 animate-pulse"
-            : isWarning
-            ? "animate-pulse border-red-500"
-            : "border-white/50"
-        }`}
-      >
+      {/* Timer Card - Count Up Design */}
+      <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-4 md:p-5 shadow-xl border-2 border-white/50 transition-all">
         <div className="flex items-center justify-between gap-4">
           {/* Left: Icon & Label */}
           <div className="flex items-center gap-3">
             <div
-              className={`w-14 h-14 md:w-16 md:h-16 rounded-xl flex items-center justify-center transition-all shadow-lg ${
-                isOverdue || isWarning ? "animate-bounce" : ""
-              }`}
+              className="w-14 h-14 md:w-16 md:h-16 rounded-xl flex items-center justify-center transition-all shadow-lg"
               style={{
                 background: `linear-gradient(135deg, ${getColor()} 0%, ${getColor()}dd 100%)`,
-                boxShadow: `0 0 25px ${getColor()}80`,
+                boxShadow: `0 0 15px ${getColor()}40`,
               }}
             >
-              {isOverdue ? (
-                <HourglassEmptyIcon
-                  sx={{ color: "white", fontSize: { xs: "48px", md: "64px" } }}
-                />
-              ) : (
-                <TimerIcon
-                  sx={{ color: "white", fontSize: { xs: "48px", md: "64px" } }}
-                />
-              )}
+              <PlayArrowIcon
+                sx={{ color: "white", fontSize: { xs: "32px", md: "40px" } }}
+              />
             </div>
 
             <div className="flex flex-col">
               <span className="text-xs md:text-sm text-gray-600 font-medium">
-                {isOverdue ? "⏱️ Waktu Overdue" : "Waktu Tersisa"}
+                ⏱️ Waktu Berjalan
               </span>
               <span className="text-[10px] md:text-xs text-gray-400">
-                {isOverdue
-                  ? "Tetap tenang, jawab dengan teliti"
-                  : isWarning
-                  ? "⚠️ Segera selesaikan!"
-                  : "Kerjakan dengan tenang"}
+                Kerjakan dengan tenang & teliti
               </span>
             </div>
           </div>
 
-          {/* Right: Timer Display - BESAR & JELAS */}
+          {/* Right: Timer Display - Count Up */}
           <div className="flex flex-col items-end">
             <div className="flex items-center gap-1">
-              {isOverdue && (
-                <span className="text-2xl md:text-3xl font-bold text-purple-600">
-                  +
-                </span>
-              )}
               <span
-                className={`text-4xl md:text-5xl font-bold tabular-nums transition-all ${
-                  isOverdue || isWarning ? "animate-pulse" : ""
-                }`}
+                className="text-4xl md:text-5xl font-bold tabular-nums transition-all"
                 style={{
                   color: getColor(),
-                  textShadow: `0 0 20px ${getColor()}60`,
+                  textShadow: `0 0 15px ${getColor()}30`,
                 }}
               >
-                {formatTime(displaySeconds)}
+                {formatTime(elapsedSeconds)}
               </span>
             </div>
             <span className="text-xs md:text-sm text-gray-500 font-medium mt-1">
@@ -146,17 +105,15 @@ export default function QuizTimer({
           </div>
         </div>
 
-        {/* Progress Bar */}
+        {/* Progress Bar - Shows progress increasing */}
         <div className="mt-4">
           <div className="w-full h-3 md:h-4 bg-gray-200 rounded-full overflow-hidden shadow-inner">
             <div
-              className={`h-full transition-all duration-1000 ease-linear rounded-full ${
-                isOverdue ? "animate-pulse" : ""
-              }`}
+              className="h-full transition-all duration-1000 ease-linear rounded-full"
               style={{
-                width: isOverdue ? "100%" : `${percentage}%`,
+                width: `${percentage}%`,
                 background: `linear-gradient(90deg, ${getColor()} 0%, ${getColor()}dd 100%)`,
-                boxShadow: `0 0 10px ${getColor()}60`,
+                boxShadow: `0 0 8px ${getColor()}40`,
               }}
             />
           </div>

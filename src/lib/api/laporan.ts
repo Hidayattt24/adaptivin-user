@@ -33,6 +33,38 @@ export interface MateriProgress {
     rekomendasi_belajar: string;
     rekomendasi_video: string | object;
   } | null;
+  analisisGuru?: {
+    id: string;
+    hasil_kuis_id: string;
+    materi_id: string;
+    siswa_id: string;
+    diagnosis_pembelajaran: string;
+    pola_belajar_siswa: string;
+    level_kemampuan_saat_ini: string;
+    zona_proximal_development: string;
+    rekomendasi_metode_mengajar: string;
+    strategi_differensiasi: string;
+    aktivitas_pembelajaran:
+      | string
+      | Array<{
+          nama: string;
+          deskripsi: string;
+          durasi: string;
+          tujuan: string;
+        }>;
+    tips_praktis: string;
+    indikator_progress: string;
+    rekomendasi_video_guru:
+      | string
+      | Array<{
+          judul?: string;
+          url?: string;
+          fokus?: string;
+          durasi?: string;
+          bahasa?: string;
+        }>;
+    created_at: string;
+  } | null;
 }
 
 export interface LaporanSiswa {

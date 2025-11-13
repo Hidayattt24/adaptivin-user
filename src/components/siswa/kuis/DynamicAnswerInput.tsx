@@ -4,7 +4,8 @@ import { JawabanSoal } from "@/lib/api/kuis";
 import AnswerInput from "./AnswerInput";
 import ChecklistIcon from "@mui/icons-material/Checklist";
 import RadioButtonCheckedIcon from "@mui/icons-material/RadioButtonChecked";
-import CheckIcon from "@mui/icons-material/Check";
+import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank";
+import CheckBoxIcon from "@mui/icons-material/CheckBox";
 
 interface DynamicAnswerInputProps {
   tipeJawaban: "pilihan_ganda" | "pilihan_ganda_kompleks" | "isian_singkat";
@@ -79,16 +80,37 @@ export default function DynamicAnswerInput({
               onClick={() => handleSelect(item.id)}
               className={`w-full rounded-[15px] p-4 transition-all duration-300 shadow-md hover:shadow-xl active:scale-[0.98] ${
                 isSelected
-                  ? "bg-gradient-to-r from-[#2EA062] to-[#3BC97A] text-white scale-[1.02]"
-                  : "bg-white text-[#336D82] hover:bg-gray-50"
+                  ? "bg-gradient-to-r from-[#5B8FC4] to-[#7BA5D1] text-white scale-[1.02] border-2 border-[#336D82]"
+                  : "bg-white text-[#336D82] hover:bg-gray-50 border-2 border-transparent"
               }`}
             >
               <div className="flex items-center gap-3">
+                {/* Checkbox/Radio indicator for multiple choice kompleks */}
+                {isMultipleChoice && (
+                  <div className="flex-shrink-0">
+                    {isSelected ? (
+                      <CheckBoxIcon
+                        sx={{
+                          color: "white",
+                          fontSize: "28px",
+                        }}
+                      />
+                    ) : (
+                      <CheckBoxOutlineBlankIcon
+                        sx={{
+                          color: "#336D82",
+                          fontSize: "28px",
+                        }}
+                      />
+                    )}
+                  </div>
+                )}
+
                 {/* Option Label (A, B, C, D) */}
                 <div
                   className={`w-[40px] h-[40px] rounded-full flex items-center justify-center font-bold text-[16px] flex-shrink-0 ${
                     isSelected
-                      ? "bg-white text-[#2EA062]"
+                      ? "bg-white text-[#5B8FC4]"
                       : "bg-gradient-to-br from-[#336D82] to-[#4A8FA5] text-white"
                   }`}
                 >
@@ -105,19 +127,6 @@ export default function DynamicAnswerInput({
                     {item.isi_jawaban}
                   </p>
                 </div>
-
-                {/* Check Icon */}
-                {isSelected && (
-                  <div className="w-[30px] h-[30px] rounded-full bg-white flex items-center justify-center flex-shrink-0 animate-scale-in">
-                    <CheckIcon
-                      sx={{
-                        color: "#2EA062",
-                        fontSize: "22px",
-                        fontWeight: "bold",
-                      }}
-                    />
-                  </div>
-                )}
               </div>
             </button>
           );
@@ -128,7 +137,7 @@ export default function DynamicAnswerInput({
       {selectedAnswers.length > 0 && (
         <div className="flex items-center justify-center gap-2 animate-fade-in">
           <span className="text-[16px]">⭐</span>
-          <p className="text-[#2EA062] text-[12px] font-bold">
+          <p className="text-[#5B8FC4] text-[12px] font-bold">
             {isMultipleChoice
               ? `Kamu sudah pilih ${selectedAnswers.length} jawaban!`
               : "Keren! Sekarang geser tombol di bawah yaa!"}

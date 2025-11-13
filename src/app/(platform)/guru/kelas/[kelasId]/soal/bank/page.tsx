@@ -28,32 +28,38 @@ import Swal from "sweetalert2";
 
 const levelCategories = [
   {
-    level: "Level 1",
+    level: "level1",
+    displayName: "Level 1",
     label: "Level 1 - Mengingat",
     color: "from-blue-500 to-blue-600"
   },
   {
-    level: "Level 2",
+    level: "level2",
+    displayName: "Level 2",
     label: "Level 2 - Memahami",
     color: "from-green-500 to-green-600"
   },
   {
-    level: "Level 3",
+    level: "level3",
+    displayName: "Level 3",
     label: "Level 3 - Menerapkan",
     color: "from-yellow-500 to-yellow-600",
   },
   {
-    level: "Level 4",
+    level: "level4",
+    displayName: "Level 4",
     label: "Level 4 - Menganalisis",
     color: "from-orange-500 to-orange-600",
   },
   {
-    level: "Level 5",
+    level: "level5",
+    displayName: "Level 5",
     label: "Level 5 - Mengevaluasi",
     color: "from-red-500 to-red-600",
   },
   {
-    level: "Level 6",
+    level: "level6",
+    displayName: "Level 6",
     label: "Level 6 - Mencipta",
     color: "from-purple-500 to-purple-600",
   },
@@ -144,7 +150,11 @@ const BankSoalPage = () => {
     };
 
     questions.forEach((q) => {
-      groups[q.questionType].push(q);
+      // Normalize questionType to lowercase to match groups keys
+      const levelKey = q.questionType.toLowerCase();
+      if (groups[levelKey]) {
+        groups[levelKey].push(q);
+      }
     });
 
     return groups;
@@ -303,14 +313,14 @@ const BankSoalPage = () => {
         Swal.fire({
           icon: "info",
           title: "Export Soal",
-          text: `Mengexport ${groupedQuestions[level].length} soal dari kategori ${level}`,
+          text: `Mengexport ${groupedQuestions[level]?.length || 0} soal dari kategori ${level}`,
           confirmButtonColor: "#336d82",
         });
         break;
       case "deleteAll":
         Swal.fire({
           title: "Hapus Semua Soal?",
-          html: `Apakah Anda yakin ingin menghapus <strong>semua ${groupedQuestions[level].length} soal</strong> dari kategori ${level}?<br/><small class="text-gray-600">Tindakan ini tidak dapat dibatalkan.</small>`,
+          html: `Apakah Anda yakin ingin menghapus <strong>semua ${groupedQuestions[level]?.length || 0} soal</strong> dari kategori ${level}?<br/><small class="text-gray-600">Tindakan ini tidak dapat dibatalkan.</small>`,
           icon: "warning",
           showCancelButton: true,
           confirmButtonColor: "#ff1919",
@@ -321,7 +331,7 @@ const BankSoalPage = () => {
           if (result.isConfirmed) {
             try {
               // Delete all questions in this level
-              const questionsToDelete = groupedQuestions[level];
+              const questionsToDelete = groupedQuestions[level] || [];
               for (const q of questionsToDelete) {
                 await deleteSoalMutation.mutateAsync(q.id);
               }
@@ -397,19 +407,22 @@ const BankSoalPage = () => {
 
             {/* Bottom Row: Level Stats - Scrollable */}
             <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide -mx-3 px-3">
-              {levelCategories.map((cat) => (
-                <div
-                  key={cat.level}
-                  className="bg-white/15 backdrop-blur-sm px-3 py-1.5 rounded-lg text-center min-w-[60px] flex-shrink-0"
-                >
-                  <p className="text-white text-xs poppins-semibold">
-                    {cat.level}
-                  </p>
-                  <p className="text-white text-base poppins-bold">
-                    {groupedQuestions[cat.level].length}
-                  </p>
-                </div>
-              ))}
+              {levelCategories.map((cat) => {
+                const count = groupedQuestions[cat.level]?.length || 0;
+                return (
+                  <div
+                    key={cat.level}
+                    className="bg-white/15 backdrop-blur-sm px-3 py-1.5 rounded-lg text-center min-w-[60px] flex-shrink-0"
+                  >
+                    <p className="text-white text-xs poppins-semibold">
+                      {cat.displayName}
+                    </p>
+                    <p className="text-white text-base poppins-bold">
+                      {count}
+                    </p>
+                  </div>
+                );
+              })}
             </div>
           </div>
 
@@ -444,19 +457,22 @@ const BankSoalPage = () => {
 
               {/* Bloom Stats */}
               <div className="flex gap-2">
-                {levelCategories.map((cat) => (
-                  <div
-                    key={cat.level}
-                    className="bg-white/15 backdrop-blur-sm px-3 py-2 rounded-lg text-center min-w-[55px] hover:bg-white/25 transition-colors cursor-default"
-                  >
-                    <p className="text-white text-xs poppins-semibold">
-                      {cat.level}
-                    </p>
-                    <p className="text-white text-lg poppins-bold">
-                      {groupedQuestions[cat.level].length}
-                    </p>
-                  </div>
-                ))}
+                {levelCategories.map((cat) => {
+                  const count = groupedQuestions[cat.level]?.length || 0;
+                  return (
+                    <div
+                      key={cat.level}
+                      className="bg-white/15 backdrop-blur-sm px-3 py-2 rounded-lg text-center min-w-[55px] hover:bg-white/25 transition-colors cursor-default"
+                    >
+                      <p className="text-white text-xs poppins-semibold">
+                        {cat.displayName}
+                      </p>
+                      <p className="text-white text-lg poppins-bold">
+                        {count}
+                      </p>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -484,7 +500,7 @@ const BankSoalPage = () => {
         ) : (
           <div className="space-y-4 sm:space-y-6">
             {levelCategories.map((category) => {
-              const categoryQuestions = groupedQuestions[category.level];
+              const categoryQuestions = groupedQuestions[category.level] || [];
               if (categoryQuestions.length === 0) return null;
 
               const isCollapsed = collapsedSections.has(category.level);

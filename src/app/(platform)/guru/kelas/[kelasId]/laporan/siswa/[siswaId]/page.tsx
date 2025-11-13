@@ -131,7 +131,7 @@ const LaporanSiswaPage = () => {
       {/* Back Button */}
       <button
         onClick={handleBack}
-        className="mb-4 flex items-center gap-2 px-4 py-2 bg-white border-2 border-[#336D82] text-[#336D82] rounded-xl hover:bg-[#336D82] hover:text-white transition-all duration-200 poppins-semibold"
+        className="no-print mb-4 flex items-center gap-2 px-4 py-2 bg-white border-2 border-[#336D82] text-[#336D82] rounded-xl hover:bg-[#336D82] hover:text-white transition-all duration-200 poppins-semibold"
       >
         <ArrowLeft className="w-5 h-5" />
         Kembali ke Laporan Kelas
@@ -162,14 +162,11 @@ const LaporanSiswaPage = () => {
               <h1 className="text-white text-2xl sm:text-3xl lg:text-4xl poppins-semibold mb-2">
                 Laporan Individual: {currentReport.nama}
               </h1>
-              <p className="text-white/90 text-sm sm:text-base poppins-regular">
-                NIS: {currentReport.nis}
-              </p>
             </div>
           </div>
 
           {/* Performance Chart - Individual Student */}
-          <div className="mb-4 sm:mb-5 lg:mb-6">
+          <div id="performance-chart" className="mb-4 sm:mb-5 lg:mb-6">
             {performanceData.length > 0 ? (
               <PerformanceChart
                 data={performanceData}
@@ -191,7 +188,7 @@ const LaporanSiswaPage = () => {
           </div>
 
           {/* Materials Section */}
-          <div className="mb-4 sm:mb-5 lg:mb-6">
+          <div className="no-print mb-4 sm:mb-5 lg:mb-6">
             <h2 className="text-[#336d82] text-2xl sm:text-3xl lg:text-4xl poppins-semibold mb-4">
               MATERI DIPELAJARI
             </h2>
@@ -221,9 +218,9 @@ const LaporanSiswaPage = () => {
                 studentName={currentReport.nama}
                 materiTitle={currentCardMateri.judul}
                 analisisData={currentCardMateri.analisis}
+                analisisGuru={currentCardMateri.analisisGuru || null}
                 hasilKuisId={currentCardMateri.analisis.hasil_kuis_id}
                 onAnalysisComplete={() => {
-                  // Refresh data after teacher analysis
                   studentReport.refetch();
                 }}
               />

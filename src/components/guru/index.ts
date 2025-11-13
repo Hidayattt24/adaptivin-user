@@ -35,7 +35,12 @@ export { default as QuestionSection } from "./soal/QuestionSection";
 export { QuestionPreviewModal } from "./soal/QuestionPreviewModal";
 export { QuestionEditModal } from "./soal/QuestionEditModal";
 export { SoalClusterCard } from "./soal/SoalClusterCard";
-export type { Question, QuestionType, AnswerType, TimeUnit } from "./soal/QuestionSection";
+export type {
+  Question,
+  QuestionType,
+  AnswerType,
+  TimeUnit,
+} from "./soal/QuestionSection";
 
 // Common/Shared Components
 export { default as EmptyState } from "./common/EmptyState";
@@ -51,6 +56,9 @@ export { LazySection } from "./common/LazySection";
 export { default as GrafikPerkembanganModal } from "./laporan/GrafikPerkembanganModal";
 export { default as HasilKuisModal } from "./laporan/HasilKuisModal";
 export { default as AnalisaAIModal } from "./laporan/AnalisaAIModal";
+export { default as ClassOverviewChart } from "./laporan/ClassOverviewChart";
+export { default as StudentClusterSection } from "./laporan/StudentClusterSection";
+export { default as AnalysisAISection } from "./laporan/AnalysisAISection";
 
 // Skeletons
 export { CardSkeleton } from "./skeletons/CardSkeleton";

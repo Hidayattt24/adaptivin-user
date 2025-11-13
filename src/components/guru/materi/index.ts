@@ -1,4 +1,5 @@
 export { default as MateriCard } from "./MateriCard";
+export { default as MateriPreviewModal } from "./MateriPreviewModal";
 export { MateriSection, type MateriSectionData } from "./MateriSection";
 export { default as MateriSelector } from "./MateriSelector";
 export { default as MateriDropdownSelector } from "./MateriDropdownSelector";

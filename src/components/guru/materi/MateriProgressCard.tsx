@@ -4,7 +4,7 @@ import React, { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { Insights, Quiz, SmartToy, MenuBook } from "@mui/icons-material";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
-import { MateriProgress } from "@/types/guru";
+import { MateriProgress } from "@/lib/api/laporan";
 
 interface MateriProgressCardProps {
   materi: MateriProgress;

@@ -14,27 +14,44 @@ import {
   Kuis,
   createHasilKuis,
   finishHasilKuis,
+  getRiwayatKuisByMateri,
+  getJawabanByHasilKuis,
 } from "@/lib/api/kuis";
 import { useAdaptiveQuiz } from "@/hooks/siswa/useAdaptiveQuiz";
 import AnswerFeedbackModal from "@/components/siswa/kuis/AnswerFeedbackModal";
+import DemoQuiz from "@/components/siswa/kuis/DemoQuiz";
 import Image from "next/image";
+import { Lightbulb, PlayCircle, ArrowLeft } from "lucide-react";
 
 export default function KuisPage() {
-  const [userAnswer, setUserAnswer] = useState(""); // For isian_singkat
-  const [selectedAnswers, setSelectedAnswers] = useState<string[]>([]); // For pilihan_ganda & kompleks
+  // Quiz state
+  const [userAnswer, setUserAnswer] = useState("");
+  const [selectedAnswers, setSelectedAnswers] = useState<string[]>([]);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [feedbackData, setFeedbackData] = useState<{
     isCorrect: boolean;
     explanation?: string;
     explanationImage?: string;
   } | null>(null);
-  const [questionStartTime, setQuestionStartTime] = useState<number>(
-    Date.now()
-  );
+  const [questionStartTime, setQuestionStartTime] = useState<number>(Date.now());
+  
+  // Data state
   const [kuisData, setKuisData] = useState<Kuis | null>(null);
   const [hasilKuisId, setHasilKuisId] = useState<string | null>(null);
   const [isLoadingKuis, setIsLoadingKuis] = useState(true);
-  const [isInitialized, setIsInitialized] = useState(false); // Flag to prevent double init
+  
+  // Flow control state
+  const [showDemoQuiz, setShowDemoQuiz] = useState(false);
+  const [hasStartedQuiz, setHasStartedQuiz] = useState(false); // User belum memulai kuis
+  const [isInitialized, setIsInitialized] = useState(false);
+  const [isResumingQuiz, setIsResumingQuiz] = useState(false);
+  
+  // Resume state - untuk restore progress ketika refresh
+  const [resumeData, setResumeData] = useState<{
+    currentQuestionNumber: number;
+    currentLevel: string;
+    answeredCount: number;
+  } | null>(null);
 
   const params = useParams();
   const router = useRouter();
@@ -42,16 +59,16 @@ export default function KuisPage() {
   const classId = params?.classId as string;
   const materiId = params?.materiId as string;
 
-  // Load data kuis dan buat hasil_kuis_siswa (ONLY ONCE)
+  // Load data kuis dan cek apakah ada kuis yang sedang berjalan
   useEffect(() => {
-    // Prevent double initialization
     if (isInitialized) return;
 
     async function loadKuis() {
       try {
         setIsLoadingKuis(true);
+        
+        // Load kuis data
         const kuis = await getKuisByMateri(materiId);
-
         if (!kuis) {
           Swal.fire("Gagal", "Kuis tidak ditemukan untuk materi ini", "error");
           router.back();
@@ -61,12 +78,84 @@ export default function KuisPage() {
         console.log("✅ Kuis loaded:", kuis);
         setKuisData(kuis);
 
-        // Buat hasil_kuis_siswa saat siswa mulai kuis
-        // Backend akan check: jika sudah ada yang belum selesai, return yang existing
-        const hasilKuis = await createHasilKuis(kuis.id);
-        console.log("✅ Hasil kuis created/resumed:", hasilKuis);
-        setHasilKuisId(hasilKuis.id);
-        setIsInitialized(true); // Mark as initialized
+        // Cek apakah ada kuis yang sedang berjalan (belum selesai)
+        try {
+          const riwayat = await getRiwayatKuisByMateri(materiId);
+          const activeQuiz = riwayat.find(h => !h.selesai && h.kuis_id === kuis.id);
+          
+          if (activeQuiz) {
+            console.log("🔄 Found active quiz, resuming:", activeQuiz);
+            setIsResumingQuiz(true);
+            setHasilKuisId(activeQuiz.id);
+            setHasStartedQuiz(true); // Auto-resume kuis
+            
+            // Load jawaban yang sudah dibuat untuk restore progress
+            try {
+              const existingAnswers = await getJawabanByHasilKuis(activeQuiz.id);
+              console.log("📝 Existing answers loaded:", existingAnswers);
+              
+              if (existingAnswers && existingAnswers.length > 0) {
+                // Ambil jawaban terakhir untuk mengetahui level terakhir
+                const lastAnswer = existingAnswers[existingAnswers.length - 1];
+                const nextQuestionNumber = existingAnswers.length + 1;
+                
+                // Hitung next level berdasarkan jawaban terakhir
+                // Logic sama dengan backend: benar & cepat = naik, salah = turun, benar lambat = sama
+                let nextLevel = lastAnswer.level_soal;
+                
+                // Simplified next level logic (seharusnya sama dengan backend)
+                if (lastAnswer.benar) {
+                  // Jika benar, cek apakah cepat (waktu < 50% durasi)
+                  const isFast = lastAnswer.soal && 
+                    lastAnswer.waktu_dijawab < (lastAnswer.soal.durasi_soal * 0.5);
+                  
+                  if (isFast) {
+                    // Naik level
+                    if (nextLevel === "level3") nextLevel = "level4";
+                    else if (nextLevel === "level4") nextLevel = "level5";
+                  }
+                  // Jika lambat, tetap di level yang sama
+                } else {
+                  // Jika salah, turun level
+                  if (nextLevel === "level5") nextLevel = "level4";
+                  else if (nextLevel === "level4") nextLevel = "level3";
+                }
+                
+                console.log("🎯 Resume data calculated:", {
+                  answeredCount: existingAnswers.length,
+                  nextQuestionNumber,
+                  lastLevel: lastAnswer.level_soal,
+                  nextLevel,
+                });
+                
+                setResumeData({
+                  currentQuestionNumber: nextQuestionNumber,
+                  currentLevel: nextLevel,
+                  answeredCount: existingAnswers.length,
+                });
+              }
+            } catch (error) {
+              console.error("Error loading existing answers:", error);
+              // Tetap lanjutkan, akan mulai dari awal
+            }
+            
+            // Show notification
+            Swal.fire({
+              title: "Melanjutkan Kuis",
+              text: "Anda memiliki kuis yang belum selesai. Kuis akan dilanjutkan.",
+              icon: "info",
+              timer: 2500,
+              showConfirmButton: false,
+              toast: true,
+              position: "top",
+            });
+          }
+        } catch (error) {
+          console.log("No active quiz found or error checking:", error);
+          // Tidak masalah jika tidak ada atau error, user bisa mulai kuis baru
+        }
+
+        setIsInitialized(true);
       } catch (error) {
         console.error("Error loading kuis:", error);
         alert("Gagal memuat data kuis");
@@ -81,7 +170,27 @@ export default function KuisPage() {
     }
   }, [materiId, router, isInitialized]);
 
-  // Initialize adaptive quiz hook ONLY when kuisData is ready
+  // Create hasil_kuis_siswa HANYA ketika user klik "Mulai Kuis"
+  useEffect(() => {
+    if (!hasStartedQuiz || !kuisData || hasilKuisId) return;
+
+    async function initializeQuiz() {
+      if (!kuisData) return; // Type guard
+      
+      try {
+        const hasilKuis = await createHasilKuis(kuisData.id);
+        console.log("✅ Hasil kuis created:", hasilKuis);
+        setHasilKuisId(hasilKuis.id);
+      } catch (error) {
+        console.error("Error creating hasil kuis:", error);
+        alert("Gagal memulai kuis");
+      }
+    }
+
+    initializeQuiz();
+  }, [hasStartedQuiz, kuisData, hasilKuisId]);
+
+  // Initialize adaptive quiz hook with resume data jika ada
   const {
     quizState,
     currentQuestion,
@@ -93,19 +202,28 @@ export default function KuisPage() {
   } = useAdaptiveQuiz(
     kuisData?.id || "",
     hasilKuisId || "",
-    kuisData?.jumlah_soal || 10 // Default 10 to prevent premature finish, will be updated when kuisData loads
+    kuisData?.jumlah_soal || 10,
+    resumeData ? {
+      currentLevel: resumeData.currentLevel,
+      currentQuestionNumber: resumeData.currentQuestionNumber,
+      answeredCount: resumeData.answeredCount,
+    } : undefined
   );
 
-  // Load soal pertama ketika kuis data dan hasilKuisId tersedia
+  // Load soal pertama HANYA ketika kuis sudah dimulai
   useEffect(() => {
-    if (kuisData && hasilKuisId && !currentQuestion && !quizState.isFinished) {
-      console.log(
-        "🎬 Initializing first question with jumlah_soal:",
-        kuisData.jumlah_soal
-      );
+    if (
+      hasStartedQuiz &&
+      kuisData &&
+      hasilKuisId &&
+      !currentQuestion &&
+      !quizState.isFinished
+    ) {
+      console.log("🎬 Loading first question...");
       loadQuestion();
     }
   }, [
+    hasStartedQuiz,
     kuisData,
     hasilKuisId,
     currentQuestion,
@@ -115,7 +233,25 @@ export default function KuisPage() {
 
   // Reset timer setiap kali soal berubah
   useEffect(() => {
-    setQuestionStartTime(Date.now());
+    if (!currentQuestion) return;
+
+    const storageKey = `quiz-question-start-${currentQuestion.id}`;
+    
+    // Cek apakah ada waktu mulai yang tersimpan untuk soal ini
+    const savedStartTime = sessionStorage.getItem(storageKey);
+    
+    if (savedStartTime) {
+      // Gunakan waktu yang tersimpan (untuk handle refresh)
+      setQuestionStartTime(parseInt(savedStartTime));
+      console.log("⏱️ Restored question start time from storage");
+    } else {
+      // Soal baru, simpan waktu mulai
+      const startTime = Date.now();
+      setQuestionStartTime(startTime);
+      sessionStorage.setItem(storageKey, startTime.toString());
+      console.log("⏱️ Set new question start time");
+    }
+    
     setUserAnswer("");
     setSelectedAnswers([]);
   }, [currentQuestion]);
@@ -219,6 +355,10 @@ export default function KuisPage() {
       const result = await submitAnswer(jawabanSiswa, waktuDijawab, jawabanId);
 
       if (result) {
+        // Cleanup sessionStorage untuk soal ini
+        const storageKey = `quiz-question-start-${currentQuestion.id}`;
+        sessionStorage.removeItem(storageKey);
+
         // Simpan ke sessionStorage untuk hasil individual
         sessionStorage.setItem(
           "lastAnswer",
@@ -244,15 +384,48 @@ export default function KuisPage() {
   };
 
   const handleFeedbackNext = () => {
-    console.log("🔵 Feedback modal closed, quizState:", {
-      currentQuestionNumber: quizState.currentQuestionNumber,
-      isFinished: quizState.isFinished,
-    });
-
     setShowFeedbackModal(false);
     setFeedbackData(null);
+  };
 
-    // No need to manually loadQuestion - auto-load effect will handle it
+  // Handler untuk memulai kuis
+  const handleStartQuiz = () => {
+    setHasStartedQuiz(true);
+  };
+
+  // Handler untuk membuka demo
+  const handleOpenDemo = () => {
+    setShowDemoQuiz(true);
+  };
+
+  // Handler untuk menutup demo
+  const handleDemoComplete = () => {
+    setShowDemoQuiz(false);
+    Swal.fire({
+      title: "Demo Selesai! 🎉",
+      html: `
+        <div class="text-left">
+          <p class="mb-3">Sekarang kamu sudah paham cara menjawab soal kuis!</p>
+          <div class="bg-green-50 border border-green-200 rounded-lg p-3">
+            <p class="text-sm text-gray-700"><strong>Ingat:</strong></p>
+            <ul class="text-sm text-gray-700 list-disc list-inside mt-2">
+              <li>Baca soal dengan teliti</li>
+              <li>Pilih jawaban yang tepat</li>
+              <li>Geser tombol untuk submit</li>
+              <li>Perhatikan penjelasan setelah menjawab</li>
+            </ul>
+          </div>
+          <p class="text-sm text-gray-600 mt-3">💡 Klik "Mulai Kuis" untuk memulai!</p>
+        </div>
+      `,
+      icon: "success",
+      confirmButtonColor: "#336D82",
+      confirmButtonText: "Oke, Mengerti!",
+      customClass: {
+        popup: "rounded-2xl",
+        title: "text-2xl font-bold text-green-600",
+      },
+    });
   };
 
   // Loading state
@@ -261,9 +434,107 @@ export default function KuisPage() {
       <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-[#336D82] to-white">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-white border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-white text-lg font-medium">Memuat kuis...</p>
+          <p className="text-white text-lg font-medium">
+            {isResumingQuiz ? "Melanjutkan kuis..." : "Memuat kuis..."}
+          </p>
         </div>
       </div>
+    );
+  }
+
+  // Landing Page - Belum memulai kuis
+  if (!hasStartedQuiz) {
+    return (
+      <>
+        {/* Demo Quiz Modal */}
+        <DemoQuiz
+          isOpen={showDemoQuiz}
+          onClose={() => setShowDemoQuiz(false)}
+          onComplete={handleDemoComplete}
+        />
+
+        <div className="relative w-full min-h-screen overflow-x-hidden flex items-center justify-center"
+          style={{
+            background: "linear-gradient(180deg, #336D82 -23.16%, #FFF 132.2%)",
+          }}
+        >
+          {/* Tombol Kembali */}
+          <button
+            onClick={() => router.back()}
+            className="absolute top-4 left-4 md:top-6 md:left-6 bg-white/90 hover:bg-white text-[#336D82] px-3 py-2 md:px-4 md:py-2 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2 z-10 group"
+          >
+            <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+            <span className="hidden sm:inline">Kembali</span>
+          </button>
+
+          <div className="max-w-2xl mx-auto px-6 py-20">
+            {/* Welcome Card */}
+            <div className="bg-white rounded-3xl p-8 md:p-12 shadow-2xl">
+              {/* Header */}
+              <div className="text-center mb-8">
+                <div className="w-20 h-20 bg-gradient-to-br from-[#336D82] to-[#4a8ba0] rounded-full flex items-center justify-center mx-auto mb-6">
+                  <PlayCircle className="w-10 h-10 text-white" />
+                </div>
+                <h1 className="text-3xl md:text-4xl font-bold text-[#336D82] mb-3">
+                  {kuisData.judul}
+                </h1>
+                <p className="text-gray-600 text-lg">
+                  Siap untuk memulai kuis?
+                </p>
+              </div>
+
+              {/* Info Kuis */}
+              <div className="bg-blue-50 rounded-2xl p-6 mb-8">
+                <h3 className="text-lg font-semibold text-[#336D82] mb-4">
+                  📋 Informasi Kuis
+                </h3>
+                <div className="space-y-3 text-gray-700">
+                  <div className="flex items-center">
+                    <span className="w-2 h-2 bg-[#336D82] rounded-full mr-3"></span>
+                    <span>Total Soal: <strong>{kuisData.jumlah_soal}</strong></span>
+                  </div>
+                  <div className="flex items-center">
+                    <span className="w-2 h-2 bg-[#336D82] rounded-full mr-3"></span>
+                    <span>Soal akan menyesuaikan dengan kemampuanmu</span>
+                  </div>
+                  <div className="flex items-center">
+                    <span className="w-2 h-2 bg-[#336D82] rounded-full mr-3"></span>
+                    <span>Setiap soal memiliki batas waktu</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Tombol Actions */}
+              <div className="space-y-4">
+                {/* Tombol Mulai Kuis */}
+                <button
+                  onClick={handleStartQuiz}
+                  className="w-full bg-gradient-to-r from-[#336D82] to-[#4a8ba0] text-white py-4 rounded-2xl font-semibold text-lg hover:shadow-xl hover:scale-105 transition-all duration-300 flex items-center justify-center gap-3"
+                >
+                  <PlayCircle className="w-6 h-6" />
+                  Mulai Kuis Sekarang
+                </button>
+
+                {/* Tombol Demo */}
+                <button
+                  onClick={handleOpenDemo}
+                  className="w-full bg-gradient-to-r from-yellow-400 to-orange-400 text-white py-4 rounded-2xl font-semibold text-lg hover:shadow-xl hover:scale-105 transition-all duration-300 flex items-center justify-center gap-3"
+                >
+                  <Lightbulb className="w-6 h-6" />
+                  Lihat Demo Tutorial
+                </button>
+              </div>
+
+              {/* Tips */}
+              <div className="mt-8 pt-6 border-t border-gray-200">
+                <p className="text-sm text-gray-500 text-center">
+                  💡 <strong>Tips:</strong> Jika ini pertama kalimu, coba lihat demo tutorial terlebih dahulu!
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </>
     );
   }
 
@@ -337,7 +608,10 @@ export default function KuisPage() {
 
             {/* Timer - menggunakan durasi soal saat ini */}
             <div className="flex justify-center mb-4">
-              <QuizTimer totalSeconds={currentQuestion.durasi_soal} />
+              <QuizTimer 
+                totalSeconds={currentQuestion.durasi_soal}
+                questionStartTime={questionStartTime}
+              />
             </div>
           </div>
 

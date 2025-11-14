@@ -8,18 +8,28 @@ interface QuizTimerProps {
   totalSeconds: number; // Total waktu dalam detik (dari guru)
   onTimeUp?: () => void; // Optional callback ketika waktu habis (tidak wajib)
   isPaused?: boolean; // Untuk pause timer
+  initialElapsedSeconds?: number; // Waktu awal yang sudah berlalu (untuk resume)
+  questionStartTime?: number; // Timestamp saat soal dimulai (untuk sync real-time)
 }
 
 export default function QuizTimer({
   totalSeconds,
   onTimeUp,
   isPaused = false,
+  initialElapsedSeconds = 0,
+  questionStartTime,
 }: QuizTimerProps) {
-  const [elapsedSeconds, setElapsedSeconds] = useState(0); // Track waktu yang sudah berlalu
+  const [elapsedSeconds, setElapsedSeconds] = useState(initialElapsedSeconds);
 
+  // Sync dengan waktu real jika questionStartTime diberikan
   useEffect(() => {
-    setElapsedSeconds(0); // Reset saat soal baru
-  }, [totalSeconds]);
+    if (questionStartTime) {
+      const elapsed = Math.floor((Date.now() - questionStartTime) / 1000);
+      setElapsedSeconds(elapsed);
+    } else {
+      setElapsedSeconds(initialElapsedSeconds);
+    }
+  }, [totalSeconds, questionStartTime, initialElapsedSeconds]);
 
   useEffect(() => {
     if (isPaused) return;

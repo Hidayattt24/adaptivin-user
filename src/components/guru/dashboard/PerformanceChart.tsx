@@ -11,7 +11,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-import { PerformanceByLevel } from "@/types/guru";
+import { PerformanceByLevel } from "@/lib/api/laporan";
 
 interface PerformanceChartProps {
   data: PerformanceByLevel[];

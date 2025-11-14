@@ -211,18 +211,7 @@ export async function getClassOverview(
       totalQuestions += perf.benar + perf.salah;
     });
 
-    // Calculate dominant level (level with most correct answers)
-    let dominantLevel = 3; // Default to level 3
-    let maxCorrect = 0;
-
-    Object.entries(studentLevelCounts).forEach(([level, count]) => {
-      if (count > maxCorrect) {
-        maxCorrect = count;
-        dominantLevel = parseInt(level);
-      }
-    });
-
-    // Calculate student accuracy
+    // Calculate student total questions
     const studentTotal = report.performanceByLevel.reduce(
       (sum, perf) => sum + perf.benar + perf.salah,
       0
@@ -231,6 +220,28 @@ export async function getClassOverview(
       (sum, perf) => sum + perf.benar,
       0
     );
+
+    // If student has no quiz attempts, set dominantLevel to 0
+    let dominantLevel = 0;
+    
+    if (studentTotal > 0) {
+      // Calculate dominant level (level with most correct answers)
+      let maxCorrect = 0;
+
+      Object.entries(studentLevelCounts).forEach(([level, count]) => {
+        if (count > maxCorrect) {
+          maxCorrect = count;
+          dominantLevel = parseInt(level);
+        }
+      });
+
+      // If no correct answers but has attempts, use median level
+      if (dominantLevel === 0 && studentTotal > 0) {
+        dominantLevel = 3; // Default to middle level if student tried but got all wrong
+      }
+    }
+
+    // Calculate student accuracy
     const accuracy =
       studentTotal > 0 ? (studentCorrect / studentTotal) * 100 : 0;
 

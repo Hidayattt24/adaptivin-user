@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { TrendingDown, TrendingUp, Minus } from "lucide-react";
+import { TrendingDown, TrendingUp, Minus, AlertCircle } from "lucide-react";
 import Image from "next/image";
 
 interface Student {
@@ -9,11 +9,14 @@ interface Student {
   nama: string;
   nis: string;
   foto_profil?: string;
-  dominantLevel: number; // 1-6
-  accuracy: number; // 0-100
+  dominantLevel: number;
+  accuracy: number;
+  totalCorrect?: number;
+  totalQuestions?: number;
 }
 
 interface ClusterData {
+  belumMulai: Student[]; // Level 0 - Belum mengerjakan kuis
   kelompok1: Student[]; // Level 1-2
   kelompok2: Student[]; // Level 3-4
   kelompok3: Student[]; // Level 5-6
@@ -36,7 +39,9 @@ const StudentClusterSection: React.FC<StudentClusterSectionProps> = ({
   const clusterData: ClusterData = React.useMemo(() => {
     return students.reduce(
       (acc, student) => {
-        if (student.dominantLevel <= 2) {
+        if (student.dominantLevel === 0) {
+          acc.belumMulai.push(student);
+        } else if (student.dominantLevel <= 2) {
           acc.kelompok1.push(student);
         } else if (student.dominantLevel <= 4) {
           acc.kelompok2.push(student);
@@ -45,7 +50,7 @@ const StudentClusterSection: React.FC<StudentClusterSectionProps> = ({
         }
         return acc;
       },
-      { kelompok1: [], kelompok2: [], kelompok3: [] } as ClusterData
+      { belumMulai: [], kelompok1: [], kelompok2: [], kelompok3: [] } as ClusterData
     );
   }, [students]);
 
@@ -236,6 +241,16 @@ const StudentClusterSection: React.FC<StudentClusterSectionProps> = ({
 
       {/* Cluster Cards */}
       <div className="space-y-4">
+        {/* Belum Mulai: Siswa belum mengerjakan kuis */}
+        <ClusterCard
+          title="Belum Memulai"
+          description="Siswa belum mengerjakan kuis apapun"
+          students={clusterData.belumMulai}
+          bgColor="bg-gradient-to-r from-gray-400 to-gray-500"
+          borderColor="border-gray-500"
+          icon={AlertCircle}
+        />
+
         {/* Kelompok 1: Perlu Pendampingan (Level 1-2) */}
         <ClusterCard
           title="Kelompok 1 - Perlu Pendampingan"

@@ -2,6 +2,7 @@
 
 import React from "react";
 import Image from "next/image";
+import { CheckCircle, XCircle, Lightbulb, ImageIcon, FileText } from "lucide-react";
 
 interface AnswerFeedbackModalProps {
   isOpen: boolean;
@@ -35,18 +36,11 @@ export default function AnswerFeedbackModal({
         >
           <div className="flex items-center justify-center gap-4">
             {/* Icon */}
-            <div
-              className={`w-16 h-16 rounded-full flex items-center justify-center ${isCorrect ? "bg-white/20" : "bg-white/20"
-                }`}
-            >
+            <div className="w-16 h-16 rounded-full flex items-center justify-center bg-white/20">
               {isCorrect ? (
-                <span className="material-symbols-outlined text-white text-5xl font-bold">
-                  check_circle
-                </span>
+                <CheckCircle className="w-12 h-12 text-white" strokeWidth={2.5} />
               ) : (
-                <span className="material-symbols-outlined text-white text-5xl font-bold">
-                  cancel
-                </span>
+                <XCircle className="w-12 h-12 text-white" strokeWidth={2.5} />
               )}
             </div>
 
@@ -71,9 +65,7 @@ export default function AnswerFeedbackModal({
             <div className="mb-6">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-10 h-10 bg-[#336d82] rounded-xl flex items-center justify-center">
-                  <span className="material-symbols-outlined text-white text-xl">
-                    lightbulb
-                  </span>
+                  <Lightbulb className="w-5 h-5 text-white" strokeWidth={2.5} />
                 </div>
                 <h3 className="text-[#336d82] text-xl font-bold">Penjelasan</h3>
               </div>
@@ -91,7 +83,7 @@ export default function AnswerFeedbackModal({
             <div className="mb-6">
               <div className="bg-gray-50 rounded-xl p-4 border-2 border-gray-200">
                 <div className="flex items-center gap-2 mb-3 text-gray-600">
-                  <span className="material-symbols-outlined text-xl">image</span>
+                  <ImageIcon className="w-5 h-5" strokeWidth={2} />
                   <span className="text-sm font-medium">
                     Gambar Pendukung Penjelasan
                   </span>
@@ -112,9 +104,7 @@ export default function AnswerFeedbackModal({
           {/* Empty state jika tidak ada penjelasan */}
           {!explanation && !explanationImage && (
             <div className="text-center py-6">
-              <span className="material-symbols-outlined text-gray-300 text-6xl">
-                description
-              </span>
+              <FileText className="w-16 h-16 text-gray-300 mx-auto" strokeWidth={1.5} />
               <p className="text-gray-400 mt-2">Tidak ada penjelasan tersedia</p>
             </div>
           )}

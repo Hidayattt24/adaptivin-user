@@ -176,6 +176,17 @@ export interface DetailJawabanSiswa {
   benar: boolean;
   waktu_dijawab: number;
   created_at: string;
+  soal?: {
+    id: string;
+    soal_teks?: string;
+    soal_gambar?: string;
+    level_soal: string;
+    durasi_soal: number;
+  };
+  jawaban?: {
+    id: string;
+    isi_jawaban: string;
+  };
 }
 
 export interface CreateJawabanPayload {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import {
   getSoalForKuis,
   SoalAdaptif,
@@ -31,15 +31,20 @@ export interface QuizState {
 export function useAdaptiveQuiz(
   kuisId: string,
   hasilKuisId: string,
-  totalQuestions: number
+  totalQuestions: number,
+  initialState?: {
+    currentLevel?: string;
+    currentQuestionNumber?: number;
+    answeredCount?: number;
+  }
 ) {
   const [quizState, setQuizState] = useState<QuizState>({
     kuisId,
     hasilKuisId,
-    currentLevel: "level3", // Soal pertama selalu level 3
-    currentQuestionNumber: 1,
+    currentLevel: initialState?.currentLevel || "level3", // Default level 3 jika tidak ada resume
+    currentQuestionNumber: initialState?.currentQuestionNumber || 1,
     totalQuestions,
-    answers: [],
+    answers: [], // Will be populated if resuming
     isFinished: false,
   });
 
@@ -71,6 +76,21 @@ export function useAdaptiveQuiz(
       }));
     }
   }, [totalQuestions, quizState.totalQuestions]);
+
+  // Update state ketika initialState diberikan (untuk resume quiz)
+  useEffect(() => {
+    if (initialState && initialState.currentQuestionNumber && 
+        initialState.currentQuestionNumber > 1 &&
+        initialState.currentQuestionNumber !== quizState.currentQuestionNumber) {
+      console.log("🔄 Applying resume state:", initialState);
+      setQuizState((prev) => ({
+        ...prev,
+        currentLevel: initialState.currentLevel || prev.currentLevel,
+        currentQuestionNumber: initialState.currentQuestionNumber || prev.currentQuestionNumber,
+      }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialState?.currentQuestionNumber, initialState?.currentLevel]);
 
   /**
    * Load soal berdasarkan level saat ini
@@ -271,18 +291,27 @@ export function useAdaptiveQuiz(
     ]
   );
 
-  // Auto-load next question when currentQuestionNumber or currentLevel changes
+  // Auto-load next question when currentQuestionNumber changes (after submit)
+  // Use ref to track previous question number to avoid loading initial question
+  const prevQuestionNumberRef = useRef(quizState.currentQuestionNumber);
+  
   useEffect(() => {
+    // Only auto-load if question number actually increased (after submit)
     if (
       !quizState.isFinished &&
       quizState.hasilKuisId &&
-      quizState.currentQuestionNumber > 1 // Skip initial load (question 1 loaded in initializeQuiz)
+      quizState.currentQuestionNumber > prevQuestionNumberRef.current
     ) {
-      console.log("🔄 Auto-loading next question:", {
+      console.log("🔄 Auto-loading next question after submit:", {
         currentQuestionNumber: quizState.currentQuestionNumber,
+        prevQuestionNumber: prevQuestionNumberRef.current,
         currentLevel: quizState.currentLevel,
       });
+      prevQuestionNumberRef.current = quizState.currentQuestionNumber;
       loadQuestion();
+    } else if (quizState.currentQuestionNumber !== prevQuestionNumberRef.current) {
+      // Update ref without loading (for initial render or resume)
+      prevQuestionNumberRef.current = quizState.currentQuestionNumber;
     }
   }, [
     quizState.currentQuestionNumber,

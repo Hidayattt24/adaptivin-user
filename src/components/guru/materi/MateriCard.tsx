@@ -94,35 +94,38 @@ const MateriCard: React.FC<MateriCardProps> = ({
           </p>
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex gap-3 self-end" onClick={(e) => e.stopPropagation()}>
+        {/* Action Buttons - Responsive Layout */}
+        <div 
+          className="grid grid-cols-2 lg:flex gap-2 lg:gap-3 self-end w-full lg:w-auto" 
+          onClick={(e) => e.stopPropagation()}
+        >
           <button
             onClick={handleCardClick}
-            className="bg-[#4A8BA6] text-white px-4 py-2 rounded-[15px] flex items-center gap-2 hover:bg-[#3d7489] transition-all hover:shadow-lg h-[44px]"
+            className="bg-[#4A8BA6] text-white px-3 lg:px-4 py-2 rounded-[15px] flex items-center justify-center lg:justify-start gap-2 hover:bg-[#3d7489] transition-all hover:shadow-lg h-[44px]"
           >
-            <div className="w-7 h-7 bg-white/20 rounded-full flex items-center justify-center">
+            <div className="w-7 h-7 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0">
               <VisibilityIcon className="text-white" sx={{ fontSize: 16 }} />
             </div>
-            <span className="text-xs sm:text-sm poppins-semibold">
-              Lihat Preview
+            <span className="text-xs lg:text-sm poppins-semibold hidden sm:inline">
+              Preview
             </span>
           </button>
-          <Link href={`/guru/kelas/${kelasId}/materi/edit?id=${id}`}>
-            <button className="bg-[#336d82] text-white px-4 py-2 rounded-[15px] flex items-center gap-2 hover:bg-[#2a5a6a] transition-all hover:shadow-lg h-[44px]">
-              <div className="w-7 h-7 bg-white/20 rounded-full flex items-center justify-center">
+          <Link href={`/guru/kelas/${kelasId}/materi/edit?id=${id}`} className="w-full lg:w-auto">
+            <button className="w-full bg-[#336d82] text-white px-3 lg:px-4 py-2 rounded-[15px] flex items-center justify-center lg:justify-start gap-2 hover:bg-[#2a5a6a] transition-all hover:shadow-lg h-[44px]">
+              <div className="w-7 h-7 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0">
                 <EditIcon className="text-white" sx={{ fontSize: 16 }} />
               </div>
-              <span className="text-xs sm:text-sm poppins-semibold">
-                Kelola materi pembelajaran
+              <span className="text-xs lg:text-sm poppins-semibold hidden sm:inline lg:inline">
+                Kelola Materi
               </span>
             </button>
           </Link>
-          <Link href={`/guru/kelas/${kelasId}/materi/${id}/kelola-kuis`}>
-            <button className="bg-[#336d82] text-white px-4 py-2 rounded-[15px] flex items-center gap-2 hover:bg-[#2a5a6a] transition-all hover:shadow-lg h-[44px]">
-              <div className="w-7 h-7 bg-white/20 rounded-full flex items-center justify-center">
+          <Link href={`/guru/kelas/${kelasId}/materi/${id}/kelola-kuis`} className="w-full lg:w-auto">
+            <button className="w-full bg-[#336d82] text-white px-3 lg:px-4 py-2 rounded-[15px] flex items-center justify-center lg:justify-start gap-2 hover:bg-[#2a5a6a] transition-all hover:shadow-lg h-[44px]">
+              <div className="w-7 h-7 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0">
                 <EditIcon className="text-white" sx={{ fontSize: 16 }} />
               </div>
-              <span className="text-xs sm:text-sm poppins-semibold">
+              <span className="text-xs lg:text-sm poppins-semibold hidden sm:inline">
                 Kelola Kuis
               </span>
             </button>
@@ -131,13 +134,13 @@ const MateriCard: React.FC<MateriCardProps> = ({
             type="button"
             onClick={handleDelete}
             disabled={isDeleting}
-            className="bg-[#d9534f] text-white px-4 py-2 rounded-[15px] flex items-center gap-2 hover:bg-[#c3423d] transition-all hover:shadow-lg h-[44px] disabled:opacity-60 disabled:cursor-not-allowed"
+            className="bg-[#d9534f] text-white px-3 lg:px-4 py-2 rounded-[15px] flex items-center justify-center lg:justify-start gap-2 hover:bg-[#c3423d] transition-all hover:shadow-lg h-[44px] disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            <div className="w-7 h-7 bg-white/20 rounded-full flex items-center justify-center">
+            <div className="w-7 h-7 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0">
               <DeleteIcon className="text-white" sx={{ fontSize: 16 }} />
             </div>
-            <span className="text-sm poppins-semibold">
-              {isDeleting ? "Menghapus..." : "Hapus Materi"}
+            <span className="text-xs lg:text-sm poppins-semibold hidden sm:inline">
+              {isDeleting ? "Menghapus..." : "Hapus"}
             </span>
           </button>
         </div>

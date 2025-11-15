@@ -98,22 +98,27 @@ const LaporanSiswaPage = () => {
     }
   }, [studentMaterials, selectedCardMateri]);
 
-  // Prepare quiz results for modal
-  const quizResults = useMemo(() => {
+  // Prepare quiz attempts for modal (all attempts, not just latest)
+  const quizAttempts = useMemo(() => {
     if (!hasilKuisDetail.data || hasilKuisDetail.data.length === 0) return [];
 
-    // Get the latest quiz result
-    const latestQuiz = hasilKuisDetail.data[0];
-
-    return latestQuiz.detailJawaban.map((detail) => ({
-      id: detail.id,
-      soalId: detail.soalId,
-      pertanyaan: detail.pertanyaan,
-      tipesoal: detail.tipeSoal,
-      jawabanSiswa: detail.jawabanSiswa,
-      jawabanBenar: detail.jawabanBenar,
-      isCorrect: detail.isCorrect,
-      waktuJawab: detail.waktuJawab,
+    // Map all quiz attempts
+    return hasilKuisDetail.data.map((quiz) => ({
+      hasilKuisId: quiz.hasilKuisId,
+      tanggal: quiz.tanggal,
+      totalBenar: quiz.totalBenar,
+      totalSalah: quiz.totalSalah,
+      totalWaktu: quiz.totalWaktu,
+      detailJawaban: quiz.detailJawaban.map((detail) => ({
+        id: detail.id,
+        soalId: detail.soalId,
+        pertanyaan: detail.pertanyaan,
+        tipesoal: detail.tipeSoal,
+        jawabanSiswa: detail.jawabanSiswa,
+        jawabanBenar: detail.jawabanBenar,
+        isCorrect: detail.isCorrect,
+        waktuJawab: detail.waktuJawab,
+      })),
     }));
   }, [hasilKuisDetail.data]);
 
@@ -243,7 +248,7 @@ const LaporanSiswaPage = () => {
                 onClose={() => setShowKuisModal(false)}
                 studentName={currentReport.nama}
                 materiTitle={currentCardMateri.judul}
-                results={quizResults.length > 0 ? quizResults : []}
+                attempts={quizAttempts}
               />
             </>
           )}

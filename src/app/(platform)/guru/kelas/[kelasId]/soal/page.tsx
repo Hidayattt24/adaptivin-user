@@ -79,18 +79,29 @@ const SoalListPage = () => {
 
   // Convert backend soal data to Question format for preview
   const convertSoalToQuestion = (soal: typeof soalList[0]): Question => {
-    // Get the correct answer text
-    // Untuk pilihan ganda, gabungkan semua jawaban dengan newline
+    // Prepare answer data based on type
     let correctAnswer = "";
-    if (soal.tipe_jawaban === "pilihan_ganda") {
-      correctAnswer = soal.jawaban?.map((j) => j.isi_jawaban).join("\n") || "";
+    let multipleChoiceOptions: Array<{ label: string; text: string; isCorrect: boolean }> | undefined;
+
+    if (soal.tipe_jawaban === "pilihan_ganda" || soal.tipe_jawaban === "pilihan_ganda_kompleks") {
+      // For multiple choice, prepare all options with correct indicator
+      const labels = ["A", "B", "C", "D", "E", "F", "G", "H"];
+      multipleChoiceOptions = soal.jawaban?.map((j, index) => ({
+        label: labels[index] || `${index + 1}`,
+        text: j.isi_jawaban,
+        isCorrect: j.is_benar,
+      })) || [];
+      
+      // For backward compatibility, also set answerText to correct answers only
+      correctAnswer = soal.jawaban?.filter((j) => j.is_benar).map((j) => j.isi_jawaban).join(", ") || "";
     } else {
+      // For essay/isian, just get the correct answer
       correctAnswer = soal.jawaban?.find((j) => j.is_benar)?.isi_jawaban || "";
     }
 
     return {
       id: soal.soal_id,
-      questionType: soal.level_soal.toUpperCase() as "level1" | "level2" | "level3" | "level4" | "level5" | "level6",
+      questionType: soal.level_soal as "level1" | "level2" | "level3" | "level4" | "level5" | "level6",
       questionFile: null, // Backend returns URL string, not File
       questionFilePreview: soal.soal_gambar || null,
       questionText: soal.soal_teks,
@@ -98,6 +109,7 @@ const SoalListPage = () => {
       answerFile: null, // Backend returns URL string, not File
       answerFilePreview: soal.gambar_pendukung_jawaban || null,
       answerText: correctAnswer,
+      multipleChoiceOptions, // Add multiple choice options
       explanation: soal.penjelasan || "",
       timeValue: Math.floor(soal.durasi_soal / 60), // Convert seconds to minutes
       timeUnit: "Menit",

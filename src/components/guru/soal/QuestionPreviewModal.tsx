@@ -110,30 +110,51 @@ export function QuestionPreviewModal({
               </h3>
             </div>
 
-            {/* Multiple Correct Answers for Pilihan Ganda Kompleks */}
-            {question.answerType === "pilihan_ganda_kompleks" && question.multipleChoiceOptions ? (
+            {/* All Options for Multiple Choice (with checkmark for correct ones) */}
+            {(question.answerType === "pilihan_ganda" || question.answerType === "pilihan_ganda_kompleks") && 
+             question.multipleChoiceOptions && question.multipleChoiceOptions.length > 0 ? (
               <div className="space-y-3">
                 {question.multipleChoiceOptions
-                  .filter(opt => opt.isCorrect && opt.text.trim())
+                  .filter(opt => opt.text.trim())
                   .map((option, index) => (
                     <div 
                       key={index}
-                      className="bg-gradient-to-br from-[#2ea062]/5 to-white rounded-xl p-5 border-2 border-[#2ea062]/20"
+                      className={`rounded-xl p-5 border-2 transition-all ${
+                        option.isCorrect 
+                          ? "bg-gradient-to-br from-[#2ea062]/10 to-white border-[#2ea062]/40" 
+                          : "bg-white border-gray-200"
+                      }`}
                     >
                       <div className="flex items-start gap-3">
-                        <div className="w-8 h-8 bg-[#2ea062] rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5 ${
+                          option.isCorrect 
+                            ? "bg-[#2ea062]" 
+                            : "bg-gray-300"
+                        }`}>
                           <span className="text-white poppins-bold text-sm">{option.label}</span>
                         </div>
-                        <p className="text-gray-800 text-base poppins-medium leading-relaxed flex-1">
-                          {option.text}
-                        </p>
+                        <div className="flex-1">
+                          <p className={`text-base poppins-medium leading-relaxed ${
+                            option.isCorrect ? "text-gray-900" : "text-gray-600"
+                          }`}>
+                            {option.text}
+                          </p>
+                          {option.isCorrect && (
+                            <div className="flex items-center gap-2 mt-2">
+                              <div className="w-5 h-5 bg-[#2ea062] rounded-full flex items-center justify-center">
+                                <span className="text-white text-xs">✓</span>
+                              </div>
+                              <span className="text-[#2ea062] text-sm poppins-semibold">Jawaban Benar</span>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
                   ))}
               </div>
             ) : (
               <>
-                {/* Answer Text for Single Answer Types */}
+                {/* Answer Text for Essay/Isian Types */}
                 {question.answerText && (
                   <div className="bg-gradient-to-br from-[#2ea062]/5 to-white rounded-xl p-6 border-2 border-[#2ea062]/20">
                     <p className="text-gray-800 text-base poppins-medium leading-relaxed whitespace-pre-wrap">

@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { AnalisisAI, RekomendasiVideo } from "@/lib/api/analisis";
 import { MarkdownRenderer } from "./MarkdownRenderer";
+import { AnalysisFormatter } from "./AnalysisFormatter";
 
 interface AnalisisAICardProps {
   analisis: AnalisisAI;
@@ -329,11 +330,16 @@ export function AnalisisAICard({
         {/* Analisis Utama */}
         {analisis.analisis && (
           <div className="bg-[#F0F7F9] rounded-lg p-4 border border-[#336D82]/20">
-            <div className="flex items-center gap-2 mb-3">
+            <div className="flex items-center gap-2 mb-4">
               <Sparkles className="w-4 h-4 text-[#336D82]" />
-              <h4 className="font-semibold text-sm text-[#336D82]">Analisis</h4>
+              <h4 className="font-semibold text-base text-[#336D82]">📊 Analisis Detail Per Soal</h4>
             </div>
-            <MarkdownRenderer content={analisis.analisis} />
+            {/* Check if content has question format pattern */}
+            {analisis.analisis.includes("🔍 Soal #") || analisis.analisis.includes("Soal #") ? (
+              <AnalysisFormatter content={analisis.analisis} />
+            ) : (
+              <MarkdownRenderer content={analisis.analisis} />
+            )}
           </div>
         )}
 

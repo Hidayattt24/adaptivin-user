@@ -16,6 +16,7 @@ import {
   GraduationCap,
 } from "lucide-react";
 import { MarkdownRenderer } from "@/components/siswa/kuis/MarkdownRenderer";
+import { AnalysisFormatter } from "@/components/siswa/kuis/AnalysisFormatter";
 import { createTeacherAnalysis, AnalisisAIGuru, getTeacherAnalysisByHasilKuis, deleteTeacherAnalysis } from "@/lib/api/analisis";
 import Swal from "sweetalert2";
 
@@ -419,10 +420,15 @@ const AnalysisAISection: React.FC<AnalysisAISectionProps> = ({
             Ringkasan Analisis
           </h3>
         </div>
-        <MarkdownRenderer
-          content={analisisData.analisis}
-          className="text-gray-700 poppins-regular leading-relaxed"
-        />
+        {/* Check if content has question format pattern */}
+        {analisisData.analisis.includes("🔍 Soal #") || analisisData.analisis.includes("Soal #") ? (
+          <AnalysisFormatter content={analisisData.analisis} />
+        ) : (
+          <MarkdownRenderer
+            content={analisisData.analisis}
+            className="text-gray-700 poppins-regular leading-relaxed"
+          />
+        )}
       </div>
 
       {/* Level Performance */}

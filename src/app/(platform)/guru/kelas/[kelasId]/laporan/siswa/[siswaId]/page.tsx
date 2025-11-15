@@ -132,7 +132,7 @@ const LaporanSiswaPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white p-3 sm:p-4 lg:p-6 pb-20 sm:pb-20 lg:pb-6">
+    <div className="print-container min-h-screen bg-white p-3 sm:p-4 lg:p-6 pb-20 sm:pb-20 lg:pb-6">
       {/* Back Button */}
       <button
         onClick={handleBack}
@@ -162,7 +162,7 @@ const LaporanSiswaPage = () => {
       ) : currentReport ? (
         <>
           {/* Student Header */}
-          <div className="mb-4 sm:mb-5 lg:mb-6">
+          <div className="print-visible mb-4 sm:mb-5 lg:mb-6">
             <div className="bg-gradient-to-r from-[#336D82] to-[#ECF3F6] rounded-xl sm:rounded-2xl lg:rounded-[20px] p-4 sm:p-5 lg:p-6">
               <h1 className="text-white text-2xl sm:text-3xl lg:text-4xl poppins-semibold mb-2">
                 Laporan Individual: {currentReport.nama}
@@ -171,7 +171,7 @@ const LaporanSiswaPage = () => {
           </div>
 
           {/* Performance Chart - Individual Student */}
-          <div id="performance-chart" className="mb-4 sm:mb-5 lg:mb-6">
+          <div id="performance-chart" className="print-visible mb-4 sm:mb-5 lg:mb-6">
             {performanceData.length > 0 ? (
               <PerformanceChart
                 data={performanceData}
@@ -225,6 +225,7 @@ const LaporanSiswaPage = () => {
                 analisisData={currentCardMateri.analisis}
                 analisisGuru={currentCardMateri.analisisGuru || null}
                 hasilKuisId={currentCardMateri.analisis.hasil_kuis_id}
+                performanceData={performanceData}
                 onAnalysisComplete={() => {
                   studentReport.refetch();
                 }}

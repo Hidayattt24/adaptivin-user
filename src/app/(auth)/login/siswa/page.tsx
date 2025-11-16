@@ -24,7 +24,8 @@ const LoginSiswaPage = () => {
       // Hapus cookie onboarding sebelum login untuk memaksa tampil onboarding lagi
       document.cookie = "adaptivin_user_hasSeenOnboarding=; path=/; max-age=0";
 
-      await login(email, password);
+      // Pass expectedRole="siswa" ke backend untuk validasi
+      await login(email, password, "siswa");
 
       // Success SweetAlert
       await swal({

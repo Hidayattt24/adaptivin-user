@@ -21,7 +21,8 @@ const LoginGuruPage = () => {
     setIsLoading(true);
 
     try {
-      await login(email, password);
+      // Pass expectedRole="guru" ke backend untuk validasi
+      await login(email, password, "guru");
 
       // Success SweetAlert
       await swal({

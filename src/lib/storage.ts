@@ -7,7 +7,7 @@
  * Format: "adaptivin_{role}_" (contoh: "adaptivin_guru_", "adaptivin_siswa_")
  */
 
-// Get current active role from URL path
+// Get current active role from URL path (untuk localStorage)
 const getCurrentRole = (): "guru" | "siswa" | "user" => {
   if (typeof window === "undefined") return "user";
 
@@ -18,15 +18,19 @@ const getCurrentRole = (): "guru" | "siswa" | "user" => {
   return "user";
 };
 
-// Get dynamic prefix based on current role
+// Get dynamic prefix based on current role (untuk localStorage)
 const getStoragePrefix = (): string => {
   const role = getCurrentRole();
   return `adaptivin_${role}_`;
 };
 
+// Cookie prefix HARUS tetap (tidak berubah based on role)
+// Karena middleware dan semua komponen harus baca cookie yang sama
+const COOKIE_PREFIX = "adaptivin_user_";
+
 // These will be called each time to get fresh prefix
 const getPrefix = () => getStoragePrefix();
-const getCookiePrefix = () => getStoragePrefix();
+const getCookiePrefix = () => COOKIE_PREFIX; // Always return fixed prefix
 
 // ==================== LocalStorage ====================
 
@@ -66,7 +70,7 @@ export const getStorage = <T = unknown>(key: string): T | null => {
       const prefix = getPrefix();
       const prefixedKey = `${prefix}${key}`;
       localStorage.removeItem(prefixedKey);
-    } catch (e) {
+    } catch {
       // Ignore cleanup errors
     }
     return null;
@@ -252,7 +256,6 @@ export const clearAuth = (): void => {
   removeStorage(StorageKeys.TOKEN);
   removeCookie("token");
   removeCookie("role");
-  removeCookie("hasSeenOnboarding"); // Clear onboarding status on logout
   removeCookie("hasSeenSplash"); // Clear splash status on logout
 };
 

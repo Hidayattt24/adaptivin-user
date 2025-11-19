@@ -49,6 +49,7 @@ export interface UserResponse {
   tanggal_lahir?: string | null;
   sekolah_id?: string | null;
   karakter_id?: string | null;
+  has_completed_onboarding?: boolean;
   created_at?: string;
   updated_at?: string;
   kelas?: KelasInfo | null;
@@ -108,6 +109,7 @@ export async function updateMyProfile(payload: {
   alamat?: string;
   tanggal_lahir?: string;
   karakter_id?: string;
+  has_completed_onboarding?: boolean;
 }) {
   const res = await api.put(`/users/me`, payload);
 

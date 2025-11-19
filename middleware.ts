@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 // Prefix untuk cookies (sama dengan yang di storage.ts)
 const COOKIE_PREFIX = "adaptivin_user_";
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
 
   // Baca cookies dengan prefix untuk menghindari collision dengan admin
@@ -12,6 +12,7 @@ export function middleware(request: NextRequest) {
   const hasSeenSplash = request.cookies.get(
     `${COOKIE_PREFIX}hasSeenSplash`
   )?.value;
+  // Cache onboarding status di cookie untuk performa
   const hasSeenOnboarding = request.cookies.get(
     `${COOKIE_PREFIX}hasSeenOnboarding`
   )?.value;
@@ -43,10 +44,10 @@ export function middleware(request: NextRequest) {
       // Fallback to siswa login (default)
       loginUrl = new URL("/pick-role", request.url);
     }
-    
+
     // Save the intended destination for redirect after login
     loginUrl.searchParams.set("redirect", pathname);
-    
+
     return NextResponse.redirect(loginUrl);
   }
 
@@ -64,18 +65,18 @@ export function middleware(request: NextRequest) {
 
     // Jika siswa belum lihat onboarding, redirect ke onboarding
     // Kecuali jika sudah di halaman onboarding itu sendiri
-    if (
-      isSiswaRoute &&
-      role === "siswa" &&
-      !hasSeenOnboarding &&
-      pathname !== "/siswa/onboarding"
-    ) {
-      return NextResponse.redirect(new URL("/siswa/onboarding", request.url));
+    if (isSiswaRoute && role === "siswa" && pathname !== "/siswa/onboarding") {
+      // Check from cookie cache
+      if (!hasSeenOnboarding) {
+        return NextResponse.redirect(new URL("/siswa/onboarding", request.url));
+      }
     }
 
     // Jika sudah lihat onboarding dan mencoba akses onboarding lagi, redirect ke beranda
-    if (pathname === "/siswa/onboarding" && hasSeenOnboarding) {
-      return NextResponse.redirect(new URL("/siswa/beranda", request.url));
+    if (pathname === "/siswa/onboarding" && role === "siswa") {
+      if (hasSeenOnboarding) {
+        return NextResponse.redirect(new URL("/siswa/beranda", request.url));
+      }
     }
   }
 

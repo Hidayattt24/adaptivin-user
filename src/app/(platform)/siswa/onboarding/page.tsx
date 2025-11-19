@@ -6,6 +6,8 @@ import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 import { useSiswaProfile } from "@/hooks/siswa/useSiswaProfile";
+import { updateMyProfile } from "@/lib/api/user";
+import { setCookie } from "@/lib/storage";
 
 // Cookie prefix (sama dengan middleware)
 const COOKIE_PREFIX = "adaptivin_user_";
@@ -69,22 +71,31 @@ export default function OnboardingPage() {
   const { data: profile, isLoading } = useSiswaProfile();
   const userName = profile?.nama_lengkap || "Sobat Belajar";
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (currentStep < onboardingSteps.length - 1) {
       setCurrentStep(currentStep + 1);
     } else {
-      // Selesai onboarding, set cookie dan redirect ke beranda
-      // Set cookie untuk menandai user sudah lihat onboarding
-      document.cookie = `${COOKIE_PREFIX}hasSeenOnboarding=true; path=/; max-age=31536000`; // 1 year
-
+      // Selesai onboarding, simpan ke database DAN set cookie
+      try {
+        await updateMyProfile({ has_completed_onboarding: true });
+        // Set cookie untuk cache middleware
+        setCookie("hasSeenOnboarding", "true", { maxAge: 365 * 24 * 60 * 60 }); // 1 year in seconds
+      } catch (error) {
+        console.error("Failed to mark onboarding as completed:", error);
+      }
       router.push("/siswa/beranda");
     }
   };
 
-  const handleSkip = () => {
-    // Set cookie juga saat skip
-    document.cookie = `${COOKIE_PREFIX}hasSeenOnboarding=true; path=/; max-age=31536000`; // 1 year
-
+  const handleSkip = async () => {
+    // Simpan ke database DAN set cookie saat skip
+    try {
+      await updateMyProfile({ has_completed_onboarding: true });
+      // Set cookie untuk cache middleware
+      setCookie("hasSeenOnboarding", "true", { maxAge: 365 * 24 * 60 * 60 }); // 1 year in seconds
+    } catch (error) {
+      console.error("Failed to mark onboarding as completed:", error);
+    }
     router.push("/siswa/beranda");
   };
 
@@ -375,13 +386,12 @@ export default function OnboardingPage() {
                 {onboardingSteps.map((_, index) => (
                   <motion.div
                     key={index}
-                    className={`h-2.5 rounded-full transition-all duration-300 ${
-                      index === currentStep
-                        ? "w-10 bg-[#0A3D60]"
-                        : index < currentStep
+                    className={`h-2.5 rounded-full transition-all duration-300 ${index === currentStep
+                      ? "w-10 bg-[#0A3D60]"
+                      : index < currentStep
                         ? "w-2.5 bg-[#0A3D60]/50"
                         : "w-2.5 bg-gray-300"
-                    }`}
+                      }`}
                     animate={{
                       scale: index === currentStep ? [1, 1.15, 1] : 1,
                     }}

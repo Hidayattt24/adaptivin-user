@@ -23,6 +23,7 @@ interface User {
   nip?: string;
   nisn?: string;
   sekolah_id?: string;
+  has_completed_onboarding?: boolean;
 }
 
 interface AuthContextType {
@@ -59,7 +60,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const savedUser = getStorage<User>(StorageKeys.USER);
       if (savedUser && savedUser.role && savedUser.email) {
         setUser(savedUser);
-        
+
         // Load last activity from localStorage for cross-tab sync
         const savedActivity = localStorage.getItem(ACTIVITY_STORAGE_KEY);
         if (savedActivity) {
@@ -135,7 +136,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setUser(null);
       queryClient.clear();
       clearAuth();
-      
+
       // Clear activity storage for cross-tab sync
       try {
         localStorage.removeItem(ACTIVITY_STORAGE_KEY);
@@ -162,14 +163,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const resetIdleTimer = () => {
       const now = Date.now();
       setLastActivity(now);
-      
+
       // Sync to localStorage for cross-tab communication
       try {
         localStorage.setItem(ACTIVITY_STORAGE_KEY, now.toString());
       } catch (error) {
         console.warn("Failed to sync activity to localStorage:", error);
       }
-      
+
       // Reset warning flag when user is active again
       if (hasShownWarning) {
         setHasShownWarning(false);
@@ -268,6 +269,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setCookie("token", token, { maxAge: 86400 }); // 1 day
       setCookie("role", user.role, { maxAge: 86400 });
 
+      // Set onboarding cookie jika user sudah complete (untuk siswa)
+      if (user.role === "siswa" && user.has_completed_onboarding) {
+        setCookie("hasSeenOnboarding", "true", { maxAge: 365 * 24 * 60 * 60 }); // 1 year in seconds
+      }
+
       // Initialize activity timestamp for cross-tab sync
       try {
         const now = Date.now();
@@ -307,14 +313,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setUser(null);
       queryClient.clear(); // Clear semua React Query cache
       clearAuth(); // Clear localStorage dan cookies dengan prefix adaptivin_user_
-      
+
       // Clear activity storage for cross-tab sync
       try {
         localStorage.removeItem(ACTIVITY_STORAGE_KEY);
       } catch (error) {
         console.warn("Failed to clear activity storage:", error);
       }
-      
+
       router.push("/splash");
     }
   };

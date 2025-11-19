@@ -1,17 +1,20 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
 import { useClassTheme } from "@/contexts/ClassThemeContext";
 import MateriHeader from "@/components/siswa/materi/MateriHeader";
 import MateriCard from "@/components/siswa/materi/MateriCard";
 import { useSiswaProfile } from "@/hooks/siswa/useSiswaProfile";
 import { useMateriByKelas } from "@/hooks/siswa/useMateri";
+import { checkMateriCompletion } from "@/lib/api/kuis";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import SchoolIcon from "@mui/icons-material/School";
 
 export default function MateriClassListPage() {
   const router = useRouter();
   const { theme } = useClassTheme();
+  const [completionStatus, setCompletionStatus] = useState<Record<string, boolean>>({});
 
   // Get siswa profile untuk ambil kelas_id yang sebenarnya
   const { data: profile } = useSiswaProfile();
@@ -21,6 +24,30 @@ export default function MateriClassListPage() {
 
   // Get materi by kelas
   const { data: materiList, isLoading } = useMateriByKelas(kelasId);
+
+  // Fetch completion status for each materi
+  useEffect(() => {
+    const fetchCompletionStatus = async () => {
+      if (!materiList || materiList.length === 0) return;
+
+      const statusMap: Record<string, boolean> = {};
+      
+      // Check each materi
+      for (const materi of materiList) {
+        try {
+          const isCompleted = await checkMateriCompletion(materi.id);
+          statusMap[materi.id] = isCompleted;
+        } catch (error) {
+          console.error(`Error checking completion for materi ${materi.id}:`, error);
+          statusMap[materi.id] = false;
+        }
+      }
+
+      setCompletionStatus(statusMap);
+    };
+
+    fetchCompletionStatus();
+  }, [materiList]);
 
   return (
     <div className="relative w-full min-h-screen overflow-x-hidden bg-white">
@@ -59,6 +86,7 @@ export default function MateriClassListPage() {
                   description={material.deskripsi || ""}
                   icon="book"
                   isLocked={false}
+                  isCompleted={completionStatus[material.id] || false}
                 />
               ))}
             </div>

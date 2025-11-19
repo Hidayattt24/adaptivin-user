@@ -15,6 +15,7 @@ export interface MateriCardProps {
   description: string;
   icon: string;
   isLocked?: boolean;
+  isCompleted?: boolean;
 }
 
 // Icon mapping
@@ -34,6 +35,7 @@ export default function MateriCard({
   description,
   icon,
   isLocked = false,
+  isCompleted = false,
 }: MateriCardProps) {
   const { theme } = useClassTheme();
 
@@ -43,7 +45,7 @@ export default function MateriCard({
   // Get classId from theme
   const classId = theme.id;
 
-  const cardClassName = `block bg-white rounded-[10px] shadow-sm border border-slate-100 ${
+  const cardClassName = `block bg-white rounded-[10px] shadow-sm border border-slate-100 relative ${
     !isLocked
       ? "hover:shadow-md hover:border-slate-200 active:scale-[0.98] transition-all duration-200"
       : "opacity-60 cursor-not-allowed"
@@ -55,6 +57,14 @@ export default function MateriCard({
 
   const cardContent = (
     <div className="flex items-center gap-4 h-full p-4">
+      {/* Completed Badge - Top Right Corner */}
+      {isCompleted && !isLocked && (
+        <div className="absolute top-2 right-2 bg-gradient-to-r from-green-400 to-green-500 text-white text-[9px] font-bold px-2 py-1 rounded-full shadow-md flex items-center gap-1">
+          <span>✓</span>
+          <span>Sudah Dipelajari</span>
+        </div>
+      )}
+
       {/* Icon Circle - Left Side */}
       <div
         className="flex-shrink-0 rounded-full flex items-center justify-center"

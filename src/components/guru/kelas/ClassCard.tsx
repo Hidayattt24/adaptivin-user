@@ -8,6 +8,7 @@ interface ClassCardProps {
   id: string;
   nama: string;
   jumlahSiswa: number;
+  jumlahMateri?: number;
   color: {
     bg: string;
     gradient: string;
@@ -20,6 +21,7 @@ export default function ClassCard({
   id,
   nama,
   jumlahSiswa,
+  jumlahMateri = 0,
   color,
   studentProfiles,
   index = 0,
@@ -126,10 +128,16 @@ export default function ClassCard({
             );
           })()}
 
-
-          {/* Decorative badge */}
-          <div className="inline-block px-4 py-1.5 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 mb-4">
-            <span className="montserrat-bold text-white text-sm">Aktif</span>
+          {/* Stats Section */}
+          <div className="flex items-center gap-2 mb-3">
+            <div className="inline-block px-3 py-1.5 rounded-full bg-white/20 backdrop-blur-sm border border-white/30">
+              <span className="montserrat-bold text-white text-xs">Aktif</span>
+            </div>
+            <div className="inline-block px-3 py-1.5 rounded-full bg-white/20 backdrop-blur-sm border border-white/30">
+              <span className="montserrat-bold text-white text-xs">
+                📚 {jumlahMateri} Materi
+              </span>
+            </div>
           </div>
         </div>
 

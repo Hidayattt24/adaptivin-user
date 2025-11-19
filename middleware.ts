@@ -30,19 +30,23 @@ export function middleware(request: NextRequest) {
   const isSiswaRoute = pathname.startsWith("/siswa");
   const isProtectedRoute = isGuruRoute || isSiswaRoute;
 
-  // Jika akses protected route tanpa token, redirect ke login sesuai role
+  // Jika akses protected route tanpa token, redirect ke login yang sesuai
   if (isProtectedRoute && !token) {
     let loginUrl: URL;
 
+    // Detect role from intended route and redirect to appropriate login
     if (isSiswaRoute) {
       loginUrl = new URL("/login/siswa", request.url);
     } else if (isGuruRoute) {
       loginUrl = new URL("/login/guru", request.url);
     } else {
-      loginUrl = new URL("/login", request.url);
+      // Fallback to siswa login (default)
+      loginUrl = new URL("/pick-role", request.url);
     }
-
+    
+    // Save the intended destination for redirect after login
     loginUrl.searchParams.set("redirect", pathname);
+    
     return NextResponse.redirect(loginUrl);
   }
 

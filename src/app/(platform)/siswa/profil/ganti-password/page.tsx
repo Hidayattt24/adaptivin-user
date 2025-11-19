@@ -51,26 +51,90 @@ export default function GantiPasswordPage() {
 
     try {
       setIsLoading(true);
-      await updateMyPassword({
+      
+      // Call update password API
+      const result = await updateMyPassword({
         currentPassword: passwordLama,
         newPassword: passwordBaru,
       });
 
-      Swal.fire({
+      // If we reach here, update was successful
+      // (API call didn't throw error)
+      console.log("Password update successful:", result);
+
+      // Show success message
+      await Swal.fire({
         icon: "success",
         title: "Berhasil!",
         text: "Password berhasil diubah!",
         confirmButtonColor: "#336d82",
         timer: 2000,
+        showConfirmButton: false,
       });
 
+      // Clear form
+      setPasswordLama("");
+      setPasswordBaru("");
+      setKonfirmasiPassword("");
+
+      // Navigate after success message
       router.push("/siswa/profil");
     } catch (error) {
       setIsLoading(false);
-      Swal.fire({
+      
+      // Extract error message with better handling
+      const errorMessage = (() => {
+        if (!error) {
+          return "Terjadi kesalahan yang tidak diketahui.";
+        }
+
+        if (error && typeof error === "object") {
+          // Axios error with response
+          if ("response" in error && error.response && typeof error.response === "object") {
+            const response = error.response as { 
+              data?: { message?: string; error?: string };
+              status?: number;
+            };
+            
+            // Check for specific error messages
+            if (response.data?.message) {
+              return response.data.message;
+            }
+            if (response.data?.error) {
+              return response.data.error;
+            }
+            
+            // Handle HTTP status codes
+            if (response.status) {
+              if (response.status === 401) {
+                return "Password lama tidak sesuai. Silakan coba lagi.";
+              }
+              if (response.status === 400) {
+                return "Data tidak valid. Pastikan semua field terisi dengan benar.";
+              }
+              if (response.status >= 500) {
+                return "Server sedang bermasalah. Silakan coba lagi nanti.";
+              }
+            }
+          }
+          
+          // Standard Error object
+          if ("message" in error && typeof error.message === "string") {
+            // Don't show "No data returned from API" to user
+            if (error.message === "No data returned from API") {
+              return "Terjadi kesalahan pada respons server. Silakan coba login dengan password baru untuk memastikan.";
+            }
+            return error.message;
+          }
+        }
+        
+        return "Gagal mengubah password. Silakan coba lagi.";
+      })();
+
+      await Swal.fire({
         icon: "error",
         title: "Gagal!",
-        text: error instanceof Error ? error.message : "Gagal mengubah password",
+        text: errorMessage,
         confirmButtonColor: "#336d82",
       });
     }

@@ -43,6 +43,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const API_URL =
     process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
+  // Idle timeout - 30 minutes in milliseconds
+  const IDLE_TIMEOUT = 30 * 60 * 1000; // 30 minutes
+  const WARNING_BEFORE_TIMEOUT = 5 * 60 * 1000; // 5 minutes before timeout
+  const ACTIVITY_STORAGE_KEY = "adaptivin_last_activity"; // Key for cross-tab sync
+  const [lastActivity, setLastActivity] = useState<number>(Date.now());
+  const [hasShownWarning, setHasShownWarning] = useState<boolean>(false);
+
   // Load user dari storage saat mount (hanya sekali)
   useEffect(() => {
     try {
@@ -52,6 +59,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const savedUser = getStorage<User>(StorageKeys.USER);
       if (savedUser && savedUser.role && savedUser.email) {
         setUser(savedUser);
+        
+        // Load last activity from localStorage for cross-tab sync
+        const savedActivity = localStorage.getItem(ACTIVITY_STORAGE_KEY);
+        if (savedActivity) {
+          const activityTime = parseInt(savedActivity, 10);
+          if (!isNaN(activityTime)) {
+            setLastActivity(activityTime);
+          }
+        }
       } else if (savedUser) {
         // Data user tidak lengkap, clear storage
         console.warn("Incomplete user data in storage, clearing...");
@@ -64,6 +80,136 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setIsLoading(false);
     }
   }, []);
+
+  // Session timeout management
+  useEffect(() => {
+    if (!user) return;
+
+    let timeoutId: NodeJS.Timeout;
+
+    const checkIdleTimeout = () => {
+      const now = Date.now();
+      const timeSinceLastActivity = now - lastActivity;
+
+      if (timeSinceLastActivity >= IDLE_TIMEOUT) {
+        // Session expired
+        handleSessionExpired();
+      } else if (
+        timeSinceLastActivity >= (IDLE_TIMEOUT - WARNING_BEFORE_TIMEOUT) &&
+        !hasShownWarning
+      ) {
+        // Show warning 5 minutes before timeout
+        setHasShownWarning(true);
+        showIdleWarning();
+        // Continue checking
+        timeoutId = setTimeout(checkIdleTimeout, 60 * 1000);
+      } else {
+        // Check again in 1 minute
+        timeoutId = setTimeout(checkIdleTimeout, 60 * 1000);
+      }
+    };
+
+    const showIdleWarning = async () => {
+      // Show warning toast - non-blocking
+      const Toast = (await import("sweetalert2")).default.mixin({
+        toast: true,
+        position: "top-end",
+        showConfirmButton: false,
+        timer: 5000,
+        timerProgressBar: true,
+        didOpen: (toast) => {
+          toast.addEventListener("mouseenter", Toast.stopTimer);
+          toast.addEventListener("mouseleave", Toast.resumeTimer);
+        },
+      });
+
+      Toast.fire({
+        icon: "warning",
+        title: "Sesi Akan Berakhir",
+        text: "Sesi Anda akan berakhir dalam 5 menit karena tidak ada aktivitas. Lakukan aktivitas untuk tetap login.",
+      });
+    };
+
+    const handleSessionExpired = async () => {
+      // Clear user data
+      setUser(null);
+      queryClient.clear();
+      clearAuth();
+      
+      // Clear activity storage for cross-tab sync
+      try {
+        localStorage.removeItem(ACTIVITY_STORAGE_KEY);
+      } catch (error) {
+        console.warn("Failed to clear activity storage:", error);
+      }
+
+      // Show session expired message
+      await import("sweetalert2").then((Swal) => {
+        Swal.default.fire({
+          icon: "warning",
+          title: "Sesi Berakhir",
+          text: "Sesi Anda telah berakhir karena tidak aktif selama 30 menit. Silakan login kembali.",
+          confirmButtonColor: "#336d82",
+          allowOutsideClick: false,
+          allowEscapeKey: false,
+        }).then(() => {
+          // Redirect to login page instead of splash
+          router.push("/login");
+        });
+      });
+    };
+
+    const resetIdleTimer = () => {
+      const now = Date.now();
+      setLastActivity(now);
+      
+      // Sync to localStorage for cross-tab communication
+      try {
+        localStorage.setItem(ACTIVITY_STORAGE_KEY, now.toString());
+      } catch (error) {
+        console.warn("Failed to sync activity to localStorage:", error);
+      }
+      
+      // Reset warning flag when user is active again
+      if (hasShownWarning) {
+        setHasShownWarning(false);
+      }
+    };
+
+    // Cross-tab sync: Listen for activity updates from other tabs
+    const handleStorageChange = (event: StorageEvent) => {
+      if (event.key === ACTIVITY_STORAGE_KEY && event.newValue) {
+        const activityTime = parseInt(event.newValue, 10);
+        if (!isNaN(activityTime)) {
+          setLastActivity(activityTime);
+          // Reset warning if activity detected from another tab
+          if (hasShownWarning) {
+            setHasShownWarning(false);
+          }
+        }
+      }
+    };
+
+    // Activity listeners
+    const events = ["mousedown", "keydown", "scroll", "touchstart", "click"];
+    events.forEach((event) => {
+      window.addEventListener(event, resetIdleTimer);
+    });
+
+    // Storage listener for cross-tab sync
+    window.addEventListener("storage", handleStorageChange);
+
+    // Start checking
+    timeoutId = setTimeout(checkIdleTimeout, 60 * 1000);
+
+    return () => {
+      clearTimeout(timeoutId);
+      events.forEach((event) => {
+        window.removeEventListener(event, resetIdleTimer);
+      });
+      window.removeEventListener("storage", handleStorageChange);
+    };
+  }, [user, lastActivity, hasShownWarning, router, queryClient]);
 
   const login = async (email: string, password: string, expectedRole?: string) => {
     try {
@@ -122,6 +268,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setCookie("token", token, { maxAge: 86400 }); // 1 day
       setCookie("role", user.role, { maxAge: 86400 });
 
+      // Initialize activity timestamp for cross-tab sync
+      try {
+        const now = Date.now();
+        localStorage.setItem(ACTIVITY_STORAGE_KEY, now.toString());
+        setLastActivity(now);
+      } catch (error) {
+        console.warn("Failed to initialize activity storage:", error);
+      }
+
       // Note: Redirect dilakukan di halaman login, bukan di sini
       // Ini untuk menghindari race condition dengan cookie management
     } catch (error) {
@@ -152,6 +307,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setUser(null);
       queryClient.clear(); // Clear semua React Query cache
       clearAuth(); // Clear localStorage dan cookies dengan prefix adaptivin_user_
+      
+      // Clear activity storage for cross-tab sync
+      try {
+        localStorage.removeItem(ACTIVITY_STORAGE_KEY);
+      } catch (error) {
+        console.warn("Failed to clear activity storage:", error);
+      }
+      
       router.push("/splash");
     }
   };

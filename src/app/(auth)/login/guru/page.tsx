@@ -1,14 +1,16 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, Suspense } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import swal from "sweetalert";
 
-const LoginGuruPage = () => {
+// Komponen terpisah untuk handle searchParams
+function LoginFormWithRedirect() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { login } = useAuth();
 
   const [email, setEmail] = useState("");
@@ -38,7 +40,16 @@ const LoginGuruPage = () => {
         className: "swal-custom",
       });
 
-      router.push("/guru/dashboard");
+      // Check if there's a redirect parameter (from protected route access attempt)
+      const redirectPath = searchParams.get("redirect");
+      
+      if (redirectPath && redirectPath.startsWith("/guru")) {
+        // Redirect to intended destination
+        router.push(redirectPath);
+      } else {
+        // Default: Redirect to dashboard
+        router.push("/guru/dashboard");
+      }
     } catch (error: unknown) {
       setIsLoading(false);
 
@@ -352,6 +363,21 @@ const LoginGuruPage = () => {
         }
       `}</style>
     </div>
+  );
+}
+
+// Main component dengan Suspense boundary
+const LoginGuruPage = () => {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center" style={{
+        background: "linear-gradient(180deg, #33A1E0 0.03%, #0A3D60 124.56%)",
+      }}>
+        <div className="text-white text-xl">Loading...</div>
+      </div>
+    }>
+      <LoginFormWithRedirect />
+    </Suspense>
   );
 };
 

@@ -407,11 +407,19 @@ export default function PilihKarakterPage() {
         {/* Select Button - Medium for Desktop */}
         <div className="flex justify-center mt-5 sm:mt-6 md:mt-7 px-4 sm:px-6 md:px-8">
           <button
-            onClick={() => {
-              handleSelectCharacter(centerCharacterId);
-              triggerConfetti();
+            type="button"
+            onClick={async () => {
+              if (!centerCharacterId) return;
+              
+              try {
+                await handleSelectCharacter(centerCharacterId);
+                triggerConfetti();
+              } catch (error) {
+                console.error("Error selecting character:", error);
+              }
             }}
-            className="relative group text-white text-sm sm:text-[15px] md:text-[15px] font-bold px-8 sm:px-10 md:px-11 py-2.5 sm:py-3 md:py-3 rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 active:scale-95 md:hover:scale-105 md:hover:-translate-y-1 overflow-hidden"
+            disabled={!centerCharacterId}
+            className="relative group text-white text-sm sm:text-[15px] md:text-[15px] font-bold px-8 sm:px-10 md:px-11 py-2.5 sm:py-3 md:py-3 rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 active:scale-95 md:hover:scale-105 md:hover:-translate-y-1 overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:translate-y-0"
             style={{
               background:
                 "linear-gradient(180deg, #33A1E0 0.03%, #0A3D60 124.56%)",

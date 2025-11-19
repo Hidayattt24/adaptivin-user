@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Add as AddIcon, FolderCopy } from "@mui/icons-material";
 import {
@@ -33,6 +33,7 @@ const SoalListPage = () => {
   const [selectedMateri, setSelectedMateri] = useState<string | null>(null);
   const [previewQuestion, setPreviewQuestion] = useState<Question | null>(null);
   const [previewNumber, setPreviewNumber] = useState(0);
+  const [searchQuery, setSearchQuery] = useState<string>("");
 
   // Fetch materi dropdown filtered by kelas_id
   const { data: materiList = [], isLoading: isLoadingMateri } = useMateriDropdown(kelasId);
@@ -60,6 +61,30 @@ const SoalListPage = () => {
 
   const isLoading = isLoadingMateri || isLoadingSoal;
 
+  // Filter soal based on search query
+  const filteredSoalList = useMemo(() => {
+    if (!searchQuery.trim()) return soalList;
+
+    const searchLower = searchQuery.toLowerCase();
+    return soalList.filter((soal) => {
+      // Search in question text
+      const inQuestionText = soal.soal_teks?.toLowerCase().includes(searchLower);
+      
+      // Search in answers
+      const inAnswers = soal.jawaban?.some((jawab) =>
+        jawab.isi_jawaban.toLowerCase().includes(searchLower)
+      );
+      
+      // Search in explanation
+      const inExplanation = soal.penjelasan?.toLowerCase().includes(searchLower);
+      
+      // Search in level
+      const inLevel = soal.level_soal?.toLowerCase().includes(searchLower);
+
+      return inQuestionText || inAnswers || inExplanation || inLevel;
+    });
+  }, [soalList, searchQuery]);
+
   // Calculate statistics from backend data or from current soalList
   const totalSoal = soalList.length;
   const levelStats = {
@@ -71,11 +96,11 @@ const SoalListPage = () => {
     Level6: soalCount?.level6 || soalList.filter(s => s.level_soal === 'level6').length,
   };
 
-  // Pagination
-  const totalPages = Math.ceil(soalList.length / itemsPerPage);
+  // Pagination - use filtered list
+  const totalPages = Math.ceil(filteredSoalList.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const currentSoalList = soalList.slice(startIndex, endIndex);
+  const currentSoalList = filteredSoalList.slice(startIndex, endIndex);
 
   // Convert backend soal data to Question format for preview
   const convertSoalToQuestion = (soal: typeof soalList[0]): Question => {
@@ -203,6 +228,53 @@ const SoalListPage = () => {
         />
       </div>
 
+      {/* Search Bar */}
+      <div className="mb-4 sm:mb-5 md:mb-6">
+        <div className="relative">
+          <input
+            type="text"
+            placeholder="Cari soal berdasarkan teks, jawaban, penjelasan, atau level..."
+            value={searchQuery}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setCurrentPage(1); // Reset to first page when searching
+            }}
+            className="w-full pl-11 sm:pl-12 pr-11 sm:pr-12 py-3 sm:py-3.5 md:py-4 text-sm sm:text-base rounded-xl sm:rounded-2xl bg-white border-2 border-gray-200 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#336d82] focus:border-[#336d82] transition-all duration-300 text-gray-800 placeholder-gray-500 poppins-regular"
+          />
+          <div className="absolute inset-y-0 left-0 pl-3 sm:pl-4 flex items-center pointer-events-none">
+            <svg
+              className="w-5 h-5 text-[#336d82]"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              />
+            </svg>
+          </div>
+          {searchQuery && (
+            <button
+              onClick={() => {
+                setSearchQuery("");
+                setCurrentPage(1);
+              }}
+              className="absolute inset-y-0 right-0 pr-3 sm:pr-4 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
+            >
+              <span className="text-2xl">×</span>
+            </button>
+          )}
+        </div>
+        {searchQuery && (
+          <p className="mt-2 text-xs sm:text-sm text-gray-600 poppins-medium">
+            Menampilkan {filteredSoalList.length} hasil dari {soalList.length} soal untuk &quot;{searchQuery}&quot;
+          </p>
+        )}
+      </div>
+
       {/* Loading State */}
       {isLoading ? (
         <>
@@ -260,6 +332,37 @@ const SoalListPage = () => {
               title="Belum Ada Soal"
               message="Mulai buat soal pertama untuk materi ini"
             />
+          ) : filteredSoalList.length === 0 && searchQuery ? (
+            <div className="bg-white rounded-xl sm:rounded-2xl shadow-xl p-8 sm:p-12 text-center">
+              <svg
+                className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 text-gray-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+              <h3 className="text-gray-700 text-xl sm:text-2xl poppins-bold mb-2">
+                Tidak Ada Hasil
+              </h3>
+              <p className="text-gray-600 text-sm sm:text-base poppins-regular mb-4">
+                Tidak ada soal yang sesuai dengan pencarian &quot;{searchQuery}&quot;
+              </p>
+              <button
+                onClick={() => {
+                  setSearchQuery("");
+                  setCurrentPage(1);
+                }}
+                className="bg-[#336d82] hover:bg-[#2a5a6d] text-white px-6 py-2.5 rounded-lg poppins-semibold transition-colors text-sm"
+              >
+                Hapus Pencarian
+              </button>
+            </div>
           ) : (
             <>
               <div className="space-y-4 sm:space-y-5 md:space-y-6 mb-6 sm:mb-7 md:mb-8" role="list" aria-label="Daftar soal">

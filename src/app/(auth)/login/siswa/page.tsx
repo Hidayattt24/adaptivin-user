@@ -1,14 +1,16 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, Suspense } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import swal from "sweetalert";
 
-const LoginSiswaPage = () => {
+// Komponen terpisah untuk handle searchParams
+function LoginFormWithRedirect() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { login } = useAuth();
 
   const [email, setEmail] = useState("");
@@ -41,8 +43,16 @@ const LoginSiswaPage = () => {
         className: "swal-custom",
       });
 
-      // Redirect ke onboarding dengan replace untuk menghindari history
-      router.replace("/siswa/onboarding");
+      // Check if there's a redirect parameter (from protected route access attempt)
+      const redirectPath = searchParams.get("redirect");
+      
+      if (redirectPath && redirectPath.startsWith("/siswa")) {
+        // Redirect to intended destination
+        router.replace(redirectPath);
+      } else {
+        // Default: Redirect ke onboarding dengan replace untuk menghindari history
+        router.replace("/siswa/onboarding");
+      }
     } catch (error: unknown) {
       setIsLoading(false);
 
@@ -376,6 +386,21 @@ const LoginSiswaPage = () => {
         }
       `}</style>
     </div>
+  );
+}
+
+// Main component dengan Suspense boundary
+const LoginSiswaPage = () => {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center" style={{
+        background: "linear-gradient(180deg, #33A1E0 0.03%, #0A3D60 124.56%)",
+      }}>
+        <div className="text-white text-xl">Loading...</div>
+      </div>
+    }>
+      <LoginFormWithRedirect />
+    </Suspense>
   );
 };
 

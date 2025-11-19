@@ -276,6 +276,7 @@ const DashboardGuruPage = () => {
                   id={kelas.id}
                   nama={kelas.nama}
                   jumlahSiswa={kelas.jumlahSiswa}
+                  jumlahMateri={kelas.jumlahMateri}
                   color={getCardColor(cardIndex)}
                   studentProfiles={kelas.studentProfiles.length > 0
                     ? kelas.studentProfiles

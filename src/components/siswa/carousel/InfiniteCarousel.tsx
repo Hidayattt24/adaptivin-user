@@ -32,6 +32,7 @@ export default function InfiniteCarousel({
   const [isMounted, setIsMounted] = useState(false);
   const [showScrollHint, setShowScrollHint] = useState(true);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const isNavigatingRef = useRef(false); // Flag to prevent scroll handler override
 
   // Set mounted state after hydration
   useEffect(() => {
@@ -44,13 +45,19 @@ export default function InfiniteCarousel({
     if (!container) return;
 
     const getCardWidth = () => {
-      // Responsive card width based on screen size
-      if (window.innerWidth >= 1024) return 320 + 32; // lg: larger cards
-      if (window.innerWidth >= 768) return 290 + 28; // md: medium cards
-      return 263 + 24; // mobile: default cards
+      // Responsive card width + gap based on screen size (must match CSS gap classes)
+      if (window.innerWidth >= 1024) return 320 + 32; // lg: card + gap-8 (32px)
+      if (window.innerWidth >= 768) return 290 + 28; // md: card + gap-7 (28px)
+      if (window.innerWidth >= 640) return 263 + 24; // sm: card + gap-6 (24px)
+      return 263 + 20; // mobile: card + gap-5 (20px)
     };
 
     const handleScroll = () => {
+      // Skip if currently navigating via buttons
+      if (isNavigatingRef.current) {
+        return;
+      }
+
       // Hide scroll hint after first scroll
       if (showScrollHint) {
         setShowScrollHint(false);
@@ -58,7 +65,7 @@ export default function InfiniteCarousel({
 
       const scrollLeft = container.scrollLeft;
       const containerWidth = container.offsetWidth;
-      const cardWidth = getCardWidth();
+      const totalCardWidth = getCardWidth(); // card width + gap
       const maxScroll = container.scrollWidth - containerWidth;
 
       // Calculate center of viewport
@@ -68,18 +75,31 @@ export default function InfiniteCarousel({
       let closestIndex = 0;
       let closestDistance = Infinity;
 
+      // Get actual card width without gap
+      let cardWidth = 263;
+      if (window.innerWidth >= 1024) cardWidth = 320;
+      else if (window.innerWidth >= 768) cardWidth = 290;
+
+      // First card margin (to center it)
+      const firstCardMargin = containerWidth / 2 - cardWidth / 2;
+
       for (let i = 0; i < items.length; i++) {
         // Calculate card center position
         let cardCenter;
+        
         if (i === 0) {
-          // First card starts at center
+          // First card - centered by margin
           cardCenter = containerWidth / 2;
         } else if (i === items.length - 1) {
-          // Last card ends at center from the right
+          // Last card - at the end
           cardCenter = maxScroll + containerWidth / 2;
         } else {
-          // Middle cards
-          cardCenter = containerWidth / 2 + cardWidth * i;
+          // Middle cards - accumulate position from first card
+          let cardPosition = firstCardMargin;
+          for (let j = 0; j < i; j++) {
+            cardPosition += totalCardWidth;
+          }
+          cardCenter = cardPosition + cardWidth / 2;
         }
 
         const distance = Math.abs(viewportCenter - cardCenter);
@@ -116,35 +136,54 @@ export default function InfiniteCarousel({
 
   // Navigate to specific card
   const scrollToCard = useCallback(
-    (index: number) => {
+    (index: number, isButtonNavigation = false) => {
       const container = scrollContainerRef.current;
       if (!container) return;
 
-      // Responsive card dimensions
+      // Set navigation flag if this is from button click
+      if (isButtonNavigation) {
+        isNavigatingRef.current = true;
+        // Update activeIndex immediately
+        setActiveIndex(index);
+      }
+
+      // Responsive card dimensions and gaps (must match CSS gap classes)
       let cardWidth = 263;
-      let gap = 24;
+      let gap = 20; // gap-5 = 1.25rem = 20px (mobile default)
 
       if (window.innerWidth >= 1024) {
         cardWidth = 320;
-        gap = 32;
+        gap = 32; // gap-8 = 2rem = 32px
       } else if (window.innerWidth >= 768) {
         cardWidth = 290;
-        gap = 28;
+        gap = 28; // gap-7 = 1.75rem = 28px
+      } else if (window.innerWidth >= 640) {
+        gap = 24; // gap-6 = 1.5rem = 24px
       }
 
       const containerWidth = container.offsetWidth;
-      const totalCardWidth = cardWidth + gap;
-
+      
       // Calculate scroll position to center the card perfectly
       let scrollLeft = 0;
 
       if (index === 0) {
+        // First card - already centered by left margin
         scrollLeft = 0;
       } else if (index === items.length - 1) {
+        // Last card - scroll to end
         scrollLeft = container.scrollWidth - containerWidth;
       } else {
-        // For middle cards, center them
-        const cardPosition = totalCardWidth * index;
+        // Middle cards - need to account for first card's left margin
+        // First card has margin-left of (50% - cardWidth/2)
+        const firstCardMargin = containerWidth / 2 - cardWidth / 2;
+        
+        // Each card position = firstCardMargin + sum of (cardWidth + gap) for cards before it
+        let cardPosition = firstCardMargin;
+        for (let i = 0; i < index; i++) {
+          cardPosition += cardWidth + gap;
+        }
+        
+        // To center this card, scroll so it's at containerWidth / 2
         scrollLeft = cardPosition - containerWidth / 2 + cardWidth / 2;
       }
 
@@ -153,6 +192,13 @@ export default function InfiniteCarousel({
         left: scrollLeft,
         behavior: "smooth",
       });
+
+      // Reset navigation flag after scroll completes
+      if (isButtonNavigation) {
+        setTimeout(() => {
+          isNavigatingRef.current = false;
+        }, 500); // Match smooth scroll duration
+      }
     },
     [items.length]
   );
@@ -161,16 +207,14 @@ export default function InfiniteCarousel({
   const handlePrevious = () => {
     if (activeIndex > 0) {
       const newIndex = activeIndex - 1;
-      setActiveIndex(newIndex);
-      scrollToCard(newIndex);
+      scrollToCard(newIndex, true); // Pass true for button navigation
     }
   };
 
   const handleNext = () => {
     if (activeIndex < items.length - 1) {
       const newIndex = activeIndex + 1;
-      setActiveIndex(newIndex);
-      scrollToCard(newIndex);
+      scrollToCard(newIndex, true); // Pass true for button navigation
     }
   };
 

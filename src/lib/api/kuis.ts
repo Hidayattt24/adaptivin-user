@@ -119,6 +119,40 @@ export async function deleteKuis(kuisId: string) {
   return extractData<null>(res);
 }
 
+/**
+ * Dapatkan jumlah siswa yang sudah mengerjakan kuis
+ * @param kuisId - ID kuis
+ * @returns Statistics of quiz completion
+ */
+export async function getKuisCompletionCount(kuisId: string): Promise<{
+  total: number;
+  completed: number;
+  inProgress: number;
+}> {
+  try {
+    // Get all hasil kuis for this kuis using query parameter
+    const res = await api.get(`/hasil-kuis`, {
+      params: { kuis_id: kuisId }
+    });
+    
+    const hasilKuisList = extractData<Array<{
+      id: string;
+      selesai: boolean;
+      siswa_id: string;
+    }>>(res);
+
+    // Calculate statistics based on selesai field
+    const completed = hasilKuisList.filter(hasil => hasil.selesai === true).length;
+    const inProgress = hasilKuisList.filter(hasil => hasil.selesai === false).length;
+    const total = hasilKuisList.length;
+
+    return { total, completed, inProgress };
+  } catch (error) {
+    console.error("Error fetching quiz completion count:", error);
+    return { total: 0, completed: 0, inProgress: 0 };
+  }
+}
+
 // ==================== ADAPTIVE QUIZ ====================
 
 export interface JawabanSoal {
@@ -296,4 +330,53 @@ export async function getHasilKuisById(hasilKuisId: string) {
 export async function getRiwayatKuisByMateri(materiId: string) {
   const res = await api.get(`/hasil-kuis/riwayat/materi/${materiId}`);
   return extractData<HasilKuisSiswa[]>(res);
+}
+
+/**
+ * Cek apakah siswa sudah menyelesaikan kuis untuk materi tertentu
+ * @param materiId - ID materi
+ */
+export async function checkMateriCompletion(materiId: string): Promise<boolean> {
+  try {
+    const riwayat = await getRiwayatKuisByMateri(materiId);
+    // Return true jika ada hasil kuis yang selesai
+    return riwayat.some(hasil => hasil.selesai);
+  } catch (error) {
+    console.error("Error checking materi completion:", error);
+    return false;
+  }
+}
+
+/**
+ * Cek banyak materi sekaligus untuk efisiensi
+ * @param kelasId - ID kelas
+ */
+export async function getMateriCompletionStatus(kelasId: string) {
+  try {
+    const res = await api.get(`/hasil-kuis/riwayat/kelas/${kelasId}`);
+    const riwayat = extractData<HasilKuisSiswa[]>(res);
+    
+    // Group by materi_id dan cek completion
+    const completionMap: Record<string, boolean> = {};
+    
+    for (const hasil of riwayat) {
+      // Get kuis info to map to materi
+      if (hasil.kuis_id && hasil.selesai) {
+        // We'll need to fetch kuis to get materi_id
+        try {
+          const kuis = await getKuisById(hasil.kuis_id);
+          if (kuis.materi_id) {
+            completionMap[kuis.materi_id] = true;
+          }
+        } catch (err) {
+          console.error("Error fetching kuis:", err);
+        }
+      }
+    }
+    
+    return completionMap;
+  } catch (error) {
+    console.error("Error getting materi completion status:", error);
+    return {};
+  }
 }

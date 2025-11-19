@@ -124,7 +124,9 @@ export async function updateMyPassword(payload: {
   newPassword: string;
 }) {
   const res = await api.put(`/users/me/password`, payload);
-  return extractData<Record<string, unknown>>(res);
+  // Password update tidak return data, hanya perlu cek success
+  // Pass allowNull=true untuk allow empty/null data response
+  return extractData<Record<string, unknown> | null>(res, true);
 }
 
 // Interface untuk Siswa di kelas

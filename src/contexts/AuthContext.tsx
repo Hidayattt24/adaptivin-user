@@ -220,9 +220,30 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         body: JSON.stringify({ email, password, expectedRole }),
       });
 
+      // Check content type before parsing
+      const contentType = res.headers.get("content-type");
+      const isJson = contentType?.includes("application/json");
+
       if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.error || errorData.message || "Login gagal");
+        // Try to parse error as JSON, fallback to text
+        let errorMessage = "Login gagal";
+        try {
+          if (isJson) {
+            const errorData = await res.json();
+            errorMessage = errorData.error || errorData.message || `Server error: ${res.status}`;
+          } else {
+            const errorText = await res.text();
+            errorMessage = `Server error: ${errorText.substring(0, 100)}` || `HTTP ${res.status}`;
+          }
+        } catch {
+          errorMessage = `Server error: HTTP ${res.status}`;
+        }
+        throw new Error(errorMessage);
+      }
+
+      // Parse response as JSON only if content-type is correct
+      if (!isJson) {
+        throw new Error("Server tidak mengembalikan response JSON yang valid");
       }
 
       const responseData = await res.json();
@@ -253,10 +274,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         throw new Error("Akses ditolak: role tidak sesuai");
       }
 
-      // PENTING: Clear semua cache dan storage sebelum login baru
       // Ini mencegah data user lama muncul di UI
-      queryClient.clear(); // Clear semua React Query cache
-      clearAuth(); // Clear localStorage dan cookies lama
+      queryClient.clear();
+      clearAuth();
 
       // Update state dengan user baru
       setUser(user);
@@ -283,7 +303,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         console.warn("Failed to initialize activity storage:", error);
       }
 
-      // Note: Redirect dilakukan di halaman login, bukan di sini
       // Ini untuk menghindari race condition dengan cookie management
     } catch (error) {
       const errorMessage =
@@ -311,8 +330,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     } finally {
       // Always clear client-side data
       setUser(null);
-      queryClient.clear(); // Clear semua React Query cache
-      clearAuth(); // Clear localStorage dan cookies dengan prefix adaptivin_user_
+      queryClient.clear();
+      clearAuth();
 
       // Clear activity storage for cross-tab sync
       try {

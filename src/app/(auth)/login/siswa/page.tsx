@@ -45,7 +45,7 @@ function LoginFormWithRedirect() {
 
       // Check if there's a redirect parameter (from protected route access attempt)
       const redirectPath = searchParams.get("redirect");
-      
+
       if (redirectPath && redirectPath.startsWith("/siswa")) {
         // Redirect to intended destination
         router.replace(redirectPath);
@@ -121,7 +121,7 @@ function LoginFormWithRedirect() {
                   className="block text-sm poppins-semibold mb-2"
                   style={{ color: "#1C6EA4" }}
                 >
-                  Username atau Email
+                  Email
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -147,7 +147,7 @@ function LoginFormWithRedirect() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="w-full pl-10 pr-4 py-3 text-gray-700 border border-gray-300 rounded-xl transition-all duration-200 poppins-regular focus-1c6ea4"
-                    placeholder="Masukkan username atau email"
+                    placeholder="Masukkan email"
                     required
                     disabled={isLoading}
                   />
@@ -392,13 +392,19 @@ function LoginFormWithRedirect() {
 // Main component dengan Suspense boundary
 const LoginSiswaPage = () => {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center" style={{
-        background: "linear-gradient(180deg, #33A1E0 0.03%, #0A3D60 124.56%)",
-      }}>
-        <div className="text-white text-xl">Loading...</div>
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div
+          className="min-h-screen flex items-center justify-center"
+          style={{
+            background:
+              "linear-gradient(180deg, #33A1E0 0.03%, #0A3D60 124.56%)",
+          }}
+        >
+          <div className="text-white text-xl">Loading...</div>
+        </div>
+      }
+    >
       <LoginFormWithRedirect />
     </Suspense>
   );

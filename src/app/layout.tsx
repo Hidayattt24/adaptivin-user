@@ -23,6 +23,9 @@ export const metadata: Metadata = {
   title: "Adaptivin - Sistem AI Pembelajaran Matematika SD",
   description:
     "Sistem AI Berbasis Web untuk Identifikasi Kesulitan dan Rekomendasi Belajar Matematika Siswa SD",
+  icons: {
+    icon: "/icon.svg",
+  },
 };
 
 export default function RootLayout({
